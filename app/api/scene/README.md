@@ -10,7 +10,7 @@
 - The Next.js app is already scaffolded. Run `npm ci` and `npm run dev`. Builder B owns the game client, layout, and styling; this API requires no frontend or package changes. If the app moves to `src/app`, move this entire directory to `src/app/api/scene` instead; do not keep both app trees.
 - Use relative `/api/scene` calls from the app. Cross-origin browser access is not enabled; a separately hosted client should proxy requests through its own server.
 
-Without `KIMI_API_KEY`, the API keeps the integration stub: a fixed kindness story in the selected language ending on the third response. With a key, it calls Kimi with the lesson, language, age, learned words, and selected-choice history. Both modes return the same JSON contract.
+Without `KIMI_API_KEY`, the API keeps the integration stub: a fixed kindness story ending on the third response, with narration in the other language and vocabulary words in the selected learning language. With a key, it calls Kimi with the lesson, language, age, learned words, and selected-choice history. Both modes return the same JSON contract.
 
 ## Builder A: server configuration
 
@@ -54,7 +54,7 @@ if (!response.ok) throw new Error(data.error.message);
 
 1. Start with empty `history` and `wordsLearned`.
 2. After a choice, append `{ narration: currentScene.narration, choice: selectedChoice }` to history and add the displayed words to `wordsLearned` (deduplicated). Send the updated state for the next scene.
-3. Narration, words, and choices use the selected language. Word meanings use the other language. `newWords` may be empty.
+3. `language` is the language the child is learning. Only `newWords[].word` uses it. Narration, choices, and `newWords[].meaning` use the other language, including stub, fallback, and ending scenes. For `ko`, words are Korean and narration/choices/meanings are English; for `en`, the reverse applies. `newWords` may be empty.
 4. When `lessonComplete` is true, `choices` is empty: render the ending and stop requesting scenes.
 5. The engine allows up to eight scenes, counting the first and ending scenes. At seven history entries, the server returns a closing without calling the model. The stub ends after three so the complete UI flow is easy to check.
 6. Requests are stateless. Retrying the same stub request returns the same scene. Disable choice buttons while loading to avoid duplicate history entries.

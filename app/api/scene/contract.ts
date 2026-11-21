@@ -3,6 +3,7 @@ export type SceneLanguage = "en" | "ko";
 
 export interface SceneRequest {
   lesson: string;
+  /** Language the child is learning; narration and choices use the other language. */
   language: SceneLanguage;
   age: number;
   wordsLearned: string[];
@@ -11,10 +12,11 @@ export interface SceneRequest {
 }
 
 export interface SceneResponse {
+  /** Uses the other language, matching vocabulary meanings. */
   narration: string;
   /** word uses the selected language; meaning uses the other language. */
   newWords: { word: string; meaning: string }[];
-  /** Empty when lessonComplete is true. */
+  /** Uses the other language; empty when lessonComplete is true. */
   choices: string[];
   lessonComplete: boolean;
 }
