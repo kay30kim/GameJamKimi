@@ -13,7 +13,7 @@ import type {
   SceneRequest,
   SceneResponse,
 } from "@/app/api/scene/contract";
-import { fetchScene } from "@/lib/scene";
+import { dedupeWords, fetchScene, nextSceneRequest, prefetch } from "@/lib/scene";
 import {
   isListeningSupported,
   listenOnce,
@@ -46,20 +46,6 @@ const CUSTOM_LESSON = "custom";
 const subscribeToListeningSupport = () => () => {};
 const getServerListeningSupport = () => false;
 
-function dedupeWords(words: string[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const word of words) {
-    const trimmed = word.trim();
-    const key = trimmed.toLowerCase();
-    if (!trimmed || seen.has(key)) continue;
-    seen.add(key);
-    result.push(trimmed);
-  }
-
-  return result;
-}
 
 function StoryStage({
   loading = false,
@@ -225,24 +211,10 @@ export default function Home() {
       return;
     }
 
-    const nextWords = dedupeWords([
-      ...wordsLearned,
-      ...scene.newWords.map(({ word }) => word),
-    ]);
-    const nextHistory = [
-      ...history,
-      { narration: scene.narration, choice },
-    ];
-
-    setWordsLearned(nextWords);
-    setHistory(nextHistory);
-    void runRequest({
-      lesson: settings.lesson,
-      language: settings.language,
-      age: settings.age,
-      wordsLearned: nextWords,
-      history: nextHistory,
-    });
+    const request = nextSceneRequest(settings, history, wordsLearned, scene, choice);
+    setWordsLearned(request.wordsLearned);
+    setHistory(request.history);
+    void runRequest(request);
   }
 
   function retryLastRequest() {
@@ -311,6 +283,21 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (phase !== "setup" || !lesson) return;
+    const timer = setTimeout(() => {
+      prefetch({ lesson, language, age, history: [], wordsLearned: [] });
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [phase, lesson, language, age]);
+
+  useEffect(() => {
+    if (phase !== "scene" || !scene || !settings || scene.lessonComplete) return;
+    for (const choice of scene.choices) {
+      prefetch(nextSceneRequest(settings, history, wordsLearned, scene, choice));
+    }
+  }, [phase, scene, settings, history, wordsLearned]);
+
+  useEffect(() => {
     speechGeneration.current += 1;
     stopSpeaking();
 
@@ -349,9 +336,9 @@ export default function Home() {
 
       <div className={styles.brand}>
         <span className={styles.brandMark} aria-hidden="true">
-          G
+          K
         </span>
-        <span>GameJamKimi</span>
+        <span>KimiTales</span>
       </div>
 
       {phase === "setup" && (

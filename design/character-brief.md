@@ -3,7 +3,7 @@
 
 ## Character Overview
 Kimi is the friendly mascot and storytelling companion
-of GameJamKimi. Kimi guides young children through
+of KimiTales. Kimi guides young children through
 interactive stories that teach positive life lessons.
 
 ## Appearance
