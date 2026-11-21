@@ -1,4 +1,5 @@
 import { ACTORS, PROPS, SPOTS } from "../world";
+import { clearLine, plan, pushOut } from "./obstacles";
 import type { ActorId, Beat, Emotion, PropId, Spot, Stage } from "../world";
 
 /** A point on the ground, [x, z] in meters, matching lib/world.ts. */
@@ -27,6 +28,8 @@ export interface ActorState {
   sitting: boolean;
   /** Who a hug or help leans toward. */
   facing?: ActorId;
+  /** The prop this actor is walking up to pick up, so it doesn't kick it away. */
+  reaching?: PropId;
   emotion?: Emotion;
   emotionLeft: number;
 }
@@ -37,6 +40,9 @@ export interface PropState {
   holder?: ActorId;
   x: number;
   z: number;
+  /** Rolling speed on the ground, in meters per second. Only the ball rolls. */
+  vx: number;
+  vz: number;
 }
 
 export interface Sim {
@@ -45,12 +51,19 @@ export interface Sim {
   /** True once every beat has played. */
   done: boolean;
   step(dt: number): void;
+  /** True while two characters are allowed to be closer than touching, such as during a hug. */
+  together(a: ActorId, b: ActorId): boolean;
 }
 
 const WALK_SPEED = 1.8;
 const RUN_SPEED = 3.6;
 /** Body radius on the ground, so characters keep their distance instead of walking through each other. */
-const RADIUS: Record<ActorId, number> = { hero: 0.38, friend: 0.42, puppy: 0.45, grownup: 0.5 };
+export const RADIUS: Record<ActorId, number> = { hero: 0.38, friend: 0.42, puppy: 0.45, grownup: 0.5 };
+/** Footprint of each prop lying on the ground. Bodies push these aside instead of standing in them. */
+export const PROP_RADIUS: Record<PropId, number> = { ball: 0.22, apple: 0.16, flower: 0.12, book: 0.24, kite: 0.3, umbrella: 0.25 };
+/** How hard a walker's bump sends the ball rolling, and how quickly grass slows it down. */
+const KICK_SPEED = 1.6;
+const ROLL_FRICTION = 1.4;
 /** Gap between two bodies when one walks up to talk to or give something to the other. */
 const CHAT_GAP = 0.35;
 /** How far ahead a walker starts steering around someone in the way. */
@@ -78,7 +91,7 @@ export function createSim(stage: Stage): Sim {
   for (const { actor, at } of stage.cast) bySpot.set(at, [...(bySpot.get(at) ?? []), actor]);
   for (const [spot, ids] of bySpot) {
     ids.forEach((id, slot) => {
-      const [x, z] = standingPoint(spot, slot, ids.length);
+      const [x, z] = pushOut(...standingPoint(spot, slot, ids.length), RADIUS[id]);
       actors[id] = { id, x, z, heading: 0, pose: "idle", poseTime: 0, travelled: 0, sitting: false, emotionLeft: 0 };
     });
   }
@@ -87,10 +100,11 @@ export function createSim(stage: Stage): Sim {
   stage.props.forEach(({ prop, at }, index) => {
     if (at in ACTORS && actors[at as ActorId]) {
       const holder = actors[at as ActorId]!;
-      props[prop] = { id: prop, holder: holder.id, x: holder.x, z: holder.z };
+      props[prop] = { id: prop, holder: holder.id, x: holder.x, z: holder.z, vx: 0, vz: 0 };
     } else {
       const [x, z] = SPOTS[(at in SPOTS ? at : PROPS[prop].home) as Spot].position;
-      props[prop] = { id: prop, x: x + 0.7 + index * 0.5, z: z + 0.9 };
+      const [px, pz] = pushOut(x + 0.7 + index * 0.5, z + 0.9, PROP_RADIUS[prop]);
+      props[prop] = { id: prop, x: px, z: pz, vx: 0, vz: 0 };
     }
   });
 
@@ -115,19 +129,33 @@ export function createSim(stage: Stage): Sim {
   }
 
   /**
-   * Walk toward a point, steering around anyone in the way (except `ignore`, the one being
-   * approached). Gives up if blocked for a second, so a crowded spot never stalls the story.
+   * Walk toward a point along a route around the scenery, steering around anyone in the way
+   * (except `ignore`, the one being approached). Replans if the destination moves, and gives
+   * up if blocked for a second, so a crowded spot never stalls the story.
    */
   function* moveTo(a: ActorState, dest: () => Point, speed: number, stopShort = 0, ignore?: ActorId) {
     setPose(a, speed > WALK_SPEED ? "run" : "walk");
+    const radius = RADIUS[a.id];
+    let goal = dest();
+    let route = plan(at(a), pushOut(...goal, radius), radius);
     let best = Infinity, stuckFor = 0;
     for (;;) {
-      const target = dest();
-      const gap = distance(at(a), target) - stopShort;
-      if (gap <= 0.02) break;
-      if (gap < best - 0.03) { best = gap; stuckFor = 0; } else if ((stuckFor += dt) > 1) break;
+      const live = dest();
+      if (distance(live, goal) > 0.8) {
+        goal = live;
+        route = plan(at(a), pushOut(...goal, radius), radius);
+      }
+      // Drop waypoints already reached, or ones the walker can now cut straight past.
+      while (route.length > 1 && (distance(at(a), route[0]) < 0.25 || clearLine(at(a), route[1], radius))) route.shift();
+      const last = route.length === 1;
+      const aim = last ? pushOut(...live, radius) : route[0];
+      let left = distance(at(a), aim) - (last ? stopShort : 0);
+      for (let i = 1; i < route.length; i++) left += distance(route[i - 1], route[i]);
+      if (last && left <= 0.02) break;
+      if (left < best - 0.03) { best = left; stuckFor = 0; } else if ((stuckFor += dt) > 1) break;
 
-      let dx = (target[0] - a.x) / (gap + stopShort), dz = (target[1] - a.z) / (gap + stopShort);
+      const toAim = Math.max(distance(at(a), aim), 1e-6);
+      let dx = (aim[0] - a.x) / toAim, dz = (aim[1] - a.z) / toAim;
       for (const other of Object.values(actors)) {
         if (other === a || other.id === ignore) continue;
         const d = distance(at(a), at(other));
@@ -139,7 +167,7 @@ export function createSim(stage: Stage): Sim {
       }
       const length = Math.hypot(dx, dz) || 1;
       a.heading = Math.atan2(dx, dz);
-      const stride = Math.min(gap, speed * dt);
+      const stride = Math.min(last ? left : toAim + 0.05, speed * dt);
       a.x += (dx / length) * stride;
       a.z += (dz / length) * stride;
       a.travelled += stride;
@@ -164,9 +192,12 @@ export function createSim(stage: Stage): Sim {
       const holder = actor(prop.holder);
       if (holder) yield* approach(a, holder);
     } else {
+      a.reaching = id;
       yield* moveTo(a, () => [prop.x, prop.z], WALK_SPEED, RADIUS[a.id] + 0.15);
+      a.reaching = undefined;
     }
     prop.holder = a.id;
+    prop.vx = prop.vz = 0;
     yield* hold(a, "reach", 0.5);
   }
 
@@ -272,21 +303,82 @@ export function createSim(stage: Stage): Sim {
     }
   }
 
-  /** Push apart any two characters that overlap, so nobody ever walks through anyone. */
+  /**
+   * Push apart any two characters that overlap, and push everyone out of the scenery, so
+   * nobody walks through anyone or anything. A few passes settle crowds near a wall.
+   */
   function separate() {
     const list = Object.values(actors);
-    for (let i = 0; i < list.length; i++) {
-      for (let j = i + 1; j < list.length; j++) {
-        const a = list[i], b = list[j];
-        if (close.has(pairKey(a.id, b.id))) continue;
-        const d = distance(at(a), at(b));
-        const overlap = touching(a, b) - d;
-        if (overlap <= 0) continue;
-        const [nx, nz] = d > 1e-6 ? [(b.x - a.x) / d, (b.z - a.z) / d] : [1, 0];
-        a.x -= nx * overlap / 2;
-        a.z -= nz * overlap / 2;
-        b.x += nx * overlap / 2;
-        b.z += nz * overlap / 2;
+    for (let pass = 0; pass < 4; pass++) {
+      for (let i = 0; i < list.length; i++) {
+        for (let j = i + 1; j < list.length; j++) {
+          const a = list[i], b = list[j];
+          if (close.has(pairKey(a.id, b.id))) continue;
+          const d = distance(at(a), at(b));
+          const overlap = touching(a, b) - d;
+          if (overlap <= 0) continue;
+          const [nx, nz] = d > 1e-6 ? [(b.x - a.x) / d, (b.z - a.z) / d] : [1, 0];
+          a.x -= nx * overlap / 2;
+          a.z -= nz * overlap / 2;
+          b.x += nx * overlap / 2;
+          b.z += nz * overlap / 2;
+        }
+      }
+      for (const a of list) [a.x, a.z] = pushOut(a.x, a.z, RADIUS[a.id]);
+    }
+  }
+
+  /**
+   * Props on the ground get pushed aside by anyone who walks into them, instead of ending up
+   * inside a body. The ball gets a kick and rolls until the grass slows it, bouncing off scenery.
+   */
+  function moveProps(before: Map<ActorId, Point>) {
+    for (const prop of Object.values(props)) {
+      const holder = prop.holder ? actors[prop.holder] : undefined;
+      if (holder) {
+        prop.x = holder.x;
+        prop.z = holder.z;
+        prop.vx = prop.vz = 0;
+        continue;
+      }
+      const rolls = prop.id === "ball";
+      if (rolls) {
+        prop.x += prop.vx * dt;
+        prop.z += prop.vz * dt;
+        const slow = Math.exp(-ROLL_FRICTION * dt);
+        prop.vx *= slow;
+        prop.vz *= slow;
+        if (Math.hypot(prop.vx, prop.vz) < 0.03) prop.vx = prop.vz = 0;
+      }
+      const size = PROP_RADIUS[prop.id];
+      for (const a of Object.values(actors)) {
+        if (a.reaching === prop.id) continue;
+        const reach = RADIUS[a.id] + size;
+        const d = distance(at(a), [prop.x, prop.z]);
+        if (d >= reach) continue;
+        const [nx, nz] = d > 1e-6 ? [(prop.x - a.x) / d, (prop.z - a.z) / d] : [Math.sin(a.heading), Math.cos(a.heading)];
+        prop.x = a.x + nx * reach;
+        prop.z = a.z + nz * reach;
+        if (rolls) {
+          const [bx, bz] = before.get(a.id) ?? at(a);
+          const speed = Math.hypot(a.x - bx, a.z - bz) / Math.max(dt, 1e-6);
+          const kick = Math.max(KICK_SPEED, speed * 1.3);
+          prop.vx = nx * kick;
+          prop.vz = nz * kick;
+        }
+      }
+      const [x, z] = pushOut(prop.x, prop.z, size);
+      if (x !== prop.x || z !== prop.z) {
+        // Bounce off scenery, losing some speed.
+        const dx = x - prop.x, dz = z - prop.z, length = Math.hypot(dx, dz);
+        const nx = dx / length, nz = dz / length;
+        const into = prop.vx * nx + prop.vz * nz;
+        if (into < 0) {
+          prop.vx -= 1.6 * into * nx;
+          prop.vz -= 1.6 * into * nz;
+        }
+        prop.x = x;
+        prop.z = z;
       }
     }
   }
@@ -296,6 +388,7 @@ export function createSim(stage: Stage): Sim {
     actors,
     props,
     done: false,
+    together: (a, b) => close.has(pairKey(a, b)),
     step(seconds) {
       dt = Math.min(seconds, 0.1);
       for (const a of Object.values(actors)) {
@@ -305,15 +398,10 @@ export function createSim(stage: Stage): Sim {
           if (a.emotionLeft <= 0) a.emotion = undefined;
         }
       }
+      const before = new Map(Object.values(actors).map((a) => [a.id, at(a)] as const));
       if (!sim.done && timeline.next().done) sim.done = true;
       separate();
-      for (const prop of Object.values(props)) {
-        const holder = prop.holder ? actors[prop.holder] : undefined;
-        if (holder) {
-          prop.x = holder.x;
-          prop.z = holder.z;
-        }
-      }
+      moveProps(before);
     },
   };
   return sim;

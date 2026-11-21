@@ -2,6 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
+import { Vector3 } from "three";
 import type { Group } from "three";
 import { motionOf } from "@/lib/harbir/motion";
 import type { Sim } from "@/lib/harbir/sim";
@@ -63,6 +64,8 @@ function PropBody({ id }: { id: PropId }) {
 /** A prop on the ground, or carried in front of whoever holds it. */
 export function PropItem({ id, sim }: { id: PropId; sim: Sim }) {
   const ref = useRef<Group>(null);
+  const spin = useRef<Group>(null);
+  const last = useRef<[number, number] | null>(null);
   useFrame(({ clock }) => {
     const prop = sim.props[id];
     const group = ref.current;
@@ -77,7 +80,17 @@ export function PropItem({ id, sim }: { id: PropId; sim: Sim }) {
       group.rotation.y = holder.heading;
     } else {
       group.position.set(prop.x, 0, prop.z);
+      group.rotation.y = 0;
+      // A rolling ball turns by the distance it covers, around the axis across its path.
+      const ball = spin.current;
+      const before = last.current;
+      if (id === "ball" && ball && before) {
+        const dx = prop.x - before[0], dz = prop.z - before[1];
+        const moved = Math.hypot(dx, dz);
+        if (moved > 1e-4) ball.rotateOnWorldAxis(new Vector3(dz / moved, 0, -dx / moved), moved / 0.22);
+      }
     }
+    last.current = [prop.x, prop.z];
   });
-  return <group ref={ref}><PropBody id={id} /></group>;
+  return <group ref={ref}><group ref={spin} position={[0, id === "ball" ? 0.22 : 0, 0]}><group position={[0, id === "ball" ? -0.22 : 0, 0]}><PropBody id={id} /></group></group></group>;
 }

@@ -4,6 +4,8 @@ import { useFrame } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { Color, MathUtils, Object3D } from "three";
 import type { Group, InstancedMesh, Material } from "three";
+import { standingPoint } from "@/lib/harbir/sim";
+import type { Point } from "@/lib/harbir/sim";
 import { CAMERA, PALETTE, ROUGHNESS } from "@/lib/harbir/style";
 import { SPOTS } from "@/lib/world";
 import type { Spot } from "@/lib/world";
@@ -175,12 +177,24 @@ function Playground() {
   );
 }
 
-/** Within 3.4 m of a landmark, or 0.8 m of a path edge, nothing gets scattered. */
+/** Where characters stand at each spot; scenery stays off the straight walks between them. */
+const STANDING = (Object.keys(SPOTS) as Spot[]).map((spot) => standingPoint(spot));
+
+function distanceToWalk(x: number, z: number, [ax, az]: Point, [bx, bz]: Point) {
+  const dx = bx - ax, dz = bz - az;
+  const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz)));
+  return Math.hypot(x - ax - t * dx, z - az - t * dz);
+}
+
+/** Within 3.4 m of a landmark, 0.8 m of a path edge, or 1.5 m of a walk between spots, nothing gets scattered. */
 function isClear(x: number, z: number) {
   if (Math.hypot(x, z) < 2.6) return false;
   for (const spot of OTHER_SPOTS) {
     const [sx, sz] = SPOTS[spot].position;
     if (Math.hypot(x - sx, z - sz) < 3.4) return false;
+  }
+  for (let i = 0; i < STANDING.length; i++) {
+    for (let j = i + 1; j < STANDING.length; j++) if (distanceToWalk(x, z, STANDING[i], STANDING[j]) < 1.5) return false;
   }
   return pathClearance(x, z) > 0.8;
 }
