@@ -49,6 +49,20 @@ This is a hackathon project with a build window of a few hours, so we keep the f
 - **MVP:** a setup screen for the lesson, language, and age, then the story loop. Each scene has a few choices, introduces a few simple words, and has a speak button for feedback. The loop repeats until Kimi K3 marks the lesson complete.
 - **Out of scope for now:** accounts, saved progress, parent dashboards, custom art, and pronunciation scoring.
 
+## Run locally
+
+You need Node.js 20.9 or later.
+
+```bash
+npm install
+cp .env.example .env.local   # then add the Kimi K3 and ElevenLabs keys
+npm run dev
+```
+
+Open http://localhost:3000. If that port is busy, Next.js picks the next free one and prints it. Edits reload in the browser as you save.
+
+Until the API is ready, the game client can read the sample scene in `mocks/scene.json`, so the UI works without any API keys.
+
 ## Example lessons
 
 - Empathy

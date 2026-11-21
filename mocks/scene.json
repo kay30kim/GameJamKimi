@@ -1,0 +1,6 @@
+{
+  "narration": "Mina sees a puppy shivering in the rain.",
+  "newWords": [{ "word": "강아지", "meaning": "puppy" }],
+  "choices": ["Share your umbrella", "Keep walking"],
+  "lessonComplete": false
+}
