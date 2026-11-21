@@ -7,7 +7,7 @@ import { AnimationMixer, Group, MathUtils } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Motion } from "@/lib/demo/story";
 
-function Kimi({ motion, paused, pace }: { motion: Motion; paused: boolean; pace: number }) {
+function Kimi({ motion, paused, pace, talking = false }: { motion: Motion; paused: boolean; pace: number; talking?: boolean }) {
   const gltf = useLoader(GLTFLoader, "/demo/kimi.glb");
   const model = useMemo(() => {
     const copy = gltf.scene.clone(true);
@@ -22,7 +22,13 @@ function Kimi({ motion, paused, pace }: { motion: Motion; paused: boolean; pace:
     return () => { action.fadeOut(.25); };
   }, [gltf, mixer, motion]);
   useEffect(() => () => { mixer.stopAllAction(); mixer.uncacheRoot(model); }, [mixer, model]);
-  useFrame((_state, delta) => { if (!paused) mixer.update(Math.min(delta, .05) * pace); });
+  useFrame(({ clock }, delta) => {
+    if (!paused) mixer.update(Math.min(delta, .05) * pace);
+    const mouth = model.getObjectByName("Mouth");
+    if (mouth) mouth.scale.y = talking && !paused ? .025 + Math.abs(Math.sin(clock.elapsedTime * 14)) * .055 : .012;
+    const head = model.getObjectByName("Head");
+    if (head) head.rotation.z = talking && !paused ? Math.sin(clock.elapsedTime * 3) * .045 : 0;
+  });
   return <primitive object={model} dispose={null} />;
 }
 
@@ -33,7 +39,7 @@ function Tree({ position, scale = 1 }: { position: [number, number, number]; sca
     <mesh position={[-.48,1.65,.06]} castShadow><sphereGeometry args={[.65,12,10]} /><meshStandardMaterial color="#83ae7b" roughness={1} /></mesh>
   </group>;
 }
-function World({ motion, paused, age }: { motion: Motion; paused: boolean; age: number }) {
+function World({ motion, paused, age, talking, word }: StageProps) {
   const world = useRef<Group>(null);
   useFrame(({ pointer }, delta) => {
     if (world.current) world.current.rotation.y = MathUtils.damp(world.current.rotation.y, pointer.x * .07, 3, delta);
@@ -56,7 +62,12 @@ function World({ motion, paused, age }: { motion: Motion; paused: boolean; age: 
         <mesh position={[.1,.4,0]}><torusGeometry args={[.17,.025,8,16,Math.PI]} /><meshStandardMaterial color="#875a38" /></mesh>
       </group>
       {[[2.5,.1,1.3],[-2.7,.1,.9],[.8,.1,1.8]].map((p,i)=><group key={i} position={p as [number,number,number]}><mesh position={[0,.1,0]}><cylinderGeometry args={[.025,.025,.22,6]} /><meshStandardMaterial color="#53815e" /></mesh><mesh position={[0,.24,0]}><sphereGeometry args={[.09,8,6]} /><meshStandardMaterial color={i===1?"#edac9a":"#f4ce67"} /></mesh></group>)}
-      <Suspense fallback={null}><Kimi motion={motion} paused={paused} pace={age<=4?.78:1} /></Suspense>
+      {word && /^(apple|사과)$/i.test(word) && <group position={[.75,1.15,.4]}>
+        <mesh castShadow><sphereGeometry args={[.22,24,16]}/><meshStandardMaterial color="#df665f" roughness={.7}/></mesh>
+        <mesh position={[0,.23,0]} rotation={[0,0,-.2]}><cylinderGeometry args={[.025,.03,.15,8]}/><meshStandardMaterial color="#79553d"/></mesh>
+        <mesh position={[.09,.27,0]} rotation={[0,0,-.5]} scale={[1,.45,.3]}><sphereGeometry args={[.12,12,8]}/><meshStandardMaterial color="#70a76b"/></mesh>
+      </group>}
+      <Suspense fallback={null}><Kimi motion={motion} paused={paused} pace={age<=4?.78:1} talking={talking} /></Suspense>
     </group>
   </>;
 }
@@ -65,6 +76,7 @@ class StageBoundary extends Component<{children:ReactNode},{failed:boolean}> {
   static getDerivedStateFromError(){return {failed:true};}
   render(){return this.state.failed?<p role="alert" style={{padding:32}}>The 3D stage could not load. Enable WebGL or try another browser. You can still read the story below.</p>:this.props.children;}
 }
-export default function ForestStage(props:{motion:Motion;paused:boolean;age:number}) {
-  return <StageBoundary><Canvas shadows dpr={[1,1.5]} camera={{position:[0,3.5,7.2],fov:40}} onCreated={({camera})=>camera.lookAt(0,.8,0)} fallback={<p>3D needs WebGL. Please try a browser with hardware acceleration enabled.</p>} aria-label={`Kimi the bunny is ${props.motion}`}><World {...props}/></Canvas></StageBoundary>;
+interface StageProps { motion: Motion; paused: boolean; age: number; talking?: boolean; word?: string; immersive?: boolean }
+export default function ForestStage(props: StageProps) {
+  return <StageBoundary><Canvas shadows dpr={[1,1.5]} camera={{position:props.immersive ? [0,2.6,5.8] : [0,3.5,7.2],fov:40}} onCreated={({camera})=>camera.lookAt(0,.8,0)} fallback={<p>3D needs WebGL. Please try a browser with hardware acceleration enabled.</p>} aria-label={`Kimi the bunny is ${props.motion}`}><World {...props}/></Canvas></StageBoundary>;
 }

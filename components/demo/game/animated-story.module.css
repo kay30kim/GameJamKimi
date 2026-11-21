@@ -1,0 +1,13 @@
+.game {position:fixed;inset:0;z-index:10;background:#dcece6;color:#302a45;font-family:inherit;}
+.world {position:absolute;inset:0;}
+.top {position:absolute;top:max(1rem,env(safe-area-inset-top));left:1.5rem;right:1.5rem;display:flex;justify-content:space-between;align-items:center;font-weight:800;letter-spacing:-.03em;}
+.top button {width:44px;height:44px;border:1px solid #ffffff80;border-radius:50%;background:#ffffffa6;color:#4d378f;cursor:pointer;}
+.dialogue {position:absolute;bottom:0;left:0;right:0;padding:3.5rem 1.25rem max(1.5rem,env(safe-area-inset-bottom));background:linear-gradient(transparent,#f7faf1e8 48%);text-align:center;pointer-events:none;}
+.caption {max-width:48rem;margin:0 auto .5rem;font-size:clamp(1.05rem,2.6vw,1.5rem);line-height:1.6;text-wrap:balance;}
+.word {font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em;margin:.2rem 0 .8rem;color:#4d378f;}
+.controls {display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.65rem;max-width:52rem;margin:.8rem auto 0;pointer-events:auto;}
+.controls button {min-height:44px;border:1px solid #d5c7fa;border-radius:999px;background:#ffffffed;color:#513d8e;padding:.75rem 1.2rem;font:inherit;font-weight:600;cursor:pointer;box-shadow:0 3px 12px #302a4508;}
+.controls .mic {background:#6c4de6;color:white;border-color:#6c4de6;}
+.controls button:focus-visible,.top button:focus-visible {outline:3px solid #6c4de6;outline-offset:4px;}
+.listening {color:#6542c9;font-weight:700;}
+@media(max-width:600px) {.world{bottom:15%;}.dialogue{padding-top:2rem;}.caption{font-size:1rem;}.controls button{padding:.7rem 1rem;}}

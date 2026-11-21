@@ -40,6 +40,7 @@ scarfEnd.rotation.z=.18;
 const scarfTip=ball(root,'ScarfTip',.29,1.00,.23,.075,.15,.04,peach);
 scarfTip.rotation.z=.55;
 ball(root,'Nose',0,1.35,.37,.04,.03,.024,pink);
+ball(root,'Mouth',0,1.27,.35,.035,.012,.018,dark);
 ball(root,'Tail',0,.67,-.31,.16,.16,.16,cream);
 function clip(name,duration,positions,swings,tilt=0) {
  const times=[0,duration/4,duration/2,duration*3/4,duration];
