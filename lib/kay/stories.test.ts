@@ -8,6 +8,15 @@ import type { KayStory } from "./types";
 const input = { prompt: "Learn to feel disappointed after losing a game and congratulate the winner", age: 5, homeLanguage: "ko" as const, learnLanguage: "en" as const };
 const copy = (): KayStory => structuredClone(STORIES[0]);
 const complete = (story = copy()) => Response.json({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(story) } }] });
+function compactFixture() {
+  const source = copy();
+  return {
+    title: [source.title.ko, source.title.en] as unknown, description: [source.description.ko, source.description.en] as unknown, lesson: source.lesson,
+    phrases: [["도와줄까?", "Can I help?"], ["고마워!", "Thank you!"]],
+    choices: [source.scenes.notice.choices, source.scenes.spot.choices].map((group) => group.map((item) => [item.label.ko, item.label.en, item.actor])),
+    scenes: Object.values(source.scenes).map((scene) => [scene.location, scene.title.ko, scene.title.en, scene.lines.map((line) => [line.speaker, line.text.ko, line.text.en, line.action, line.to ?? null, line.emotion])]) as unknown[][],
+  };
+}
 
 test("all five authored episodes are complete bilingual graphs with four meaningful routes", () => {
   assert.deepEqual(STORIES.map((story) => story.lesson), ["kindness", "empathy", "sharing", "honesty", "patience"]);
@@ -96,14 +105,29 @@ test("generation makes one complete request and namespaces audio IDs", async () 
   assert.doesNotThrow(() => parseKayStory(story));
 });
 
+test("the story studio uses its own model setting, independent of legacy route experiments", async () => {
+  const oldLegacy = process.env.KIMI_MODEL;
+  const oldKay = process.env.KAY_STORY_MODEL;
+  try {
+    process.env.KIMI_MODEL = "kimi-k3-";
+    delete process.env.KAY_STORY_MODEL;
+    let selectedModel = "";
+    const fetcher: typeof fetch = async (_url, init) => { selectedModel = JSON.parse(String(init?.body)).model; return complete(); };
+    await generateKayStory(input, { apiKey: "test", fetcher });
+    assert.equal(selectedModel, "kimi-k3");
+    process.env.KAY_STORY_MODEL = "studio-model";
+    await generateKayStory(input, { apiKey: "test", fetcher });
+    assert.equal(selectedModel, "studio-model");
+    await generateKayStory(input, { apiKey: "test", model: "explicit-model", fetcher });
+    assert.equal(selectedModel, "explicit-model");
+  } finally {
+    if (oldLegacy === undefined) delete process.env.KIMI_MODEL; else process.env.KIMI_MODEL = oldLegacy;
+    if (oldKay === undefined) delete process.env.KAY_STORY_MODEL; else process.env.KAY_STORY_MODEL = oldKay;
+  }
+});
+
 test("compact bilingual authoring expands to a complete fixed graph with short-expression learning", () => {
-  const source = copy();
-  const compact = {
-    title: [source.title.ko, source.title.en], description: [source.description.ko, source.description.en], lesson: source.lesson,
-    phrases: [["도와줄까?", "Can I help?"], ["고마워!", "Thank you!"]],
-    choices: [source.scenes.notice.choices, source.scenes.spot.choices].map((group) => group.map((item) => [item.label.ko, item.label.en, item.actor])),
-    scenes: Object.values(source.scenes).map((scene) => [scene.location, scene.title.ko, scene.title.en, scene.lines.map((line) => [line.speaker, line.text.ko, line.text.en, line.action, line.to ?? null, line.emotion])]),
-  };
+  const compact = compactFixture();
   const expanded = expandCompactStory(compact);
   assert.equal(expanded.scenes.notice.choices[0].next, "option-a");
   assert.equal(expanded.scenes.middle.choices[1].next, "option-d");
@@ -113,6 +137,29 @@ test("compact bilingual authoring expands to a complete fixed graph with short-e
   assert.equal(expanded.scenes.notice.lines[3].learn, undefined, "don't attach an expression to unrelated dialogue");
   assert.doesNotThrow(() => parseKayStory(expanded));
   assert.throws(() => expandCompactStory({ ...compact, scenes: compact.scenes.slice(0, 3) }));
+});
+
+test("harmless model formatting and animation synonyms cannot discard a complete story", () => {
+  const compact = compactFixture();
+  compact.title = { ko: "작은 친절", en: "A little kindness" };
+  const notice = compact.scenes[1][3] as unknown[][];
+  notice[0][0] = "Kimi";
+  notice[0][3] = "clap";
+  notice[0][4] = "everyone";
+  notice[0][5] = "worried";
+  notice.pop(); // 34 lines on every full path still satisfy the episode length contract.
+  const story = expandCompactStory(compact);
+  assert.equal(story.scenes.notice.lines[0].speaker, "kimi");
+  assert.equal(story.scenes.notice.lines[0].action, "cheer");
+  assert.equal(story.scenes.notice.lines[0].emotion, "sad");
+  assert.equal(story.scenes.notice.lines[0].to, undefined);
+  assert.equal(story.scenes.notice.lines.length, 4);
+  const tooShort = compactFixture();
+  for (const scene of tooShort.scenes) (scene[3] as unknown[]).pop();
+  assert.throws(() => expandCompactStory(tooShort), /each path needs/);
+  const unknownActor = compactFixture();
+  (unknownActor.scenes[0][3] as unknown[][])[0][0] = "dragon";
+  assert.throws(() => expandCompactStory(unknownActor), /speaker/);
 });
 
 test("generation honestly fails rather than substituting an unrelated ready story", async () => {

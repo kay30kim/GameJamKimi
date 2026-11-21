@@ -1,57 +1,67 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Component, useEffect, useRef } from "react";
+import { Component, useEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 import { ACESFilmicToneMapping, MathUtils, PCFShadowMap, Vector3 } from "three";
 import type { Group, PerspectiveCamera } from "three";
 import type { DialogueLine, Location } from "@/lib/kay/types";
 import { ACTOR_POSITIONS, Character, HEADS } from "./three/characters";
-import type { Actor } from "./three/characters";
+import type { Actor, LivePositions } from "./three/characters";
 import { Environment, LOCATION_CENTERS } from "./three/environment";
 
 export interface CinemaStageProps {
   line: DialogueLine | null;
   location: Location;
   playing: boolean;
+  /** Body choreography continues through pauses between spoken clips. */
+  acting?: boolean;
   overview?: boolean;
   reducedMotion?: boolean;
 }
 
 /** A continuous 180-degree camera line keeps the characters' screen positions understandable. */
-function CameraDirector({ line, location, overview, reducedMotion }: CinemaStageProps) {
+function CameraDirector({ line, location, overview, reducedMotion, positions }: CinemaStageProps & { positions: LivePositions }) {
   const look = useRef(new Vector3(0, 1, 0));
   const destination = useRef(new Vector3());
   const lookDestination = useRef(new Vector3());
   const initialized = useRef(false);
+  const shot = useRef({ key: "", count: 0 });
   const { size } = useThree();
-  useFrame(({ camera, clock }, delta) => {
+  useFrame(({ camera }, delta) => {
     const center = LOCATION_CENTERS[location];
     const portrait = size.width / size.height < 0.85;
     const speaker = line?.speaker;
     const wide = overview || !speaker || speaker === "narrator";
-    const ensemble = line?.action === "dance" || line?.action === "cheer" || line?.action === "offer";
-    const drift = reducedMotion ? 0 : Math.sin(clock.elapsedTime * 0.14) * 0.1;
+    const key = `${location}:${speaker ?? "overview"}`;
+    if (shot.current.key !== key) { shot.current.key = key; shot.current.count += 1; }
+    const physicalAction = line?.action && !["talk", "think"].includes(line.action);
+    // Hold a calm medium shot for acting. Occasional speaker close-ups provide variety without constant camera travel.
+    const ensemble = physicalAction || (line?.to && shot.current.count % 3 !== 0);
     const aim = lookDestination.current;
     const pos = destination.current;
     let fov = portrait ? 48 : 39;
     if (wide) {
       aim.set(center[0] - (overview && !portrait ? 2.6 : 0), overview && portrait ? -1.35 : overview ? 0.7 : 1.05, center[2] - 0.3);
-      pos.set(center[0] + (overview ? 4.2 : 5.6) + drift, overview ? 3.9 : 4.3, center[2] + (portrait ? 12.8 : 12.0));
+      pos.set(center[0] + (overview ? 4.2 : 2.4), overview ? 3.9 : 4.3, center[2] + (portrait ? 12.8 : 12.0));
       fov = portrait ? 49 : 40;
     } else if (ensemble) {
-      aim.set(center[0], 1.05, center[2] - 0.5);
-      pos.set(center[0] + (speaker === "momo" ? 2.2 : -2.4) + drift, 2.75, center[2] + (portrait ? 8.8 : 8.6));
-      fov = portrait ? 48 : 38;
+      const primary = positions[speaker];
+      const partner = line?.to && line.to !== "narrator" ? positions[line.to] : null;
+      const midX = primary ? partner ? (primary.x + partner.x) / 2 : primary.x * 0.4 : 0;
+      const midZ = primary ? partner ? (primary.z + partner.z) / 2 : primary.z * 0.4 : 0;
+      aim.set(center[0] + midX, portrait ? 0.8 : 1.0, center[2] + midZ);
+      pos.set(center[0] + midX + 0.45, 2.7, center[2] + midZ + (portrait ? 10.8 : 9.0));
+      fov = portrait ? 47 : 37;
     } else {
       const actor = speaker as Actor;
-      const base = ACTOR_POSITIONS[actor];
+      const base = positions[actor];
       // Close-ups retain ears and hands; the lower frame is intentionally available for subtitles.
-      const x = center[0] + base[0], z = center[2] + base[2];
+      const x = center[0] + base.x, z = center[2] + base.z;
       const side = actor === "kimi" || actor === "owl" ? -1 : 1;
       const height = HEADS[actor];
       aim.set(x + side * 0.08, height - 0.15, z);
-      pos.set(x + side * 1.0 + drift, height + 0.45, z + (actor === "kimi" ? 6.4 : 5.7));
+      pos.set(x + side * 0.65, height + 0.45, z + (actor === "kimi" ? 6.4 : 5.7));
       fov = portrait ? 44 : 34;
     }
     if (!initialized.current || reducedMotion) {
@@ -68,7 +78,7 @@ function CameraDirector({ line, location, overview, reducedMotion }: CinemaStage
   return null;
 }
 
-function Cast(props: CinemaStageProps) {
+function Cast(props: CinemaStageProps & { positions: LivePositions }) {
   const group = useRef<Group>(null);
   const center = LOCATION_CENTERS[props.location];
   useFrame((_state, delta) => {
@@ -78,12 +88,13 @@ function Cast(props: CinemaStageProps) {
     group.current.position.z = MathUtils.lerp(group.current.position.z, center[2], k);
   });
   return <group ref={group} position={[...center]}>
-    {(["kimi", "momo", "bori", "owl"] as const).map(id => <Character key={id} id={id} line={props.line} playing={props.playing} reducedMotion={props.reducedMotion} />)}
+    {(["kimi", "momo", "bori", "owl"] as const).map(id => <Character key={id} id={id} line={props.line} playing={props.playing} acting={props.acting} reducedMotion={props.reducedMotion} positions={props.positions} locationKey={props.location} />)}
   </group>;
 }
 
 function World(props: CinemaStageProps) {
   const { gl } = useThree();
+  const positions = useMemo(() => Object.fromEntries(Object.entries(ACTOR_POSITIONS).map(([id, position]) => [id, new Vector3(...position)])) as LivePositions, []);
   useEffect(() => {
     const canvas = gl.domElement;
     const onLost = (event: Event) => event.preventDefault();
@@ -101,8 +112,8 @@ function World(props: CinemaStageProps) {
       shadow-camera-far={65} shadow-normalBias={0.045} shadow-bias={-0.00008} shadow-radius={3} />
     <directionalLight position={[5, 8, -9]} color="#fff2d7" intensity={1.25} />
     <Environment reducedMotion={props.reducedMotion} />
-    <Cast {...props} />
-    <CameraDirector {...props} />
+    <Cast {...props} positions={positions} />
+    <CameraDirector {...props} positions={positions} />
   </>;
 }
 
@@ -111,7 +122,7 @@ class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean
   static getDerivedStateFromError() { return { failed: true }; }
   render() {
     if (this.state.failed) return <div role="status" style={{ height: "100%", display: "grid", placeItems: "center", background: "linear-gradient(#dce3cb,#829752)", color: "#34462f", padding: 32, textAlign: "center" }}>
-      <p>3D 장면을 불러오지 못했어요. 아래 대사와 음성으로 이야기를 계속 들을 수 있어요.<br />The story and voices are still available below.</p>
+      <p>The 3D meadow could not load. You can still enjoy the story and voices below.</p>
     </div>;
     return this.props.children;
   }
@@ -123,7 +134,7 @@ export default function CinemaStage(props: CinemaStageProps) {
     gl={{ antialias: true, alpha: false, powerPreference: "high-performance", toneMapping: ACESFilmicToneMapping, toneMappingExposure: 1.0 }}
     onCreated={({ gl }) => { gl.shadowMap.type = PCFShadowMap; }}
     camera={{ fov: 40, position: [5.6, 5.5, 12.5], near: 0.1, far: 130 }}
-    aria-label="키미와 친구들이 대화하는 햇살 숲속 마을"
-    fallback={<div role="status" style={{ background: "#b6c49a", height: "100%", padding: 32 }}>이 기기는 3D를 지원하지 않아요. 대사와 목소리로 이야기를 즐겨주세요.</div>}
+    aria-label="Kimi and friends talking and playing in their sunny woodland village"
+    fallback={<div role="status" style={{ background: "#b6c49a", height: "100%", padding: 32 }}>This device does not support 3D. You can still enjoy the story and character voices.</div>}
   ><World {...props} /></Canvas></SceneBoundary>;
 }

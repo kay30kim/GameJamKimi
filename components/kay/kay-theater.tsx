@@ -1,12 +1,15 @@
 "use client";
+// @refresh reset
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 import { STORIES } from "@/lib/kay/stories";
 import { parseKayStory } from "@/lib/kay/validation";
 import { getKayLibrary, saveKayLibrary, serverLibrary, subscribeKayLibrary } from "@/lib/kay/library";
+import { choicePrompt, getGameMoment, practiceFor, practicePrompt, retryPrompt, successPrompt } from "@/lib/kay/interactions";
+import type { GameMoment } from "@/lib/kay/interactions";
 import { SPEAKERS } from "@/lib/kay/types";
 import type { DialogueLine, KayStory, Language } from "@/lib/kay/types";
 import { playKaySpeech, preloadKaySpeech, stopKayAudio, unlockKayAudio } from "@/lib/kay/audio";
@@ -14,7 +17,7 @@ import { isListeningSupported, listenOnce, matchesWord, stopListening } from "@/
 import { Icon } from "./icons";
 import styles from "./kay.module.css";
 
-const CinemaStage = dynamic(() => import("./cinema-stage"), { ssr: false, loading: () => <div className={styles.worldLoading}><Icon name="leaf" size={32} /><span>숲이 깨어나고 있어요…</span></div> });
+const CinemaStage = dynamic(() => import("./cinema-stage"), { ssr: false, loading: () => <div className={styles.worldLoading}><Icon name="leaf" size={32} /><span>The forest is waking up…</span></div> });
 const LESSONS: Record<string, { ko: string; en: string; color: string }> = {
   kindness: { ko: "친절", en: "Kindness", color: "#d78068" },
   empathy: { ko: "공감", en: "Empathy", color: "#8e91b9" },
@@ -23,7 +26,7 @@ const LESSONS: Record<string, { ko: string; en: string; color: string }> = {
   patience: { ko: "인내", en: "Patience", color: "#7f9db3" },
 };
 const welcome: DialogueLine = { id: "welcome", speaker: "kimi", text: { ko: "우리, 같이 놀자!", en: "Come and play with us!" }, action: "wave", emotion: "happy", to: "momo" };
-type Phase = "library" | "playing" | "decision" | "ending";
+type Phase = "library" | "playing" | "decision" | "reaction" | "ending";
 const subscribeNothing = () => () => {};
 const serverFalse = () => false;
 function motionPreference(notify: () => void) {
@@ -41,7 +44,7 @@ function delay(ms: number, signal: AbortSignal) {
 }
 
 export default function KayTheater() {
-  const [homeLanguage, setHomeLanguage] = useState<Language>("ko");
+  const [homeLanguage, setHomeLanguage] = useState<Language>("en");
   const learnLanguage: Language = homeLanguage === "ko" ? "en" : "ko";
   const ko = homeLanguage === "ko";
   const t = (korean: string, english: string) => ko ? korean : english;
@@ -58,6 +61,11 @@ export default function KayTheater() {
   const [replay, setReplay] = useState(0);
   const [visited, setVisited] = useState<string[]>([]);
   const [practice, setPractice] = useState<"idle" | "listening" | "retry" | "success">("idle");
+  const [interactionStep, setInteractionStep] = useState<"practice" | "choice">("practice");
+  const [highlightedChoice, setHighlightedChoice] = useState(-1);
+  const [earned, setEarned] = useState(0);
+  const [reaction, setReaction] = useState<DialogueLine | null>(null);
+  const [reactionTarget, setReactionTarget] = useState<"advance" | "choose">("advance");
   const [audioFallback, setAudioFallback] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
   const [creatorOpen, setCreatorOpen] = useState(false);
@@ -66,7 +74,15 @@ export default function KayTheater() {
   const [generationError, setGenerationError] = useState("");
   const [generated, setGenerated] = useState<KayStory | null>(null);
   const scene = selected.scenes[sceneId] ?? selected.scenes[selected.start];
-  const activeLine = phase === "library" ? welcome : scene.lines[lineIndex] ?? null;
+  const gameMoment = useMemo(() => getGameMoment(selected, scene), [selected, scene]);
+  const practiceExpression = useMemo(() => practiceFor(selected, scene), [selected, scene]);
+  const invitation = useMemo<DialogueLine>(() => ({
+    id: `${scene.id}-${interactionStep}-invitation`, speaker: "kimi", action: "wave", emotion: "curious",
+    text: interactionStep === "practice" ? {
+      en: practicePrompt(practiceExpression, "en", "ko"), ko: practicePrompt(practiceExpression, "ko", "en"),
+    } : gameMoment?.question ?? choicePrompt,
+  }), [scene.id, interactionStep, practiceExpression, gameMoment]);
+  const activeLine = phase === "library" ? welcome : phase === "decision" ? invitation : phase === "reaction" ? reaction : scene.lines[lineIndex] ?? null;
   const abortGeneration = useRef<AbortController | null>(null);
   const playback = useRef<AbortController | null>(null);
   const micSession = useRef(0);
@@ -75,7 +91,7 @@ export default function KayTheater() {
   const reducedMotion = useSyncExternalStore(motionPreference, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, serverFalse);
 
   useEffect(() => {
-    return () => { stopKayAudio(); stopListening(); abortGeneration.current?.abort(); };
+    return () => { playback.current?.abort(); stopKayAudio(); stopListening(); abortGeneration.current?.abort(); };
   }, []);
 
   useEffect(() => {
@@ -96,6 +112,14 @@ export default function KayTheater() {
     setSceneId(id); setLineIndex(0); setPhase("playing"); setPractice("idle"); setPaused(false);
     setVisited((current) => [...current, id]);
   }, [selected]);
+
+  const finishScene = useCallback(() => {
+    setInteractionStep(age < 5 ? "practice" : "choice");
+    setPractice("idle");
+    if (age < 5 || scene.choices.length || gameMoment) setPhase("decision");
+    else if (scene.next) enterScene(scene.next);
+    else setPhase("ending");
+  }, [age, scene, gameMoment, enterScene]);
 
   useEffect(() => {
     if (phase !== "playing" || paused) return;
@@ -128,52 +152,102 @@ export default function KayTheater() {
       const readable = Math.max(4300, Math.min(11000, line.text[homeLanguage].length * (ko ? 105 : 52)));
       await delay(Math.max(0, readable - (performance.now() - began)), signal);
       if (signal.aborted) return;
-      if (line.learn) {
+      if (line.learn && age >= 5) {
         setLearning(true);
         if (!muted) await playKaySpeech({ text: line.learn[learnLanguage], language: learnLanguage, speaker: line.speaker, signal, onStart: () => { if (!signal.aborted) setSpeaking(true); }, onEnd: () => setSpeaking(false), onFallback: () => setAudioFallback(true) });
-        await delay(age < 5 ? 2200 : 1000, signal);
+        await delay(500, signal);
       }
-      await delay(700, signal);
+      await delay(350, signal);
       if (signal.aborted) return;
       setSpeaking(false); setLearning(false);
       if (lineIndex + 1 < scene.lines.length) setLineIndex(lineIndex + 1);
-      else if (scene.choices.length || (age < 5 && scene.practice)) setPhase("decision");
-      else if (scene.next) enterScene(scene.next);
-      else setPhase("ending");
+      else finishScene();
     }
     void perform();
     return () => { controller.abort(); stopKayAudio(); setSpeaking(false); };
-  }, [phase, paused, muted, scene, lineIndex, homeLanguage, learnLanguage, ko, age, replay, enterScene, selected.custom]);
+  }, [phase, paused, muted, scene, lineIndex, homeLanguage, learnLanguage, ko, age, replay, finishScene, selected.custom]);
+
+  // Kimi asks the child directly. Completing the prompt never advances the story.
+  useEffect(() => {
+    if (phase !== "decision" || muted) return;
+    const controller = new AbortController();
+    playback.current = controller;
+    const options = scene.choices.length ? scene.choices : gameMoment?.choices ?? [];
+    const say = (text: string) => playKaySpeech({ text, language: homeLanguage, speaker: "kimi", signal: controller.signal,
+      onStart: () => { if (!controller.signal.aborted) setSpeaking(true); }, onEnd: () => setSpeaking(false), onFallback: () => setAudioFallback(true) });
+    async function invite() {
+      setHighlightedChoice(-1);
+      await say(invitation.text[homeLanguage]);
+      if (interactionStep === "choice") {
+        for (let index = 0; index < options.length; index++) {
+          if (controller.signal.aborted) return;
+          setHighlightedChoice(index);
+          await say(options[index].label[homeLanguage]);
+          await delay(400, controller.signal);
+        }
+      }
+      if (!controller.signal.aborted) { setSpeaking(false); setHighlightedChoice(-1); }
+    }
+    void invite();
+    return () => { controller.abort(); stopKayAudio(); };
+  }, [phase, muted, scene, gameMoment, invitation, homeLanguage, interactionStep]);
+
+  useEffect(() => {
+    if (phase !== "reaction" || !reaction) return;
+    const controller = new AbortController();
+    playback.current = controller;
+    async function respond() {
+      const began = performance.now();
+      if (!muted) await playKaySpeech({ text: reaction!.text[homeLanguage], language: homeLanguage, speaker: reaction!.speaker, signal: controller.signal,
+        onStart: () => { if (!controller.signal.aborted) setSpeaking(true); }, onEnd: () => setSpeaking(false) });
+      const reactionTime = reaction!.id.endsWith("-well-done") ? 2200 : 4200;
+      await delay(Math.max(0, reactionTime - (performance.now() - began)), controller.signal);
+      if (controller.signal.aborted) return;
+      if (reactionTarget === "choose") { setInteractionStep("choice"); setPhase("decision"); }
+      else { const next = scene.choices[0]?.next ?? scene.next; if (next) enterScene(next); else setPhase("ending"); }
+    }
+    void respond();
+    return () => { controller.abort(); stopKayAudio(); };
+  }, [phase, reaction, reactionTarget, muted, homeLanguage, scene, enterScene]);
 
   function start(story = selected) {
     playback.current?.abort(); micSession.current += 1; stopListening(); stopKayAudio(); unlockKayAudio();
     setSelected(story); setSceneId(story.start); setLineIndex(0); setVisited([story.start]);
-    setPaused(false); setSpeaking(false); setPractice("idle"); setPhase("playing"); setAudioFallback(false);
+    setPaused(false); setSpeaking(false); setPractice("idle"); setPhase("playing"); setAudioFallback(false); setEarned(0); setReaction(null);
   }
   function goHome() {
     playback.current?.abort(); micSession.current += 1; stopListening(); stopKayAudio();
     setSpeaking(false); setPhase("library"); setPaused(false); setLearning(false);
   }
-  function nextForYoung() {
-    const next = scene.choices[0]?.next ?? scene.next;
-    if (next) enterScene(next); else setPhase("ending");
+  function celebratePractice() {
+    playback.current?.abort(); micSession.current += 1; stopListening(); stopKayAudio(); unlockKayAudio();
+    setPractice("success"); setEarned((value) => value + 1); setLearning(false);
+    setReaction({ id: `${scene.id}-well-done`, speaker: "kimi", action: "cheer", emotion: "excited", text: successPrompt });
+    setReactionTarget(age >= 4 && scene.choices.length > 0 ? "choose" : "advance");
+    setPhase("reaction");
+  }
+  function actChoice(choice: GameMoment["choices"][number], index: number) {
+    playback.current?.abort(); stopKayAudio(); unlockKayAudio(); setLearning(false);
+    setEarned((value) => value + 1);
+    setReaction({ id: `${scene.id}-action-${index}`, speaker: choice.speaker, to: choice.to, action: choice.action, emotion: "excited", text: choice.response });
+    setReactionTarget("advance"); setPhase("reaction");
   }
   async function practiceWord() {
-    const word = scene.practice?.[learnLanguage];
-    if (!word) return;
+    const word = practiceExpression[learnLanguage];
     const session = ++micSession.current;
-    setPractice("listening"); stopKayAudio();
+    playback.current?.abort(); setPractice("listening"); stopKayAudio();
     try {
       const heard = await listenOnce(learnLanguage === "ko" ? "ko-KR" : "en-US");
       if (session !== micSession.current) return;
-      setPractice(matchesWord(heard, word) ? "success" : "retry");
-    } catch { if (session === micSession.current) setPractice("retry"); }
+      if (matchesWord(heard, word)) { celebratePractice(); return; }
+    } catch { if (session !== micSession.current) return; }
+    setPractice("retry");
+    if (!muted) void playKaySpeech({ text: retryPrompt[homeLanguage], language: homeLanguage, speaker: "kimi", onStart: () => setSpeaking(true), onEnd: () => setSpeaking(false) });
   }
   function hearWord() {
-    if (!scene.practice) return;
-    micSession.current += 1; stopListening(); setPractice("idle");
+    playback.current?.abort(); micSession.current += 1; stopListening(); setPractice("idle");
     unlockKayAudio();
-    void playKaySpeech({ text: scene.practice[learnLanguage], language: learnLanguage, speaker: "kimi", onStart: () => setSpeaking(true), onEnd: () => setSpeaking(false) });
+    void playKaySpeech({ text: practiceExpression[learnLanguage], language: learnLanguage, speaker: "kimi", onStart: () => setSpeaking(true), onEnd: () => setSpeaking(false) });
   }
   async function generate() {
     if (prompt.trim().length < 4 || generating) return;
@@ -197,12 +271,12 @@ export default function KayTheater() {
   function togglePause() { unlockKayAudio(); setPaused((value) => !value); }
   const theme = LESSONS[selected.lesson] ?? LESSONS.kindness;
   const speaker = SPEAKERS[activeLine?.speaker ?? "narrator"];
-  const practiceText = scene.practice?.[learnLanguage];
+  const practiceText = practiceExpression[learnLanguage];
   const totalSteps = 7;
 
   return (
     <main className={`${styles.theater} ${phase === "library" ? styles.libraryMode : styles.storyMode}`} lang={homeLanguage}>
-      <div className={styles.stage}><CinemaStage line={activeLine} location={phase === "library" ? "meadow" : scene.location} playing={phase === "library" || speaking || (muted && phase === "playing" && !paused)} overview={phase !== "playing"} reducedMotion={reducedMotion} /></div>
+      <div className={styles.stage}><CinemaStage line={activeLine} location={phase === "library" ? "meadow" : scene.location} playing={speaking} acting={phase === "library" || (phase === "playing" && !paused) || phase === "reaction" || (phase === "decision" && speaking)} overview={phase === "library" || phase === "ending"} reducedMotion={reducedMotion} /></div>
       <div className={styles.vignette} />
       {phase === "library" && <div className={styles.libraryShade} />}
       <header className={styles.header}>
@@ -225,7 +299,7 @@ export default function KayTheater() {
             <div><span className={styles.fieldLabel}>{t("아이의 나이", "Child’s age")}</span><div className={styles.ageChoices}>{[3, 4, 5, 6].map((value) => <button key={value} aria-pressed={age === value} onClick={() => setAge(value)}>{value}{ko ? "세" : ""}</button>)}</div></div>
             <label className={styles.languageField}><span className={styles.fieldLabel}>{t("익숙한 언어", "Home language")}</span><select value={homeLanguage} onChange={(event) => setHomeLanguage(event.target.value as Language)}><option value="ko">한국어</option><option value="en">English</option></select></label>
           </div>
-          <p className={styles.ageHint}>{age < 5 ? t("영어 표현을 함께 따라 말해요.", "Repeat little Korean expressions together.") : t("다음에 일어날 일을 아이가 선택해요.", "Your child chooses what happens next.")}</p>
+          <p className={styles.ageHint}>{age < 4 ? t("키미가 기다려요. 함께 말해 주세요!", "Kimi asks. Your child speaks. The story waits.") : age === 4 ? t("말하고, 고르고, 친구들과 함께 놀아요.", "Say little words, make choices, and play together.") : t("다섯 번의 선택으로 친구들의 모험을 이끌어요.", "Five choices. Your child leads the adventure.")}</p>
           <button className={styles.begin} onClick={() => start()}><span className={styles.playDisc}><Icon name="play" size={21} /></span><span>{t("이야기 시작하기", "Let’s begin")}<small>{selected.title[homeLanguage]}</small></span></button>
           <div className={styles.details}><span><Icon name="book" size={14} />{t("한 편 3–5분", "3–5 minute stories")}</span><span>{t("준비된 이야기 바로 시작", "Ready to play")}</span></div>
         </section>
@@ -237,21 +311,34 @@ export default function KayTheater() {
         </section>
       </> : <>
         <div className={styles.episode}><span className={styles.episodeIcon} style={{ color: theme.color }}><Icon name={selected.lesson} size={18} /></span><div><strong>{selected.title[homeLanguage]}</strong><span>{scene.title[homeLanguage]}</span></div></div>
+        <div className={styles.friendship} aria-label={t(`함께한 마음 ${earned}개`, `${earned} friendship moments`)}>{[0,1,2,3,4].map((leaf) => <Icon key={leaf} name="leaf" size={19} style={{color:earned > leaf ? "#d6a859" : "#a4b29a66"}} />)}<span>{earned} {t("마음", "together")}</span></div>
         <div className={styles.progress} role="progressbar" aria-label={t("이야기 진행", "Story progress")} aria-valuemin={0} aria-valuemax={100} aria-valuenow={phase === "ending" ? 100 : Math.min(95, Math.round(((visited.length - 1 + (lineIndex + 1) / scene.lines.length) / totalSteps) * 100))}><span style={{ width: `${phase === "ending" ? 100 : Math.min(95, ((visited.length - 1 + (lineIndex + 1) / scene.lines.length) / totalSteps) * 100)}%` }} /></div>
-        {phase === "playing" && activeLine && <section className={styles.dialogue} aria-label={t("캐릭터 대화", "Character dialogue")}>
+        {(phase === "playing" || phase === "reaction") && activeLine && <section className={styles.dialogue} aria-label={t("캐릭터 대화", "Character dialogue")}>
           <div className={styles.speakerTag} style={{ "--speaker": speaker.color } as CSSProperties}><span className={speaking ? styles.voiceBars : styles.voiceIdle}><i /><i /><i /></span>{speaker.name[homeLanguage]}</div>
           <p key={`${activeLine.id}-${learning}`} className={styles.line} lang={learning ? learnLanguage : homeLanguage}>{learning && activeLine.learn ? activeLine.learn[learnLanguage] : activeLine.text[homeLanguage]}</p>
           {learning && activeLine.learn && <p className={styles.wordMeaning}>{activeLine.learn[homeLanguage]} · {age < 5 ? t("같이 말해 볼까요?", "Say it with me!") : t("새로운 표현", "A new expression")}</p>}
-          <div className={styles.playControls}><button aria-label={paused ? t("계속 재생", "Resume story") : t("잠시 멈추기", "Pause story")} onClick={togglePause}><Icon name={paused ? "play" : "pause"} size={18} /></button><button aria-label={t("이 대사 다시 듣기", "Replay this line")} onClick={() => { unlockKayAudio(); setPaused(false); setReplay((value) => value + 1); }}><Icon name="replay" size={18} /></button><span>{paused ? t("잠시 쉬어 가요", "A little pause") : t("친구의 이야기를 들어봐요", "Let’s listen to our friends")}</span><button className={styles.nextLine} onClick={() => { if (lineIndex + 1 < scene.lines.length) setLineIndex(lineIndex + 1); else if (scene.choices.length || (age < 5 && scene.practice)) setPhase("decision"); else if (scene.next) enterScene(scene.next); else setPhase("ending"); }}>{t("다음", "Next")}</button></div>
+          {phase === "playing" && <div className={styles.playControls}><button aria-label={paused ? t("계속 재생", "Resume story") : t("잠시 멈추기", "Pause story")} onClick={togglePause}><Icon name={paused ? "play" : "pause"} size={18} /></button><button aria-label={t("이 대사 다시 듣기", "Replay this line")} onClick={() => { unlockKayAudio(); setPaused(false); setReplay((value) => value + 1); }}><Icon name="replay" size={18} /></button><span>{paused ? t("잠시 쉬어 가요", "A little pause") : t("친구의 이야기를 들어봐요", "Let’s listen to our friends")}</span><button className={styles.nextLine} onClick={() => { if (lineIndex + 1 < scene.lines.length) setLineIndex(lineIndex + 1); else finishScene(); }}>{t("다음", "Next")}</button></div>}
         </section>}
-        {phase === "decision" && <section className={styles.decision}>
-          <span className={styles.cardEyebrow}>{age < 5 ? t("키미와 함께 말해요", "A LITTLE WORD WITH KIMI") : t("이제 너의 차례야!", "YOUR LITTLE CHOICE")}</span>
-          {age >= 5 ? <><h2>{t("우리, 이제 어떻게 할까?", "What shall we do next?")}</h2><p>{t("네가 고르면 친구들이 함께할 거야.", "Choose what our friends do together.")}</p><div className={styles.choices}>{scene.choices.map((choice) => <button key={choice.next} onClick={() => { unlockKayAudio(); enterScene(choice.next); }}><Icon name={choice.actor === "momo" ? "kindness" : "spark"} /><span>{choice.label[homeLanguage]}</span></button>)}</div>{!scene.choices.length && <button className={styles.primary} onClick={nextForYoung}>{t("계속 보기", "Keep watching")}</button>}</> : <>
-            <h2>{practiceText ?? t("친구들아, 같이 놀자!", "Let’s play together!")}</h2>
-            <p>{scene.practice?.[homeLanguage] ?? t("키미와 친구들을 응원해 주세요.", "Cheer for Kimi and friends.")}</p>
-            {practiceText && <div className={styles.practiceButtons}><button onClick={hearWord}><Icon name="volume" />{t("들어보기", "Listen")}</button>{canListen && <button onClick={() => void practiceWord()} disabled={practice === "listening"}><Icon name={practice === "success" ? "check" : "mic"} />{practice === "listening" ? t("듣고 있어요…", "Listening…") : t("말해보기", "Say it")}</button>}</div>}
-            <p className={styles.feedback} role="status">{practice === "success" ? t("멋지게 말했어! 함께 가자.", "You said it! Let’s go together.") : practice === "retry" ? t("한 번 더 들어볼까? 그냥 계속해도 괜찮아.", "Let’s listen again. It’s okay to keep going, too.") : t("소리 내어 따라 말한 뒤 계속해 주세요.", "Say it out loud, then continue together.")}</p>
-            <button className={styles.primary} onClick={nextForYoung}>{t("같이 가자!", "Let’s go!")}<Icon name="play" size={16} /></button>
+        {phase === "decision" && <section className={`${styles.decision} ${interactionStep === "practice" ? styles.speakingGame : ""}`}>
+          <div className={styles.gameSpeaker}><span className={styles.kimiAvatar}>K</span><span>{t("키미가 너에게 말해요", "Kimi is talking to you!")}</span><span className={styles.turnBadge}>{t("네 차례", "YOUR TURN")}</span></div>
+          {interactionStep === "choice" ? <>
+            <h2>{(gameMoment?.question ?? choicePrompt)[homeLanguage]}</h2>
+            <p>{t("하나를 골라 줘. 우리가 해 볼게!", "Pick one. Watch us do it!")}</p>
+            <div className={styles.choices}>
+              {scene.choices.length ? scene.choices.map((choice, index) => <button key={choice.next} className={highlightedChoice === index ? styles.highlighted : ""} onClick={() => { playback.current?.abort(); unlockKayAudio(); setEarned((value) => value + 1); enterScene(choice.next); }}><span className={styles.choicePortrait} style={{ background: SPEAKERS[choice.actor ?? "kimi"].color }}>{SPEAKERS[choice.actor ?? "kimi"].name.en.slice(0, 1)}</span><span>{choice.label[homeLanguage]}</span></button>) : gameMoment?.choices.map((choice, index) => <button key={index} className={highlightedChoice === index ? styles.highlighted : ""} onClick={() => actChoice(choice, index)}><span className={styles.choicePortrait} style={{ background: SPEAKERS[choice.to].color }}>{SPEAKERS[choice.to].name.en.slice(0, 1)}</span><span>{choice.label[homeLanguage]}</span></button>)}
+            </div>
+            <p className={styles.waitingHint}>{t("네가 고를 때까지 기다릴게.", "We’ll wait for your choice.")}</p>
+          </> : <>
+            <p className={styles.invitationText}>{t("우리 다 같이 이렇게 말해 볼까?", "Can we all say this together?")}</p>
+            <h2 className={styles.practicePhrase} lang={learnLanguage}>{practiceText}</h2>
+            <p>{practiceExpression[homeLanguage]}</p>
+            <div className={styles.practiceButtons}>
+              <button onClick={hearWord}><Icon name="volume" />{t("키미 듣기", "Hear Kimi")}</button>
+              {canListen && <button className={styles.micButton} onClick={() => void practiceWord()} disabled={practice === "listening"}><Icon name="mic" size={23} />{practice === "listening" ? t("듣고 있어!", "I’m listening!") : t("키미에게 말하기", "Talk to Kimi")}</button>}
+            </div>
+            <p className={styles.feedback} role="status">{practice === "retry" ? t("다시 같이 말해 볼까? 마이크 없이도 할 수 있어.", "Let’s try together again. You can also play without a microphone.") : practice === "listening" ? t("네 목소리를 기다리고 있어…", "Kimi is waiting for your voice…") : t("키미가 기다리고 있어요. 소리 내어 말해 주세요!", "Kimi is waiting. Say it out loud!")}</p>
+            <button className={styles.saidItButton} onClick={celebratePractice}><Icon name="check" size={17} />{t("말했어요!", "I said it!")}</button>
+            <small className={styles.noMicHint}>{t("마이크 없이 함께 말했을 때 눌러 주세요", "Tap after saying it together without a microphone")}</small>
           </>}
         </section>}
         {phase === "ending" && <section className={styles.ending}><div className={styles.endSeal}><Icon name="kindness" size={32} /></div><p className={styles.cardEyebrow}>{t("오늘도 마음이 한 뼘 자랐어요", "A LITTLE KINDER. A LITTLE CLOSER.")}</p><h2>{t("함께라서 참 좋다!", "Better, together.")}</h2><p>{t("키미와 나눈 마음을 오늘도 기억해 주세요.", "Take a little of our forest into your day.")}</p><div className={styles.endingActions}><button className={styles.primary} onClick={goHome}><Icon name="book" size={18} />{t("다른 이야기 보기", "Another little story")}</button><button className={styles.secondary} onClick={() => start()}><Icon name="replay" size={18} />{t("한 번 더", "Play again")}</button></div></section>}

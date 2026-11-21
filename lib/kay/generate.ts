@@ -4,7 +4,7 @@ import type { CustomStoryRequest } from "./validation";
 import type { KayStory } from "./types";
 
 export class StoryGenerationError extends Error {
-  constructor(public code: "NOT_CONFIGURED" | "UNAVAILABLE" | "INVALID_STORY" | "TIMEOUT") { super(code); }
+  constructor(public code: "NOT_CONFIGURED" | "UNAVAILABLE" | "INVALID_STORY" | "TIMEOUT", public diagnostic?: string) { super(code); }
 }
 
 export function buildKayStoryMessages(request: CustomStoryRequest) {
@@ -39,22 +39,32 @@ export function expandCompactStory(value: unknown): KayStory {
   // Also accept the public representation for authoring tools and tests.
   if (raw.version === 1) return parseKayStory(raw);
   const pair = (value: unknown) => {
-    if (!Array.isArray(value) || value.length !== 2) throw new Error("Invalid translated pair");
+    if (value && typeof value === "object" && !Array.isArray(value) && "ko" in value && "en" in value) return { ko: value.ko, en: value.en };
+    if (!Array.isArray(value) || value.length < 2) throw new Error("Invalid translated pair");
     return { ko: value[0], en: value[1] };
   };
-  if (!Array.isArray(raw.scenes) || raw.scenes.length !== 9 || !Array.isArray(raw.choices) || raw.choices.length !== 2 || !Array.isArray(raw.phrases) || raw.phrases.length !== 2) throw new Error("Incomplete authoring document");
-  const phrases = raw.phrases.map(pair);
+  if (!Array.isArray(raw.scenes) || raw.scenes.length !== 9 || !Array.isArray(raw.choices) || raw.choices.length !== 2 || !Array.isArray(raw.phrases) || raw.phrases.length < 1 || raw.phrases.length > 3) throw new Error("Incomplete authoring document");
+  const phrases = raw.phrases.slice(0, 2).map(pair);
+  // Animation hints are decorative: a harmless model synonym must not discard a complete story.
+  const canonical = (value: unknown) => typeof value === "string" ? value.trim().toLowerCase().replace(/[\s-]+/g, "_") : "";
+  const actors: Record<string, string> = { kimi: "kimi", 키미: "kimi", momo: "momo", 모모: "momo", bori: "bori", 보리: "bori", owl: "owl", grandma: "owl", grandma_owl: "owl", narrator: "narrator" };
+  const motions: Record<string, string> = { talk: "talk", wave: "wave", dance: "dance", walk: "walk", offer: "offer", think: "think", cheer: "cheer", clap: "cheer", celebrate: "cheer", jump: "cheer", run: "walk", nod: "talk", point: "offer", listen: "think", smile: "talk" };
+  const moods: Record<string, string> = { happy: "happy", sad: "sad", curious: "curious", excited: "excited", surprised: "surprised", calm: "happy", proud: "happy", relieved: "happy", worried: "sad", nervous: "sad", disappointed: "sad", shy: "curious" };
+  const locations: Record<string, string> = { meadow: "meadow", garden: "garden", pond: "pond", cottage: "cottage", forest: "meadow", home: "cottage" };
   const keys = ["hello", "notice", "option-a", "option-b", "middle", "option-c", "option-d", "together", "end"];
   const next: Record<number, string> = { 0: "notice", 2: "middle", 3: "middle", 5: "together", 6: "together", 7: "end" };
   const choices = raw.choices;
   const scenes = Object.fromEntries(raw.scenes.map((value, index) => {
-    if (!Array.isArray(value) || value.length !== 4 || !Array.isArray(value[3]) || value[3].length !== 5) throw new Error("Invalid compact scene");
+    if (!Array.isArray(value) || value.length < 4 || !Array.isArray(value[3]) || value[3].length < 4 || value[3].length > 7) throw new Error("Invalid compact scene");
     const key = keys[index];
     const lines = value[3].map((value, lineIndex) => {
-      if (!Array.isArray(value) || value.length < 3 || value.length > 6) throw new Error("Invalid compact dialogue");
+      if (!Array.isArray(value) || value.length < 3) throw new Error("Invalid compact dialogue");
+      const speaker = actors[canonical(value[0])];
+      if (!speaker) throw new Error("Invalid dialogue speaker");
+      const listener = actors[canonical(value[4])];
       return {
-        id: `${key}-${lineIndex + 1}`, speaker: value[0], text: { ko: value[1], en: value[2] },
-        action: value[3] ?? "talk", ...(value[4] ? { to: value[4] } : {}), emotion: value[5] ?? "happy",
+        id: `${key}-${lineIndex + 1}`, speaker, text: { ko: value[1], en: value[2] },
+        action: motions[canonical(value[3])] ?? "talk", ...(listener && listener !== "narrator" ? { to: listener } : {}), emotion: moods[canonical(value[5])] ?? "happy",
       };
     });
     let sceneChoices: unknown[] = [];
@@ -62,11 +72,12 @@ export function expandCompactStory(value: unknown): KayStory {
       const group = choices[index === 1 ? 0 : 1];
       if (!Array.isArray(group) || group.length !== 2) throw new Error("Invalid compact choices");
       sceneChoices = group.map((choice, offset) => {
-        if (!Array.isArray(choice) || choice.length !== 3) throw new Error("Invalid compact choice");
-        return { label: { ko: choice[0], en: choice[1] }, actor: choice[2], next: keys[index + offset + 1] };
+        if (!Array.isArray(choice) || choice.length < 2) throw new Error("Invalid compact choice");
+        const actor = actors[canonical(choice[2])];
+        return { label: { ko: choice[0], en: choice[1] }, ...(actor && actor !== "narrator" ? { actor } : {}), next: keys[index + offset + 1] };
       });
     }
-    return [key, { id: key, title: { ko: value[1], en: value[2] }, location: value[0], lines, choices: sceneChoices,
+    return [key, { id: key, title: { ko: value[1], en: value[2] }, location: locations[canonical(value[0])] ?? "meadow", lines, choices: sceneChoices,
       ...(next[index] ? { next: next[index] } : {}),
     }];
   }));
@@ -89,8 +100,8 @@ export function expandCompactStory(value: unknown): KayStory {
     }
     // Keep a missed expression in an explicit closing recap, not an unrelated emotional moment.
     if (!used) {
-      const ending = story.scenes.end;
-      ending.lines.push({ id: `end-phrase-${ending.lines.length}`, speaker: "kimi", text: phrase, learn: phrase, action: "wave", emotion: "happy", to: "momo" });
+      const ending = story.scenes.end.lines.length < 8 ? story.scenes.end : story.scenes.together;
+      ending.lines.push({ id: `${ending.id}-phrase-${ending.lines.length}`, speaker: "kimi", text: phrase, learn: phrase, action: "wave", emotion: "happy", to: "momo" });
       ending.practice = phrase;
     }
   }
@@ -106,16 +117,20 @@ export async function generateKayStory(request: CustomStoryRequest, options: { a
       method: "POST", cache: "no-store", signal: AbortSignal.any([AbortSignal.timeout(options.timeoutMs ?? 85_000), ...(options.signal ? [options.signal] : [])]),
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: options.model ?? (process.env.KIMI_MODEL?.trim() || "kimi-k3"),
+        // /kay has an independent model setting; experiments on older routes must not break its saved-story studio.
+        model: options.model ?? (process.env.KAY_STORY_MODEL?.trim() || "kimi-k3"),
         messages: buildKayStoryMessages(request), response_format: { type: "json_object" },
         reasoning_effort: "low", max_completion_tokens: 10000, stream: false,
       }),
     });
   } catch (error) {
     if (error instanceof Error && ["TimeoutError", "AbortError"].includes(error.name)) throw new StoryGenerationError("TIMEOUT");
-    throw new StoryGenerationError("UNAVAILABLE");
+    const name = error instanceof Error && /^[A-Za-z]+Error$/.test(error.name) ? error.name : "UnknownError";
+    const cause = error instanceof Error ? (error.cause as { code?: unknown } | undefined)?.code : undefined;
+    const networkCode = typeof cause === "string" && /^[A-Z0-9_]{1,60}$/.test(cause) ? cause : "NO_CAUSE_CODE";
+    throw new StoryGenerationError("UNAVAILABLE", `network_${name}_${networkCode}`);
   }
-  if (!response.ok) throw new StoryGenerationError("UNAVAILABLE");
+  if (!response.ok) throw new StoryGenerationError("UNAVAILABLE", `upstream_http_${response.status}`);
   try {
     const completion = await response.json();
     const first = completion?.choices?.[0];
@@ -130,7 +145,9 @@ export async function generateKayStory(request: CustomStoryRequest, options: { a
       scene.lines.forEach((line) => { line.id = `${storyId}-${++lineNumber}`; });
     }
     return story;
-  } catch {
-    throw new StoryGenerationError("INVALID_STORY");
+  } catch (error) {
+    // Only controlled validator labels are retained; never log provider text, prompts, or JSON parser excerpts.
+    const diagnostic = error instanceof SyntaxError ? "invalid_json" : error instanceof Error && /^(Invalid |Incomplete )/.test(error.message) ? error.message : "validation_failed";
+    throw new StoryGenerationError("INVALID_STORY", diagnostic);
   }
 }

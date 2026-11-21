@@ -18,6 +18,8 @@ export async function POST(request: Request): Promise<Response> {
     const story = await generateKayStory(input, { signal: request.signal });
     return Response.json({ story }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
+    if (error instanceof StoryGenerationError) console.warn("[kay/story] Generation failed:", error.code, error.diagnostic ?? "no_detail");
+    else console.warn("[kay/story] Generation failed: unexpected_runtime_error");
     const code = error instanceof StoryGenerationError ? error.code : "UNAVAILABLE";
     const messages = input.homeLanguage === "ko" ? {
       NOT_CONFIGURED: "새 이야기 만들기가 아직 연결되지 않았어요. 준비된 다섯 이야기는 바로 볼 수 있어요.",

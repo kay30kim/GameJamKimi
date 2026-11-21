@@ -71,13 +71,14 @@ function Ground() {
     shape.bezierCurveTo(-5.3, -1, -2.8, -1.2, -0.15, 0.4);
     shape.bezierCurveTo(2, 1, 4.4, -1.2, 5.8, -2); shape.lineTo(6.5, -1);
     shape.bezierCurveTo(4.6, 0.9, 1.4, 3.1, 0.45, 3.6); shape.bezierCurveTo(-0.4, 6.7, -0.1, 7, -0.8, 9); shape.closePath();
-    const geometry = new ShapeGeometry(shape, 36);
-    geometry.scale(1, -1, 1);
-    return geometry;
+    // Mirror the contour before triangulation. Mirroring an already triangulated
+    // mesh reverses its winding and makes DoubleSide light the underside.
+    const contour = new Shape(shape.getPoints(36).map(({ x, y }) => new Vector2(x, -y)));
+    return new ShapeGeometry(contour);
   }, []);
   return <>
     <mesh geometry={terrain} receiveShadow><meshStandardMaterial color="#719651" roughness={1} /></mesh>
-    <mesh geometry={path} position={[0, 0.003, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><meshStandardMaterial color="#d9c39c" roughness={1} side={DoubleSide} /></mesh>
+    <mesh geometry={path} position={[0, 0.003, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><meshStandardMaterial color="#d9c39c" roughness={1} /></mesh>
     {CLEARINGS.map(([x, z], i) => <mesh key={i} position={[x, 0.012 + i * 0.001, z]} rotation={[-Math.PI / 2, 0, 0]} scale={[i === 0 ? 3.7 : 2.9, i === 0 ? 3.1 : 2.3, 1]} receiveShadow><planeGeometry args={[2, 2]} /><meshStandardMaterial map={clearingTexture} transparent depthWrite={false} roughness={1} /></mesh>)}
   </>;
 }

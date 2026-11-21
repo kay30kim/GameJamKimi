@@ -2,7 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
-import { MathUtils } from "three";
+import { MathUtils, Vector3 } from "three";
 import type { Group, Mesh } from "three";
 import type { DialogueLine, Speaker } from "@/lib/kay/types";
 import { Ellipsoid as E, Beam, material, sphere } from "./primitives";
@@ -12,6 +12,7 @@ export type Actor = Exclude<Speaker, "narrator">;
 export const ACTOR_POSITIONS: Record<Actor, Vec3> = {
   kimi: [-1.45, 0, 0.25], momo: [1.3, 0, 0], bori: [0.05, 0, -1.5], owl: [-2.7, 0, -2.3],
 };
+export type LivePositions = Record<Actor, Vector3>;
 export const HEADS: Record<Actor, number> = { kimi: 1.68, momo: 1.52, bori: 1.12, owl: 1.55 };
 const CHARACTER = {
   kimi: { fur: "#fff0d5", light: "#fff8e8", accent: "#e6a18a", head: [0.52, 0.55, 0.47], body: [0.37, 0.54, 0.3], height: 1.68, bodyY: 0.83, eye: 0.195 },
@@ -21,8 +22,9 @@ const CHARACTER = {
 } as const;
 
 /** Soft sculpted versions of the original cast, with real animated faces and articulated gestures. */
-export function Character({ id, line, playing, reducedMotion = false }: {
-  id: Actor; line: DialogueLine | null; playing: boolean; reducedMotion?: boolean;
+export function Character({ id, line, playing, acting = playing, reducedMotion = false, positions, locationKey }: {
+  id: Actor; line: DialogueLine | null; playing: boolean; acting?: boolean; reducedMotion?: boolean;
+  positions?: LivePositions; locationKey?: string;
 }) {
   const root = useRef<Group>(null), head = useRef<Group>(null), eyes = useRef<Group>(null);
   const mouth = useRef<Mesh>(null), browL = useRef<Group>(null), browR = useRef<Group>(null);
@@ -30,37 +32,80 @@ export function Character({ id, line, playing, reducedMotion = false }: {
   const leftLeg = useRef<Group>(null), rightLeg = useRef<Group>(null);
   const ears = useRef<Group>(null), tail = useRef<Group>(null);
   const localTime = useRef(0), previousLine = useRef("");
+  const previousLocation = useRef(locationKey);
   const base = ACTOR_POSITIONS[id], c = CHARACTER[id];
+  const anchor = useRef(new Vector3(...base));
+  const walkStart = useRef(new Vector3(...base)), walkGoal = useRef(new Vector3(...base));
   const index = Object.keys(ACTOR_POSITIONS).indexOf(id);
   const isCurrentSpeaker = line?.speaker === id;
   const speaking = isCurrentSpeaker && playing;
   const addressed = line?.to === id;
-  const mood = line?.speaker === id ? line.emotion ?? "happy" : addressed ? "curious" : "happy";
-  const motion = speaking ? line?.action ?? "talk" : "talk";
+  const performing = isCurrentSpeaker && acting;
+  const responding = addressed && acting;
+  const mood = isCurrentSpeaker ? line.emotion ?? "happy" : addressed ? "curious" : "happy";
+  const motion = line?.action ?? "talk";
 
-  useFrame(({ clock }, delta) => {
+  useFrame(({ clock }, elapsed) => {
     if (!root.current || !head.current) return;
-    if (previousLine.current !== line?.id) { localTime.current = 0; previousLine.current = line?.id ?? ""; }
-    localTime.current += delta;
+    const delta = Math.min(elapsed, 0.05);
+    const otherId = line?.to && line.to !== "narrator" ? line.to : null;
+    const sourceId = line?.speaker && line.speaker !== "narrator" ? line.speaker : null;
+    const other = otherId ? positions?.[otherId] ?? new Vector3(...ACTOR_POSITIONS[otherId]) : null;
+    const source = sourceId ? positions?.[sourceId] ?? new Vector3(...ACTOR_POSITIONS[sourceId]) : null;
+    if (previousLocation.current !== locationKey) {
+      anchor.current.set(...base); walkStart.current.set(...base); walkGoal.current.set(...base);
+      previousLocation.current = locationKey;
+    }
+    // The choreography belongs to the line, not the audio clip. Pauses and audio gaps do not reset it.
+    if (previousLine.current !== (line?.id ?? "")) {
+      localTime.current = 0; previousLine.current = line?.id ?? "";
+      if (isCurrentSpeaker && motion === "walk") {
+        walkStart.current.copy(anchor.current);
+        const dx = other ? other.x - anchor.current.x : id === "kimi" ? 1 : -1;
+        const dz = other ? other.z - anchor.current.z : 0.12;
+        const distance = Math.hypot(dx, dz);
+        const travel = other ? Math.min(1.1, Math.max(0, distance - 1.25)) : 0.8;
+        walkGoal.current.set(anchor.current.x + dx / Math.max(distance, 0.01) * travel, 0, anchor.current.z + dz / Math.max(distance, 0.01) * travel);
+        // Keep everyone inside the two-shot, and preserve personal space.
+        const ox = walkGoal.current.x - base[0], oz = walkGoal.current.z - base[2];
+        const excursion = Math.hypot(ox, oz);
+        if (excursion > 1.2) walkGoal.current.set(base[0] + ox / excursion * 1.2, 0, base[2] + oz / excursion * 1.2);
+      }
+    }
+    if (acting) localTime.current += delta;
     const t = clock.elapsedTime + index * 1.71;
     const time = localTime.current;
-    const dance = speaking && (motion === "dance" || motion === "cheer");
-    const walk = speaking && motion === "walk";
-    const bounce = reducedMotion ? 0 : dance ? Math.abs(Math.sin(t * 5.5)) * 0.15 : walk ? Math.abs(Math.sin(t * 8)) * 0.045 : Math.sin(t * 1.8) * 0.014;
-    root.current.position.set(base[0] + (walk ? Math.sin(Math.min(time, 3) * 0.6) * 0.45 : 0), bounce, base[2]);
-    const other = line?.to && line.to !== "narrator" ? ACTOR_POSITIONS[line.to] : null;
-    const source = line?.speaker && line.speaker !== "narrator" ? ACTOR_POSITIONS[line.speaker] : null;
-    // Most of the face stays visible; turns toward a friend never hide the speaking face.
-    let yaw = id === "kimi" ? 0.2 : id === "momo" ? -0.28 : 0.05;
-    if (isCurrentSpeaker && other) yaw = MathUtils.clamp((other[0] - base[0]) * 0.17, -0.52, 0.52);
-    else if (source && !isCurrentSpeaker) yaw = MathUtils.clamp((source[0] - base[0]) * 0.16, -0.56, 0.56);
+    const amount = reducedMotion ? 0.25 : 1;
+    const dancing = (performing || responding) && (motion === "dance" || motion === "cheer");
+    const walking = performing && motion === "walk" && time < 2.2 && walkStart.current.distanceTo(walkGoal.current) > 0.05;
+    const offering = (performing || responding) && motion === "offer";
+    const waving = (performing || (responding && time > 0.55)) && motion === "wave";
+    const nodding = responding && !dancing && !waving;
+    const beat = time * 4.4 + (addressed ? 0.38 : 0);
+    if (performing && motion === "walk") {
+      const u = Math.min(1, time / 2.2), smooth = u * u * (3 - 2 * u);
+      anchor.current.lerpVectors(walkStart.current, walkGoal.current, smooth);
+    }
+    const step = dancing ? Math.sin(beat) * 0.19 * amount : 0;
+    const hop = dancing ? Math.max(0, Math.sin(beat * 2)) * 0.13 * amount : walking ? Math.abs(Math.sin(time * 9)) * 0.065 * amount : 0;
+    const breath = Math.sin(t * 1.8) * 0.014;
+    root.current.position.x = MathUtils.damp(root.current.position.x, anchor.current.x + step, 12, delta);
+    root.current.position.z = MathUtils.damp(root.current.position.z, anchor.current.z + (dancing ? Math.cos(beat) * 0.09 * amount : 0), 12, delta);
+    root.current.position.y = MathUtils.damp(root.current.position.y, hop + breath, 16, delta);
+    const squash = dancing ? Math.sin(beat * 2) * 0.035 * amount : performing ? Math.sin(time * 3.4) * 0.012 * amount : 0;
+    root.current.scale.set(1 - squash * 0.45, 1 + squash, 1 - squash * 0.45);
     const gazeTarget = isCurrentSpeaker ? other : source;
-    const gaze = gazeTarget ? MathUtils.clamp((gazeTarget[0] - base[0]) * 0.055, -0.11, 0.11) : 0;
+    let yaw = id === "kimi" ? 0.2 : id === "momo" ? -0.28 : 0.05;
+    if (gazeTarget) yaw = MathUtils.clamp((gazeTarget.x - root.current.position.x) * 0.2, -0.6, 0.6);
+    const turn = dancing ? Math.sin(beat * 0.6) * 0.42 * amount : walking ? Math.sin(time * 9) * 0.035 : 0;
+    root.current.rotation.y = MathUtils.damp(root.current.rotation.y, yaw + turn, 6, delta);
+    root.current.rotation.z = MathUtils.damp(root.current.rotation.z, dancing ? Math.sin(beat) * 0.105 * amount : performing ? Math.sin(time * 2.4) * 0.026 * amount : 0, 7, delta);
+    root.current.rotation.x = MathUtils.damp(root.current.rotation.x, offering ? 0.1 : walking ? 0.065 : 0, 6, delta);
+    const gaze = gazeTarget ? MathUtils.clamp((gazeTarget.x - root.current.position.x) * 0.055, -0.11, 0.11) : 0;
     head.current.rotation.y = MathUtils.damp(head.current.rotation.y, gaze, 5, delta);
-    root.current.rotation.y = MathUtils.damp(root.current.rotation.y, yaw + (dance ? Math.sin(t * 3) * 0.28 : 0), 4, delta);
-    root.current.rotation.z = reducedMotion ? 0 : dance ? Math.sin(t * 4) * 0.07 : 0;
-    head.current.rotation.z = MathUtils.damp(head.current.rotation.z, mood === "curious" ? -0.09 : mood === "sad" ? 0.08 : speaking ? Math.sin(t * 2.9) * 0.035 : Math.sin(t * 1.1) * 0.018, 6, delta);
-    head.current.rotation.x = MathUtils.damp(head.current.rotation.x, mood === "sad" ? 0.13 : speaking ? Math.sin(t * 4.1) * 0.025 : addressed ? Math.sin(t * 2) * 0.04 : 0, 5, delta);
+    const nod = nodding ? Math.sin(time * 3.6) * 0.09 * amount : performing ? Math.sin(time * 4.1) * 0.06 * amount : 0;
+    head.current.rotation.z = MathUtils.damp(head.current.rotation.z, mood === "curious" ? -0.1 : mood === "sad" ? 0.1 : performing ? Math.sin(time * 2.9) * 0.07 * amount : Math.sin(t * 1.1) * 0.018, 6, delta);
+    head.current.rotation.x = MathUtils.damp(head.current.rotation.x, (mood === "sad" ? 0.13 : 0) + nod, 6, delta);
     const blink = Math.sin(t * 1.23) > 0.992 || Math.sin(t * 0.79 + 2) > 0.997;
     if (eyes.current) {
       eyes.current.scale.y = MathUtils.damp(eyes.current.scale.y, blink ? 0.06 : mood === "excited" ? 1.1 : 1, 28, delta);
@@ -73,25 +118,40 @@ export function Character({ id, line, playing, reducedMotion = false }: {
     }
     if (browL.current && browR.current) {
       const angle = mood === "sad" ? -0.3 : mood === "curious" ? 0.12 : 0;
-      browL.current.rotation.z = angle;
-      browR.current.rotation.z = -angle;
+      browL.current.rotation.z = angle; browR.current.rotation.z = -angle;
       browL.current.position.y = mood === "surprised" ? 0.265 : 0.225;
       browR.current.position.y = mood === "surprised" ? 0.265 : 0.225;
     }
     if (leftArm.current && rightArm.current) {
-      const gesticulate = speaking && !reducedMotion ? Math.sin(t * 3.2) : 0;
-      const raised = dance ? 2.4 : speaking && motion === "wave" ? 2.25 : speaking && motion === "offer" ? 1 : 0.12;
-      leftArm.current.rotation.z = MathUtils.damp(leftArm.current.rotation.z, dance ? -2.4 : -0.12 - Math.max(0, gesticulate) * 0.27, 7, delta);
-      rightArm.current.rotation.z = MathUtils.damp(rightArm.current.rotation.z, raised + (motion === "wave" && speaking ? Math.sin(t * 8) * 0.23 : Math.max(0, -gesticulate) * 0.4), 7, delta);
-      leftArm.current.rotation.x = walk ? Math.sin(t * 8) * 0.45 : 0;
-      rightArm.current.rotation.x = walk ? -Math.sin(t * 8) * 0.45 : motion === "offer" && speaking ? -0.7 : motion === "think" && speaking ? -1.2 : 0;
+      const gesture = performing ? Math.sin(time * 2.9) * amount : 0;
+      let leftZ = -0.12 - Math.max(0, gesture) * 0.85;
+      let rightZ = 0.12 + Math.max(0, -gesture) * 1.0;
+      let leftX = performing ? -0.25 - Math.max(0, gesture) * 0.3 : 0;
+      let rightX = performing ? -0.2 - Math.max(0, -gesture) * 0.35 : 0;
+      if (dancing) { leftZ = -1.3 - Math.sin(beat) * 0.65 * amount; rightZ = 1.3 + Math.sin(beat + 0.8) * 0.65 * amount; leftX = Math.cos(beat) * 0.3; rightX = -leftX; }
+      else if (waving) { rightZ = 2.35 + Math.sin(time * 9) * 0.42 * amount; rightX = -0.2; leftZ = -0.25; }
+      else if (offering) { leftZ = -0.6; rightZ = 0.6; leftX = -1.0; rightX = -1.1; }
+      else if (walking) { leftX = Math.sin(time * 9) * 0.75; rightX = -leftX; leftZ = -0.12; rightZ = 0.12; }
+      else if (performing && motion === "think") { rightX = -1.4; rightZ = 0.55; leftZ = -0.25; }
+      else if (nodding) { rightZ = 0.24 + Math.max(0, Math.sin(time * 2.2)) * 0.3 * amount; }
+      leftArm.current.rotation.z = MathUtils.damp(leftArm.current.rotation.z, leftZ, 9, delta);
+      rightArm.current.rotation.z = MathUtils.damp(rightArm.current.rotation.z, rightZ, 9, delta);
+      leftArm.current.rotation.x = MathUtils.damp(leftArm.current.rotation.x, leftX, 9, delta);
+      rightArm.current.rotation.x = MathUtils.damp(rightArm.current.rotation.x, rightX, 9, delta);
     }
     if (leftLeg.current && rightLeg.current) {
-      leftLeg.current.rotation.x = walk ? Math.sin(t * 8) * 0.5 : dance ? Math.sin(t * 5.5) * 0.24 : 0;
-      rightLeg.current.rotation.x = -leftLeg.current.rotation.x;
+      const stride = walking ? Math.sin(time * 9) * 0.72 : dancing ? Math.sin(beat) * 0.45 * amount : 0;
+      leftLeg.current.rotation.x = MathUtils.damp(leftLeg.current.rotation.x, stride, 12, delta);
+      rightLeg.current.rotation.x = MathUtils.damp(rightLeg.current.rotation.x, -stride, 12, delta);
+      leftLeg.current.rotation.z = dancing ? Math.sin(beat) * 0.1 * amount : 0;
+      rightLeg.current.rotation.z = dancing ? Math.sin(beat + Math.PI) * 0.1 * amount : 0;
     }
-    if (ears.current && !reducedMotion) ears.current.rotation.z = Math.sin(t * 1.5) * 0.025 + (dance ? Math.sin(t * 5) * 0.07 : 0);
-    if (tail.current && !reducedMotion) tail.current.rotation.y = Math.sin(t * (speaking ? 8 : 4)) * 0.35;
+    if (ears.current) {
+      ears.current.rotation.z = MathUtils.damp(ears.current.rotation.z, (Math.sin(t * 1.5) * 0.025 + (dancing ? Math.sin(beat * 1.3) * 0.13 : performing ? Math.sin(time * 3) * 0.065 : 0)) * amount, 10, delta);
+      ears.current.rotation.x = MathUtils.damp(ears.current.rotation.x, dancing ? Math.sin(beat * 2) * 0.12 * amount : walking ? Math.sin(time * 9) * 0.06 : 0, 10, delta);
+    }
+    if (tail.current) tail.current.rotation.y = Math.sin(t * (performing || responding ? 9 : 4)) * 0.4 * amount;
+    positions?.[id].copy(root.current.position);
   });
 
   const faceZ = id === "owl" ? 0.46 : c.head[2] * 0.91;

@@ -1928,6 +1928,986 @@
     "09a6b45ed4b566539f37b62adbe9d927e62c753bdff35b67553ca33f68d34ff9": {
       "src": "/kay/audio/owl-en-09a6b45ed4b566539f37b62adbe9d927e62c753bdff35b67553ca33f68d34ff9.mp3",
       "duration": 6.425
+    },
+    "d229dba81e521673e31f3da80974a3830c286d64ba60b2c051c60261de7ca8f6": {
+      "src": "/kay/audio/kimi-ko-d229dba81e521673e31f3da80974a3830c286d64ba60b2c051c60261de7ca8f6.mp3",
+      "duration": 6.306
+    },
+    "12e734dbbbdb21da9ed8efcca08e8e4a379b8aec773b4606102e772b54f7c469": {
+      "src": "/kay/audio/kimi-ko-12e734dbbbdb21da9ed8efcca08e8e4a379b8aec773b4606102e772b54f7c469.mp3",
+      "duration": 3.243
+    },
+    "09b27ef7f58650449f432b70e9b21acf4f4bb15408ba487d36ab169abf1ef6ef": {
+      "src": "/kay/audio/kimi-ko-09b27ef7f58650449f432b70e9b21acf4f4bb15408ba487d36ab169abf1ef6ef.mp3",
+      "duration": 1.479
+    },
+    "10cff5083cdf3e122a8fee4a2b5f6b6e6ed38e815edba740753059cfc9ee5f61": {
+      "src": "/kay/audio/kimi-ko-10cff5083cdf3e122a8fee4a2b5f6b6e6ed38e815edba740753059cfc9ee5f61.mp3",
+      "duration": 4.938
+    },
+    "38548464401502f8d760a15c6450283194a019640be07751f6f5574fe2fc5cd3": {
+      "src": "/kay/audio/kimi-ko-38548464401502f8d760a15c6450283194a019640be07751f6f5574fe2fc5cd3.mp3",
+      "duration": 1.362
+    },
+    "48773a337309a365a62e8b11172cf27bcb807585f0f5ce56bb9ebe9f37cf77d8": {
+      "src": "/kay/audio/kimi-ko-48773a337309a365a62e8b11172cf27bcb807585f0f5ce56bb9ebe9f37cf77d8.mp3",
+      "duration": 5.031
+    },
+    "40dea313cd84059fced40068d795c42f2217cc0144e27934373b6044ab0aa212": {
+      "src": "/kay/audio/kimi-ko-40dea313cd84059fced40068d795c42f2217cc0144e27934373b6044ab0aa212.mp3",
+      "duration": 6.551
+    },
+    "638c41e76d1ad49b16e01344b4cd86eb6f53026107968435b353821306786d19": {
+      "src": "/kay/audio/kimi-ko-638c41e76d1ad49b16e01344b4cd86eb6f53026107968435b353821306786d19.mp3",
+      "duration": 2.373
+    },
+    "1dd51cb555fb8c355ab787bf527e1c6e7dfa276dda9652bdc76fb9da81e94266": {
+      "src": "/kay/audio/kimi-ko-1dd51cb555fb8c355ab787bf527e1c6e7dfa276dda9652bdc76fb9da81e94266.mp3",
+      "duration": 3.94
+    },
+    "01e6ffd07487a7c5a4c629ab37a43d3e2e259d610c9efeb4995b533549cdb05b": {
+      "src": "/kay/audio/kimi-ko-01e6ffd07487a7c5a4c629ab37a43d3e2e259d610c9efeb4995b533549cdb05b.mp3",
+      "duration": 2.221
+    },
+    "044c4cb0a3a03eea4e2e010ae61132095b54c0c86867db99f79d614db84f583c": {
+      "src": "/kay/audio/kimi-ko-044c4cb0a3a03eea4e2e010ae61132095b54c0c86867db99f79d614db84f583c.mp3",
+      "duration": 2.279
+    },
+    "a2bbf3161402274bb5f9f27da6af3218e35be194885dc13190c01c41e4af240f": {
+      "src": "/kay/audio/kimi-ko-a2bbf3161402274bb5f9f27da6af3218e35be194885dc13190c01c41e4af240f.mp3",
+      "duration": 6.262
+    },
+    "c1402c18273d47d4ef275ea0134ec7a9402e43d8401b7d384ce28b6118ed29f4": {
+      "src": "/kay/audio/kimi-ko-c1402c18273d47d4ef275ea0134ec7a9402e43d8401b7d384ce28b6118ed29f4.mp3",
+      "duration": 2.813
+    },
+    "58e203cbe64962c249e4f0772e6fb962f7f8bd2a6f62a09ce0c1b3e0a2cbbc5d": {
+      "src": "/kay/audio/kimi-ko-58e203cbe64962c249e4f0772e6fb962f7f8bd2a6f62a09ce0c1b3e0a2cbbc5d.mp3",
+      "duration": 1.664
+    },
+    "0b37ed8d3fe14df62153c309e512596df83d31dac3e52bd263e672b3d05836c7": {
+      "src": "/kay/audio/kimi-ko-0b37ed8d3fe14df62153c309e512596df83d31dac3e52bd263e672b3d05836c7.mp3",
+      "duration": 5.542
+    },
+    "b65367b2408a6d9bbeefcf0ddfc97015107f527b0d0d1c34342e3b6a428d3b3e": {
+      "src": "/kay/audio/kimi-ko-b65367b2408a6d9bbeefcf0ddfc97015107f527b0d0d1c34342e3b6a428d3b3e.mp3",
+      "duration": 1.687
+    },
+    "07355185be42831cd1d7e70262512422a739d12dbb90b57b5339e0faefa693df": {
+      "src": "/kay/audio/kimi-ko-07355185be42831cd1d7e70262512422a739d12dbb90b57b5339e0faefa693df.mp3",
+      "duration": 6.134
+    },
+    "aacb652fdbddd0e8f2e87e0c543a2899b56ca8eb3da2613ec8c980aeea0f19e8": {
+      "src": "/kay/audio/kimi-ko-aacb652fdbddd0e8f2e87e0c543a2899b56ca8eb3da2613ec8c980aeea0f19e8.mp3",
+      "duration": 2.674
+    },
+    "efaca95735ddb7ae67b913a0ddb27e0e8aa99da8d8be05833bef52c05d57c7a7": {
+      "src": "/kay/audio/kimi-ko-efaca95735ddb7ae67b913a0ddb27e0e8aa99da8d8be05833bef52c05d57c7a7.mp3",
+      "duration": 2.186
+    },
+    "8eb8eb412062fc566a37cf82b91e4e7d9e9864b38c11c3f3c52bd979daab8c00": {
+      "src": "/kay/audio/kimi-ko-8eb8eb412062fc566a37cf82b91e4e7d9e9864b38c11c3f3c52bd979daab8c00.mp3",
+      "duration": 5.589
+    },
+    "fc6dae658dadb7ac41bb03bc16aeb9950e6889e669d2e366202b7c6019233f46": {
+      "src": "/kay/audio/kimi-ko-fc6dae658dadb7ac41bb03bc16aeb9950e6889e669d2e366202b7c6019233f46.mp3",
+      "duration": 2.325
+    },
+    "41047fccbe5c9779ae8d349121dae06d0caf99460051376804317371318080b9": {
+      "src": "/kay/audio/kimi-ko-41047fccbe5c9779ae8d349121dae06d0caf99460051376804317371318080b9.mp3",
+      "duration": 4.845
+    },
+    "307106556e0d54039ef6c92fda9c73342c210ecac72f2fbc7bdaefccbe183679": {
+      "src": "/kay/audio/kimi-ko-307106556e0d54039ef6c92fda9c73342c210ecac72f2fbc7bdaefccbe183679.mp3",
+      "duration": 6.424
+    },
+    "ef706f422ac12de034d3b25e9f34b542846db9696ffd912b71b9dc7957264e30": {
+      "src": "/kay/audio/kimi-ko-ef706f422ac12de034d3b25e9f34b542846db9696ffd912b71b9dc7957264e30.mp3",
+      "duration": 3.951
+    },
+    "366274e07be619cb6ad8d6c1fcc2099fb72ca932c76ea0310cfab0182b120d0b": {
+      "src": "/kay/audio/kimi-ko-366274e07be619cb6ad8d6c1fcc2099fb72ca932c76ea0310cfab0182b120d0b.mp3",
+      "duration": 2.616
+    },
+    "97acac82a963b6f468763008c57435fc922cdc382a4ded7378d4b3186557676d": {
+      "src": "/kay/audio/kimi-ko-97acac82a963b6f468763008c57435fc922cdc382a4ded7378d4b3186557676d.mp3",
+      "duration": 6.796
+    },
+    "4fa7bd9fe1fac892041a879cd68bd6ac0e39ffc12b5792c071aaaa11280cec73": {
+      "src": "/kay/audio/kimi-ko-4fa7bd9fe1fac892041a879cd68bd6ac0e39ffc12b5792c071aaaa11280cec73.mp3",
+      "duration": 2.14
+    },
+    "af42925d019ee1fd6686a11c9b79fcbd1f596711818539fb9158d3bcf7915dc6": {
+      "src": "/kay/audio/kimi-ko-af42925d019ee1fd6686a11c9b79fcbd1f596711818539fb9158d3bcf7915dc6.mp3",
+      "duration": 5.681
+    },
+    "0841ac8e5804ab57522cfd251bb84e88bc6fb8eec2303e2967be672356d878cb": {
+      "src": "/kay/audio/kimi-ko-0841ac8e5804ab57522cfd251bb84e88bc6fb8eec2303e2967be672356d878cb.mp3",
+      "duration": 2.732
+    },
+    "bfd863d03bf962250cd1c7fcfd38714b16a80357d56fe5da5f516e66a1aa3ab0": {
+      "src": "/kay/audio/kimi-ko-bfd863d03bf962250cd1c7fcfd38714b16a80357d56fe5da5f516e66a1aa3ab0.mp3",
+      "duration": 2.628
+    },
+    "8eaf4663126de0bf40cbbd2255e800e40ee291c65923e1066cc3451c1f77bd48": {
+      "src": "/kay/audio/kimi-ko-8eaf4663126de0bf40cbbd2255e800e40ee291c65923e1066cc3451c1f77bd48.mp3",
+      "duration": 2.894
+    },
+    "eeffd977d1dba417f139a15e0ed001e323068c96b59fa397a8a55a8567cb93ef": {
+      "src": "/kay/audio/kimi-ko-eeffd977d1dba417f139a15e0ed001e323068c96b59fa397a8a55a8567cb93ef.mp3",
+      "duration": 2.28
+    },
+    "a8b2eef1146aa761221190b6816924c510205818d73e23634a5e5c6d8c25f9ea": {
+      "src": "/kay/audio/kimi-ko-a8b2eef1146aa761221190b6816924c510205818d73e23634a5e5c6d8c25f9ea.mp3",
+      "duration": 6.761
+    },
+    "acae802e47d65689ddb31328847f66c417edf4595d91a7210b9ad360f324bcad": {
+      "src": "/kay/audio/kimi-ko-acae802e47d65689ddb31328847f66c417edf4595d91a7210b9ad360f324bcad.mp3",
+      "duration": 6.796
+    },
+    "5601472445896b5fbc47b7805ac10e281afac8fd722840489b5ec7f115275e0b": {
+      "src": "/kay/audio/kimi-ko-5601472445896b5fbc47b7805ac10e281afac8fd722840489b5ec7f115275e0b.mp3",
+      "duration": 4.264
+    },
+    "a1b3105b340eab53b75f2cdf6772f1003ec854e95686c2e963420a12dcd368ba": {
+      "src": "/kay/audio/kimi-ko-a1b3105b340eab53b75f2cdf6772f1003ec854e95686c2e963420a12dcd368ba.mp3",
+      "duration": 1.896
+    },
+    "197ebb6dd8d24018115cc40641eeedd0b9975317ee49b7e9f79fc42a676be81b": {
+      "src": "/kay/audio/kimi-ko-197ebb6dd8d24018115cc40641eeedd0b9975317ee49b7e9f79fc42a676be81b.mp3",
+      "duration": 5.507
+    },
+    "e34c7f8afb6a89e1db1a4f12e7b79e2062220f70c45739747c43727dfdfc2d9f": {
+      "src": "/kay/audio/kimi-ko-e34c7f8afb6a89e1db1a4f12e7b79e2062220f70c45739747c43727dfdfc2d9f.mp3",
+      "duration": 2.221
+    },
+    "7788f5086e0e32a4f3aaeedb6223a5676ba930373efd27c236ac242089ac8679": {
+      "src": "/kay/audio/kimi-ko-7788f5086e0e32a4f3aaeedb6223a5676ba930373efd27c236ac242089ac8679.mp3",
+      "duration": 6.993
+    },
+    "31b19a23f5d00ec388f355218335cf16ec7c6352824a4532accab535cb623801": {
+      "src": "/kay/audio/kimi-ko-31b19a23f5d00ec388f355218335cf16ec7c6352824a4532accab535cb623801.mp3",
+      "duration": 3.267
+    },
+    "233f3355dc68d41fb869e25a6155b876fe63c77fa0ae1e09e4c63f1920401b56": {
+      "src": "/kay/audio/kimi-ko-233f3355dc68d41fb869e25a6155b876fe63c77fa0ae1e09e4c63f1920401b56.mp3",
+      "duration": 2.337
+    },
+    "e2ed7bca599a4d68df05a4dcc32f4b77e767f48ee19e1c7d96e6952e46010d47": {
+      "src": "/kay/audio/kimi-ko-e2ed7bca599a4d68df05a4dcc32f4b77e767f48ee19e1c7d96e6952e46010d47.mp3",
+      "duration": 5.821
+    },
+    "a7e85bf8d4a669445ccd03efe3f5002364152679c92163fb31c1848fe6027751": {
+      "src": "/kay/audio/kimi-ko-a7e85bf8d4a669445ccd03efe3f5002364152679c92163fb31c1848fe6027751.mp3",
+      "duration": 1.838
+    },
+    "0dcfb86138d2a085d5c92859cfc6461a30cd3e156cf1483e3d9272a6d15ee77b": {
+      "src": "/kay/audio/kimi-ko-0dcfb86138d2a085d5c92859cfc6461a30cd3e156cf1483e3d9272a6d15ee77b.mp3",
+      "duration": 5.728
+    },
+    "b6924428de5ab801c1e73b354231ca788213e81f94be9a9be2d67851fef8321d": {
+      "src": "/kay/audio/kimi-ko-b6924428de5ab801c1e73b354231ca788213e81f94be9a9be2d67851fef8321d.mp3",
+      "duration": 3.882
+    },
+    "54248acb944fe1f66eeae4683c7db5a17c4981b38d4ae2c4044ece3ff79328e5": {
+      "src": "/kay/audio/kimi-ko-54248acb944fe1f66eeae4683c7db5a17c4981b38d4ae2c4044ece3ff79328e5.mp3",
+      "duration": 2.326
+    },
+    "4b0a2a72ed2a423395c608d20d34c24b512e3f87fcbe4f607d4dd50a0c9427aa": {
+      "src": "/kay/audio/kimi-ko-4b0a2a72ed2a423395c608d20d34c24b512e3f87fcbe4f607d4dd50a0c9427aa.mp3",
+      "duration": 5.959
+    },
+    "8b02e0eedbc6eb4d564d83725ca8732b2530543eed0e5b3ca39a53b7bcc4b663": {
+      "src": "/kay/audio/kimi-ko-8b02e0eedbc6eb4d564d83725ca8732b2530543eed0e5b3ca39a53b7bcc4b663.mp3",
+      "duration": 2.267
+    },
+    "8445caa8bee6eeff429e5c2fe44d6dda7b947aa8489afa4d37c53ef4f8013196": {
+      "src": "/kay/audio/kimi-ko-8445caa8bee6eeff429e5c2fe44d6dda7b947aa8489afa4d37c53ef4f8013196.mp3",
+      "duration": 5.438
+    },
+    "3c698fcfab172177562849be4c24706f1f4069383c6802061f1f971b8988a1e8": {
+      "src": "/kay/audio/kimi-ko-3c698fcfab172177562849be4c24706f1f4069383c6802061f1f971b8988a1e8.mp3",
+      "duration": 2.256
+    },
+    "36f983af7acc597b8f6ab0cb4cf68f50a7f339da745fa61feae24c1f887f4924": {
+      "src": "/kay/audio/kimi-ko-36f983af7acc597b8f6ab0cb4cf68f50a7f339da745fa61feae24c1f887f4924.mp3",
+      "duration": 3.348
+    },
+    "5d3d022374c811e35ef318744add9dd90bbc913a89d47606c904a4f0628101b8": {
+      "src": "/kay/audio/kimi-ko-5d3d022374c811e35ef318744add9dd90bbc913a89d47606c904a4f0628101b8.mp3",
+      "duration": 1.2
+    },
+    "11449e7a0ddd1b841b3afa2360db76a7d84fe7cc95c3bf96388741e16e62c7e7": {
+      "src": "/kay/audio/kimi-ko-11449e7a0ddd1b841b3afa2360db76a7d84fe7cc95c3bf96388741e16e62c7e7.mp3",
+      "duration": 6.436
+    },
+    "9e5ea607d878abfe2c7c3710499135f24fcd3578002d2bcd5d48eca6b65a2548": {
+      "src": "/kay/audio/kimi-ko-9e5ea607d878abfe2c7c3710499135f24fcd3578002d2bcd5d48eca6b65a2548.mp3",
+      "duration": 3.046
+    },
+    "e74791dd4edf4e2c9bbf02851f2dd758a49380c7639cae27cf7c790db59468f1": {
+      "src": "/kay/audio/kimi-ko-e74791dd4edf4e2c9bbf02851f2dd758a49380c7639cae27cf7c790db59468f1.mp3",
+      "duration": 2.499
+    },
+    "1cbc3337c7876f121de16db3314cd9271dc962d0c5e954b8b50e36ccdff63a14": {
+      "src": "/kay/audio/kimi-ko-1cbc3337c7876f121de16db3314cd9271dc962d0c5e954b8b50e36ccdff63a14.mp3",
+      "duration": 3.22
+    },
+    "742ab114806c917c9847b2329989f824c1c23220944eaf6a6834cab81676f63a": {
+      "src": "/kay/audio/kimi-ko-742ab114806c917c9847b2329989f824c1c23220944eaf6a6834cab81676f63a.mp3",
+      "duration": 1.978
+    },
+    "c2c013ed2389984d368ca97a1860442ed36bfec5b3a767aa04679bca7309781f": {
+      "src": "/kay/audio/kimi-ko-c2c013ed2389984d368ca97a1860442ed36bfec5b3a767aa04679bca7309781f.mp3",
+      "duration": 6.563
+    },
+    "019e5384c1b0b24089cb1501bcdb97f825ea88448518c3841eab28818d51079e": {
+      "src": "/kay/audio/kimi-ko-019e5384c1b0b24089cb1501bcdb97f825ea88448518c3841eab28818d51079e.mp3",
+      "duration": 2.442
+    },
+    "0d732c50c411b8a9b446489cfe0699ace20377a85524cf69ba6d6f88b7e56514": {
+      "src": "/kay/audio/kimi-ko-0d732c50c411b8a9b446489cfe0699ace20377a85524cf69ba6d6f88b7e56514.mp3",
+      "duration": 6.087
+    },
+    "f449d3b176b0d746c425be8dde2134f335526dc89f77023b04615b4c46e840fe": {
+      "src": "/kay/audio/kimi-ko-f449d3b176b0d746c425be8dde2134f335526dc89f77023b04615b4c46e840fe.mp3",
+      "duration": 2.79
+    },
+    "88d6889b653b287d32ee20c296d7162e9e63ab870da4162d9d0ed042d58eaad0": {
+      "src": "/kay/audio/kimi-ko-88d6889b653b287d32ee20c296d7162e9e63ab870da4162d9d0ed042d58eaad0.mp3",
+      "duration": 1.618
+    },
+    "e7a683f0508d3bb958713a73817853137e0688b9ec32df3a8fa424be672b1345": {
+      "src": "/kay/audio/kimi-ko-e7a683f0508d3bb958713a73817853137e0688b9ec32df3a8fa424be672b1345.mp3",
+      "duration": 5.855
+    },
+    "39adc3c7f4112983d78abce1330a5b272e50af716d283565e61034b08df0bf5f": {
+      "src": "/kay/audio/kimi-ko-39adc3c7f4112983d78abce1330a5b272e50af716d283565e61034b08df0bf5f.mp3",
+      "duration": 1.606
+    },
+    "20a3f7d7f605963debc859984337e676fa5e87226dee0819f18188ab79f6d011": {
+      "src": "/kay/audio/kimi-ko-20a3f7d7f605963debc859984337e676fa5e87226dee0819f18188ab79f6d011.mp3",
+      "duration": 5.124
+    },
+    "c5315c87afcb12693812bbdc9229603b80d6dd77cf6513015914867d92bdeb8a": {
+      "src": "/kay/audio/kimi-ko-c5315c87afcb12693812bbdc9229603b80d6dd77cf6513015914867d92bdeb8a.mp3",
+      "duration": 6.192
+    },
+    "3025f85ccbe6e62b6bb208d7f654880d2b9c7897da5a6a9370e77bbb82971f1a": {
+      "src": "/kay/audio/kimi-ko-3025f85ccbe6e62b6bb208d7f654880d2b9c7897da5a6a9370e77bbb82971f1a.mp3",
+      "duration": 4.347
+    },
+    "feb40525a5a986d758851b2e2fb8ba2da4cd36f802c3d9b3a14524e74b2fb066": {
+      "src": "/kay/audio/kimi-ko-feb40525a5a986d758851b2e2fb8ba2da4cd36f802c3d9b3a14524e74b2fb066.mp3",
+      "duration": 1.989
+    },
+    "d12bda305fa403c9cc320e39f19ecfbc04ced2d70c2da0618885ce2718430f18": {
+      "src": "/kay/audio/kimi-ko-d12bda305fa403c9cc320e39f19ecfbc04ced2d70c2da0618885ce2718430f18.mp3",
+      "duration": 6.819
+    },
+    "2aab88804bda5c3c952caf6ccc43888f6695bad6fd5cba4abb9da881dd57b854": {
+      "src": "/kay/audio/kimi-ko-2aab88804bda5c3c952caf6ccc43888f6695bad6fd5cba4abb9da881dd57b854.mp3",
+      "duration": 1.838
+    },
+    "fdb29663975415824dc0ede1f5c8a8bd21071ecae268c026f8bb38dca5b25d4a": {
+      "src": "/kay/audio/kimi-ko-fdb29663975415824dc0ede1f5c8a8bd21071ecae268c026f8bb38dca5b25d4a.mp3",
+      "duration": 5.066
+    },
+    "7c1c1943cb391cca09fa615b726ff27dda8d4e185e178d7bf6908a9eca965282": {
+      "src": "/kay/audio/kimi-ko-7c1c1943cb391cca09fa615b726ff27dda8d4e185e178d7bf6908a9eca965282.mp3",
+      "duration": 6.401
+    },
+    "0e6d6b9bf29338f46a477b87bb81380a1e625fec9d0a0af64b6913e0cd959852": {
+      "src": "/kay/audio/kimi-ko-0e6d6b9bf29338f46a477b87bb81380a1e625fec9d0a0af64b6913e0cd959852.mp3",
+      "duration": 2.43
+    },
+    "bda1110187987096a57bb0bd7d44b5f9feda1db70dfc156624bd19efb4a053d5": {
+      "src": "/kay/audio/kimi-ko-bda1110187987096a57bb0bd7d44b5f9feda1db70dfc156624bd19efb4a053d5.mp3",
+      "duration": 2.86
+    },
+    "b3b97137c88ee6bdc33be5d4881bdb0f6edeb4d1cf005aab7e8562f74658fa8f": {
+      "src": "/kay/audio/kimi-ko-b3b97137c88ee6bdc33be5d4881bdb0f6edeb4d1cf005aab7e8562f74658fa8f.mp3",
+      "duration": 2.674
+    },
+    "260507ce56f185223062d2c6be37c490b55f568f1af2d8a5dadf7e90522972ac": {
+      "src": "/kay/audio/kimi-ko-260507ce56f185223062d2c6be37c490b55f568f1af2d8a5dadf7e90522972ac.mp3",
+      "duration": 2.477
+    },
+    "69fc16a7641bdd477558d47b6dac9b4895dc7bb4506b66ef7b1d6711227ddadc": {
+      "src": "/kay/audio/kimi-ko-69fc16a7641bdd477558d47b6dac9b4895dc7bb4506b66ef7b1d6711227ddadc.mp3",
+      "duration": 2.755
+    },
+    "c90e878e5d8ca73eff581113de76b250a22fc88ccbdbd96cf9a8e8bdea57804e": {
+      "src": "/kay/audio/kimi-ko-c90e878e5d8ca73eff581113de76b250a22fc88ccbdbd96cf9a8e8bdea57804e.mp3",
+      "duration": 3.138
+    },
+    "cca30ee6818dd992a7730ce0561770d272b2580f7c4b9ec9d7601f19a3f66f49": {
+      "src": "/kay/audio/kimi-ko-cca30ee6818dd992a7730ce0561770d272b2580f7c4b9ec9d7601f19a3f66f49.mp3",
+      "duration": 6.076
+    },
+    "5ec6a3abf404903874e238cad510c26ce14b07c1139f07874ea2cf0b29da3252": {
+      "src": "/kay/audio/kimi-ko-5ec6a3abf404903874e238cad510c26ce14b07c1139f07874ea2cf0b29da3252.mp3",
+      "duration": 2.163
+    },
+    "df5ebe934f5e106b2b95483e6c327ad0ba9211e629dcdbcb60cee2b9d2a0a7d4": {
+      "src": "/kay/audio/kimi-ko-df5ebe934f5e106b2b95483e6c327ad0ba9211e629dcdbcb60cee2b9d2a0a7d4.mp3",
+      "duration": 6.621
+    },
+    "2bb71c58fcc4fde420c26c026340e35f90f08eba76119ae09d046181a5674cc4": {
+      "src": "/kay/audio/kimi-ko-2bb71c58fcc4fde420c26c026340e35f90f08eba76119ae09d046181a5674cc4.mp3",
+      "duration": 4.021
+    },
+    "1d0f08bb03748e86a6bcf068539f1ce2a2e6658ff9a73fdb777c5bd96236ccb6": {
+      "src": "/kay/audio/kimi-ko-1d0f08bb03748e86a6bcf068539f1ce2a2e6658ff9a73fdb777c5bd96236ccb6.mp3",
+      "duration": 2.906
+    },
+    "256146b5409913c37a2f7525ea09cceac0e8f54364d45198d50df37bbea2df46": {
+      "src": "/kay/audio/kimi-ko-256146b5409913c37a2f7525ea09cceac0e8f54364d45198d50df37bbea2df46.mp3",
+      "duration": 7.061
+    },
+    "8081c6c453cd2b6463e88f567e8884fff9e8d46d3d9bee909d3cdadd84d574fb": {
+      "src": "/kay/audio/kimi-ko-8081c6c453cd2b6463e88f567e8884fff9e8d46d3d9bee909d3cdadd84d574fb.mp3",
+      "duration": 2.059
+    },
+    "bdd467aa6456330b2c0dbf5e1ee49103c3c191f0d696d0e7502ba52ce931e05a": {
+      "src": "/kay/audio/kimi-ko-bdd467aa6456330b2c0dbf5e1ee49103c3c191f0d696d0e7502ba52ce931e05a.mp3",
+      "duration": 6.006
+    },
+    "cbf18c45c8c5921d03cbf7791099309f1b4d9f8ad4a062dded07c8e9f2bbeb1a": {
+      "src": "/kay/audio/kimi-ko-cbf18c45c8c5921d03cbf7791099309f1b4d9f8ad4a062dded07c8e9f2bbeb1a.mp3",
+      "duration": 6.819
+    },
+    "e50665ca728ac8c35d52d997842f06da1a883822134efdc330ceecf974fd4311": {
+      "src": "/kay/audio/kimi-ko-e50665ca728ac8c35d52d997842f06da1a883822134efdc330ceecf974fd4311.mp3",
+      "duration": 4.671
+    },
+    "d0b7d8db9fa0369219d56f466f6822e51c304236555797f137e47037280b051a": {
+      "src": "/kay/audio/kimi-ko-d0b7d8db9fa0369219d56f466f6822e51c304236555797f137e47037280b051a.mp3",
+      "duration": 2.314
+    },
+    "6a47777d43989f6ced5e42b5c3f87d639449240f61909b937d7f55d777af2ed9": {
+      "src": "/kay/audio/kimi-ko-6a47777d43989f6ced5e42b5c3f87d639449240f61909b937d7f55d777af2ed9.mp3",
+      "duration": 7.621
+    },
+    "085502d920c9225b5ae02f53ff1feacf4d6f22850b30fb67a3d8be6b9a06d2f7": {
+      "src": "/kay/audio/kimi-ko-085502d920c9225b5ae02f53ff1feacf4d6f22850b30fb67a3d8be6b9a06d2f7.mp3",
+      "duration": 2.082
+    },
+    "fc3b95045817b47657b0c5f80794c7a02c31c34a6ff8a41a7a0ad15bc5177529": {
+      "src": "/kay/audio/kimi-ko-fc3b95045817b47657b0c5f80794c7a02c31c34a6ff8a41a7a0ad15bc5177529.mp3",
+      "duration": 5.472
+    },
+    "b92ec326ed53dc0a341dbdec5618e216c082442092086e9a3bf4fff6fe1f2b77": {
+      "src": "/kay/audio/kimi-ko-b92ec326ed53dc0a341dbdec5618e216c082442092086e9a3bf4fff6fe1f2b77.mp3",
+      "duration": 6.482
+    },
+    "7a603c810390e302e40535856cf72e96ea188548969e6666f4b32325721dfa61": {
+      "src": "/kay/audio/kimi-ko-7a603c810390e302e40535856cf72e96ea188548969e6666f4b32325721dfa61.mp3",
+      "duration": 2.338
+    },
+    "c228bce8eb4139dbc0bc532e71d11e6542e24dfc27db5e842aadb76008167c33": {
+      "src": "/kay/audio/kimi-ko-c228bce8eb4139dbc0bc532e71d11e6542e24dfc27db5e842aadb76008167c33.mp3",
+      "duration": 2.268
+    },
+    "ecda5a371e37ec184e6b66d816a9107c4e159624d4b5d6d2a1ae1ac7c7dab6d4": {
+      "src": "/kay/audio/kimi-ko-ecda5a371e37ec184e6b66d816a9107c4e159624d4b5d6d2a1ae1ac7c7dab6d4.mp3",
+      "duration": 2.303
+    },
+    "de20b93d360ff80b368e4260cd6d251333912958354a491a05b922336df35ea2": {
+      "src": "/kay/audio/kimi-ko-de20b93d360ff80b368e4260cd6d251333912958354a491a05b922336df35ea2.mp3",
+      "duration": 2.477
+    },
+    "33c538882919a0cb43906d6ab58a2cffddf865dc4a16998d42a1b663c82dc37a": {
+      "src": "/kay/audio/kimi-ko-33c538882919a0cb43906d6ab58a2cffddf865dc4a16998d42a1b663c82dc37a.mp3",
+      "duration": 2.453
+    },
+    "f53e720559570c8d3048eaa5bdfd0e94d311f55eedb9a37d8baeb663ffe6a195": {
+      "src": "/kay/audio/kimi-ko-f53e720559570c8d3048eaa5bdfd0e94d311f55eedb9a37d8baeb663ffe6a195.mp3",
+      "duration": 2.43
+    },
+    "95b740aed5794f64e9191909dc1dde1a7ed99affb5ac0c69aacee4c46de79e51": {
+      "src": "/kay/audio/kimi-ko-95b740aed5794f64e9191909dc1dde1a7ed99affb5ac0c69aacee4c46de79e51.mp3",
+      "duration": 5.785
+    },
+    "7da93dc3de13c03344258514e798c60ca54a35702ef5210fed4fd9423a919f53": {
+      "src": "/kay/audio/kimi-ko-7da93dc3de13c03344258514e798c60ca54a35702ef5210fed4fd9423a919f53.mp3",
+      "duration": 1.827
+    },
+    "b6a9b3d6fdd0dfd24d65f583d448161347c2603ced6536a97c5e21c0612af1d1": {
+      "src": "/kay/audio/kimi-ko-b6a9b3d6fdd0dfd24d65f583d448161347c2603ced6536a97c5e21c0612af1d1.mp3",
+      "duration": 7.295
+    },
+    "3ea9fa9b4fc44c341d499d164df9d5e4ff556d35edfc7d30ff79b101b7b8fc67": {
+      "src": "/kay/audio/kimi-ko-3ea9fa9b4fc44c341d499d164df9d5e4ff556d35edfc7d30ff79b101b7b8fc67.mp3",
+      "duration": 3.418
+    },
+    "77015d4e93c8659701aef5073cc4b33a2bfe30509dec3882ba39720758579638": {
+      "src": "/kay/audio/kimi-ko-77015d4e93c8659701aef5073cc4b33a2bfe30509dec3882ba39720758579638.mp3",
+      "duration": 1.862
+    },
+    "11851851779296db74a13e394f76fe1f0147b06d8f8e37a92031a3fe367ba5a8": {
+      "src": "/kay/audio/kimi-ko-11851851779296db74a13e394f76fe1f0147b06d8f8e37a92031a3fe367ba5a8.mp3",
+      "duration": 6.877
+    },
+    "8e3ba99300c36d6336ea26ffa8e59c9c1927d214a5bcf8718530f09dc6b73294": {
+      "src": "/kay/audio/kimi-ko-8e3ba99300c36d6336ea26ffa8e59c9c1927d214a5bcf8718530f09dc6b73294.mp3",
+      "duration": 1.734
+    },
+    "966dac3345a12101ec903072477be897b16d985299b843a84f5e4c2b2bfbea1b": {
+      "src": "/kay/audio/kimi-ko-966dac3345a12101ec903072477be897b16d985299b843a84f5e4c2b2bfbea1b.mp3",
+      "duration": 5.518
+    },
+    "5f7e842c86795cfc52a369b274d0146cf684e7ca06275c635ffe2c838ef3d730": {
+      "src": "/kay/audio/kimi-ko-5f7e842c86795cfc52a369b274d0146cf684e7ca06275c635ffe2c838ef3d730.mp3",
+      "duration": 2.465
+    },
+    "a5b341fc17a684090dceeaa794cbbe30b5e2107e5f0c60064b21fad905afec85": {
+      "src": "/kay/audio/kimi-ko-a5b341fc17a684090dceeaa794cbbe30b5e2107e5f0c60064b21fad905afec85.mp3",
+      "duration": 3.952
+    },
+    "6f323004abd586b96f625b0c079683f761c2b476ff88674edd048ed69b19e211": {
+      "src": "/kay/audio/kimi-ko-6f323004abd586b96f625b0c079683f761c2b476ff88674edd048ed69b19e211.mp3",
+      "duration": 1.479
+    },
+    "27626a299bb2990b3068b31b3de3cbba2d7db88caaa6ea869b463df3d07a4465": {
+      "src": "/kay/audio/kimi-ko-27626a299bb2990b3068b31b3de3cbba2d7db88caaa6ea869b463df3d07a4465.mp3",
+      "duration": 4.787
+    },
+    "33995dfb85aabeef5ad0ad0d61756c1f5f278d120c55dc7993ea25ba8ded525c": {
+      "src": "/kay/audio/kimi-ko-33995dfb85aabeef5ad0ad0d61756c1f5f278d120c55dc7993ea25ba8ded525c.mp3",
+      "duration": 2.965
+    },
+    "b9b2b01c893e6f02c1acc5d5139cb2ac582d96382e619ebe1da657ea0d3e016b": {
+      "src": "/kay/audio/kimi-ko-b9b2b01c893e6f02c1acc5d5139cb2ac582d96382e619ebe1da657ea0d3e016b.mp3",
+      "duration": 5.541
+    },
+    "72744aff828f8b914c9107ac6751c0c0c2c852b08a433a5f82c47eb3374db2d7": {
+      "src": "/kay/audio/kimi-ko-72744aff828f8b914c9107ac6751c0c0c2c852b08a433a5f82c47eb3374db2d7.mp3",
+      "duration": 5.263
+    },
+    "5d104104ae411ce79392cf3c03727bcfa579f01b097825823900b3673cc52172": {
+      "src": "/kay/audio/kimi-ko-5d104104ae411ce79392cf3c03727bcfa579f01b097825823900b3673cc52172.mp3",
+      "duration": 3.393
+    },
+    "091a18d030bdfe76060b30d3a666d7dfe25d52a8a4b2d5bbae2971306c51a912": {
+      "src": "/kay/audio/kimi-ko-091a18d030bdfe76060b30d3a666d7dfe25d52a8a4b2d5bbae2971306c51a912.mp3",
+      "duration": 2.268
+    },
+    "294adf18b43388aa85162b4c938c52d968bba30753906be724a2af6b2763358f": {
+      "src": "/kay/audio/kimi-ko-294adf18b43388aa85162b4c938c52d968bba30753906be724a2af6b2763358f.mp3",
+      "duration": 5.054
+    },
+    "c32a7b869eac3eb6d0b5d5b9de8c241f78e588174325b3e8e0aca5c34f38ac6b": {
+      "src": "/kay/audio/kimi-ko-c32a7b869eac3eb6d0b5d5b9de8c241f78e588174325b3e8e0aca5c34f38ac6b.mp3",
+      "duration": 6.389
+    },
+    "c6eeec1205e42ac6106f1d09ae54abd5dfc2f134671d87d3e2d1fb59f430827f": {
+      "src": "/kay/audio/kimi-ko-c6eeec1205e42ac6106f1d09ae54abd5dfc2f134671d87d3e2d1fb59f430827f.mp3",
+      "duration": 8.166
+    },
+    "dcd58e569eb20590c5192908f8fbc121d4542ea541a05fd8eaf0280509740465": {
+      "src": "/kay/audio/kimi-ko-dcd58e569eb20590c5192908f8fbc121d4542ea541a05fd8eaf0280509740465.mp3",
+      "duration": 7.028
+    },
+    "f421751ed0e699d92a1392f59850932f49a792f0c52e2e5456caccb24785d9a4": {
+      "src": "/kay/audio/kimi-ko-f421751ed0e699d92a1392f59850932f49a792f0c52e2e5456caccb24785d9a4.mp3",
+      "duration": 7.991
+    },
+    "3b092bc49d40a2e6238d2a81b18feb3079fa63a165b0f009893eccb738e9da9f": {
+      "src": "/kay/audio/kimi-en-3b092bc49d40a2e6238d2a81b18feb3079fa63a165b0f009893eccb738e9da9f.mp3",
+      "duration": 5.366
+    },
+    "b4bc007ccb5c4fd8ad53a756df0cc2023505dced5b3216ea31ee235f5834a5fb": {
+      "src": "/kay/audio/kimi-en-b4bc007ccb5c4fd8ad53a756df0cc2023505dced5b3216ea31ee235f5834a5fb.mp3",
+      "duration": 3.742
+    },
+    "e42096aa57becc30fc96c8aa071ba76a8e16a0369b6b2946edbd4bf178af5142": {
+      "src": "/kay/audio/kimi-en-e42096aa57becc30fc96c8aa071ba76a8e16a0369b6b2946edbd4bf178af5142.mp3",
+      "duration": 1.083
+    },
+    "93f34a22fa633bf0d178f4d6fa9f429b8e8abbc1ef57fd4492d158e64f29260d": {
+      "src": "/kay/audio/kimi-en-93f34a22fa633bf0d178f4d6fa9f429b8e8abbc1ef57fd4492d158e64f29260d.mp3",
+      "duration": 4.694
+    },
+    "fc2459dbe38e425ff265392e37f54091b659712e18b661370a5e19bb8783e483": {
+      "src": "/kay/audio/kimi-en-fc2459dbe38e425ff265392e37f54091b659712e18b661370a5e19bb8783e483.mp3",
+      "duration": 1.443
+    },
+    "3d046e6e832622eff394a7a7e293588cc3e716349f3b75f6796cb81ff973018f": {
+      "src": "/kay/audio/kimi-en-3d046e6e832622eff394a7a7e293588cc3e716349f3b75f6796cb81ff973018f.mp3",
+      "duration": 4.892
+    },
+    "e2265676f538fe1fb81ab4291eb525615758133eb1f8af61af0abfca69d7015d": {
+      "src": "/kay/audio/kimi-en-e2265676f538fe1fb81ab4291eb525615758133eb1f8af61af0abfca69d7015d.mp3",
+      "duration": 5.727
+    },
+    "62ac3dadef4456e23bee346934cd6ae3c8f4214bcbac73fcda715aa2639f8833": {
+      "src": "/kay/audio/kimi-en-62ac3dadef4456e23bee346934cd6ae3c8f4214bcbac73fcda715aa2639f8833.mp3",
+      "duration": 1.582
+    },
+    "abdb78113d268ca6af578366464c4ffcf2f2c4e370639511b7c328d97580561a": {
+      "src": "/kay/audio/kimi-en-abdb78113d268ca6af578366464c4ffcf2f2c4e370639511b7c328d97580561a.mp3",
+      "duration": 2.709
+    },
+    "de8cc36edb2246e213a3746603bc28309bd9e83eaf8590bb764ac557468678d2": {
+      "src": "/kay/audio/kimi-en-de8cc36edb2246e213a3746603bc28309bd9e83eaf8590bb764ac557468678d2.mp3",
+      "duration": 1.827
+    },
+    "c0ff935d1012c0c13695d27fee02286d123df45df617f85472185fc55798aa1b": {
+      "src": "/kay/audio/kimi-en-c0ff935d1012c0c13695d27fee02286d123df45df617f85472185fc55798aa1b.mp3",
+      "duration": 2.117
+    },
+    "4afc26ac79e94ffb31eea4d718d26d6c9d8b370347bf2ac3fbc91614a9983a3c": {
+      "src": "/kay/audio/kimi-en-4afc26ac79e94ffb31eea4d718d26d6c9d8b370347bf2ac3fbc91614a9983a3c.mp3",
+      "duration": 5.321
+    },
+    "f13e71e68fc2fe42752b73c09bc89feb6c01e390c2a8dc52e4ced06265c97236": {
+      "src": "/kay/audio/kimi-en-f13e71e68fc2fe42752b73c09bc89feb6c01e390c2a8dc52e4ced06265c97236.mp3",
+      "duration": 1.722
+    },
+    "39d16ebe3b109c316f7e635e610f1d9f39693fc074a6e487f4fd88fd1667a170": {
+      "src": "/kay/audio/kimi-en-39d16ebe3b109c316f7e635e610f1d9f39693fc074a6e487f4fd88fd1667a170.mp3",
+      "duration": 0.653
+    },
+    "7390de45367f64702c34389adbae56de8be0a7699fa94fc91c7daefd9e9976e3": {
+      "src": "/kay/audio/kimi-en-7390de45367f64702c34389adbae56de8be0a7699fa94fc91c7daefd9e9976e3.mp3",
+      "duration": 5.554
+    },
+    "0e7f30168ac15ef872245dd3a0782dd413c474aa56c1cca4289384ce8274e1b4": {
+      "src": "/kay/audio/kimi-en-0e7f30168ac15ef872245dd3a0782dd413c474aa56c1cca4289384ce8274e1b4.mp3",
+      "duration": 0.712
+    },
+    "44c946a0ff139ed889a5d42020e21637af02be78abfee1e72ab1b2704e0dbcd3": {
+      "src": "/kay/audio/kimi-en-44c946a0ff139ed889a5d42020e21637af02be78abfee1e72ab1b2704e0dbcd3.mp3",
+      "duration": 5.042
+    },
+    "2446d728a7a7ef962a46831bac303a48a2134affe7201cf473a8256f33971138": {
+      "src": "/kay/audio/kimi-en-2446d728a7a7ef962a46831bac303a48a2134affe7201cf473a8256f33971138.mp3",
+      "duration": 2.663
+    },
+    "06fa3a165387980cb8baafca53cd1b1df1a74b11ca86f86328ab91b8a1d3f322": {
+      "src": "/kay/audio/kimi-en-06fa3a165387980cb8baafca53cd1b1df1a74b11ca86f86328ab91b8a1d3f322.mp3",
+      "duration": 0.886
+    },
+    "6aae2bb6f54dd744da7ecdaa4f77ac625d052d3086e1c112bf5a71897785b3ad": {
+      "src": "/kay/audio/kimi-en-6aae2bb6f54dd744da7ecdaa4f77ac625d052d3086e1c112bf5a71897785b3ad.mp3",
+      "duration": 5.287
+    },
+    "609875b3e5dea13f6f54ac7c345d59b920e25221aa7cb885b192c8dde6231b84": {
+      "src": "/kay/audio/kimi-en-609875b3e5dea13f6f54ac7c345d59b920e25221aa7cb885b192c8dde6231b84.mp3",
+      "duration": 1.374
+    },
+    "ffe06bab0ecb352200d67522e1d19ae41071cf95caca35b2e7577d8868374315": {
+      "src": "/kay/audio/kimi-en-ffe06bab0ecb352200d67522e1d19ae41071cf95caca35b2e7577d8868374315.mp3",
+      "duration": 5.599
+    },
+    "49c503d7f693a3460326795e0b1b0e0b300652fc7424d7a1a102570937aa67f1": {
+      "src": "/kay/audio/kimi-en-49c503d7f693a3460326795e0b1b0e0b300652fc7424d7a1a102570937aa67f1.mp3",
+      "duration": 5.02
+    },
+    "32348329696306fe31fd449d669f02ed9ffdcd7efc710f0fd2833c274b27b991": {
+      "src": "/kay/audio/kimi-en-32348329696306fe31fd449d669f02ed9ffdcd7efc710f0fd2833c274b27b991.mp3",
+      "duration": 3.197
+    },
+    "0b2a3c4dd734217e47e76c7770af60893219a7721d166c331eb72b038b6288f7": {
+      "src": "/kay/audio/kimi-en-0b2a3c4dd734217e47e76c7770af60893219a7721d166c331eb72b038b6288f7.mp3",
+      "duration": 2.279
+    },
+    "cd9ef3c7daead11da4d07c77ed4dfdb4b923b56d392f7e5c2452bbe7473e95b8": {
+      "src": "/kay/audio/kimi-en-cd9ef3c7daead11da4d07c77ed4dfdb4b923b56d392f7e5c2452bbe7473e95b8.mp3",
+      "duration": 5.077
+    },
+    "a81c605a0758695ade32f22ff91185448bdd2ecb172bfe7a7b452f5938b838c7": {
+      "src": "/kay/audio/kimi-en-a81c605a0758695ade32f22ff91185448bdd2ecb172bfe7a7b452f5938b838c7.mp3",
+      "duration": 1.374
+    },
+    "f4fc5cdaf2485796bcb3e0ccfc133554788046f48532759c7b8ff6a5d0b0b47c": {
+      "src": "/kay/audio/kimi-en-f4fc5cdaf2485796bcb3e0ccfc133554788046f48532759c7b8ff6a5d0b0b47c.mp3",
+      "duration": 4.88
+    },
+    "65ac2be7f602d89c56cdc37463d1573404370102ee5e8f90b8c679a01b8ecbd2": {
+      "src": "/kay/audio/kimi-en-65ac2be7f602d89c56cdc37463d1573404370102ee5e8f90b8c679a01b8ecbd2.mp3",
+      "duration": 1.942
+    },
+    "68af33ce4c3a7e1fcaaff92f3cad6279ffef6674b39bb9d24b23ae38f677fe3d": {
+      "src": "/kay/audio/kimi-en-68af33ce4c3a7e1fcaaff92f3cad6279ffef6674b39bb9d24b23ae38f677fe3d.mp3",
+      "duration": 2.012
+    },
+    "cf15ce37d82ccd20685c6d56bcfeba1dd93ebe49f4fbff02e537d36bd61becdd": {
+      "src": "/kay/audio/kimi-en-cf15ce37d82ccd20685c6d56bcfeba1dd93ebe49f4fbff02e537d36bd61becdd.mp3",
+      "duration": 2.291
+    },
+    "51935b74e74aa5a256fead34576aa2eba36f3ad4a71076d60f9273cde866c0ac": {
+      "src": "/kay/audio/kimi-en-51935b74e74aa5a256fead34576aa2eba36f3ad4a71076d60f9273cde866c0ac.mp3",
+      "duration": 1.85
+    },
+    "69e03823f18372528e8d4b3d80eb809fbcb0d70e87d21c10805bc425ca1713ba": {
+      "src": "/kay/audio/kimi-en-69e03823f18372528e8d4b3d80eb809fbcb0d70e87d21c10805bc425ca1713ba.mp3",
+      "duration": 5.24
+    },
+    "067fd66d954c171f75469d907280240e3fc274fdee9ae07543b098ab7613ca4c": {
+      "src": "/kay/audio/kimi-en-067fd66d954c171f75469d907280240e3fc274fdee9ae07543b098ab7613ca4c.mp3",
+      "duration": 5.878
+    },
+    "ef59969a1fa74dace37c8696519640d9b096a6af177052c5e374d2d8fddee78f": {
+      "src": "/kay/audio/kimi-en-ef59969a1fa74dace37c8696519640d9b096a6af177052c5e374d2d8fddee78f.mp3",
+      "duration": 3.835
+    },
+    "0aeb931ebaa583bbe15084acf747d8bd1b7a3be7b15173eef162f3e239f1f1cb": {
+      "src": "/kay/audio/kimi-en-0aeb931ebaa583bbe15084acf747d8bd1b7a3be7b15173eef162f3e239f1f1cb.mp3",
+      "duration": 1.06
+    },
+    "8854a6b82d64908ca0554d36e98cd6bb8851a3796d1e2cece466441ec85b5a44": {
+      "src": "/kay/audio/kimi-en-8854a6b82d64908ca0554d36e98cd6bb8851a3796d1e2cece466441ec85b5a44.mp3",
+      "duration": 5.181
+    },
+    "ba3520ec0e03a66e58bc92f491777135b46e621ff67f86eb68160d24fb99ac53": {
+      "src": "/kay/audio/kimi-en-ba3520ec0e03a66e58bc92f491777135b46e621ff67f86eb68160d24fb99ac53.mp3",
+      "duration": 1.524
+    },
+    "0bc15395a330bb933c6f52af7661574b19d32a5aff137706505f149df44993f3": {
+      "src": "/kay/audio/kimi-en-0bc15395a330bb933c6f52af7661574b19d32a5aff137706505f149df44993f3.mp3",
+      "duration": 5.634
+    },
+    "159d5606ba44d9f957796d472bf008b108d2ad1d46b90110413c9deb243d89c6": {
+      "src": "/kay/audio/kimi-en-159d5606ba44d9f957796d472bf008b108d2ad1d46b90110413c9deb243d89c6.mp3",
+      "duration": 2.674
+    },
+    "d087f853bf66681bde79c941d5bc0839df88a3bf8ae36e8d53eaa07a0a920e18": {
+      "src": "/kay/audio/kimi-en-d087f853bf66681bde79c941d5bc0839df88a3bf8ae36e8d53eaa07a0a920e18.mp3",
+      "duration": 2.105
+    },
+    "e354ddcff77b3d91668dd4ecfababb5ffc3df25c420227bc0d646a2c570f34c2": {
+      "src": "/kay/audio/kimi-en-e354ddcff77b3d91668dd4ecfababb5ffc3df25c420227bc0d646a2c570f34c2.mp3",
+      "duration": 5.971
+    },
+    "5d17b86556378ea67a98d53a7c3fe0429b0df88f88b4aa16bf9283a588405283": {
+      "src": "/kay/audio/kimi-en-5d17b86556378ea67a98d53a7c3fe0429b0df88f88b4aa16bf9283a588405283.mp3",
+      "duration": 1.722
+    },
+    "5c83c5084ada90b7abaa1d4211e6ac939f96aeabbfebcd06c3bf87df57658e97": {
+      "src": "/kay/audio/kimi-en-5c83c5084ada90b7abaa1d4211e6ac939f96aeabbfebcd06c3bf87df57658e97.mp3",
+      "duration": 6.145
+    },
+    "05216f5ca4092d34ced688c8c744f3b73fd2c64539f03117e935e16d850219e2": {
+      "src": "/kay/audio/kimi-en-05216f5ca4092d34ced688c8c744f3b73fd2c64539f03117e935e16d850219e2.mp3",
+      "duration": 2.964
+    },
+    "97192a7f16f0d343e5df247933505057fb4c06a1a444267ae3dbecb3f530a0b2": {
+      "src": "/kay/audio/kimi-en-97192a7f16f0d343e5df247933505057fb4c06a1a444267ae3dbecb3f530a0b2.mp3",
+      "duration": 1.234
+    },
+    "150550762e8dfd58727bed3be9fa09e120e4735a01b215e64b9f14b75242ee88": {
+      "src": "/kay/audio/kimi-en-150550762e8dfd58727bed3be9fa09e120e4735a01b215e64b9f14b75242ee88.mp3",
+      "duration": 5.901
+    },
+    "ac51d2feb649d620abd7c270662c294774917873d977c4f0f36d7a9d70ed14c0": {
+      "src": "/kay/audio/kimi-en-ac51d2feb649d620abd7c270662c294774917873d977c4f0f36d7a9d70ed14c0.mp3",
+      "duration": 1.977
+    },
+    "1d6464c8af9d53ec338d8f5c46de1d269c1c473ecf6d5c838a25e2163608bef4": {
+      "src": "/kay/audio/kimi-en-1d6464c8af9d53ec338d8f5c46de1d269c1c473ecf6d5c838a25e2163608bef4.mp3",
+      "duration": 7.086
+    },
+    "b95659ab65a6fbf424b34306ab78591103c2cd0983653850b0fddd8538174ebd": {
+      "src": "/kay/audio/kimi-en-b95659ab65a6fbf424b34306ab78591103c2cd0983653850b0fddd8538174ebd.mp3",
+      "duration": 1.848
+    },
+    "c76c0ca48ba96038d818add5aee6d637aef2bcb698662c744378a14ffdb28ec9": {
+      "src": "/kay/audio/kimi-en-c76c0ca48ba96038d818add5aee6d637aef2bcb698662c744378a14ffdb28ec9.mp3",
+      "duration": 2.686
+    },
+    "3c9c930245a6cc12dc9cdbf2713c948c3dd47c2392a8c4749ee43751a3b1aa32": {
+      "src": "/kay/audio/kimi-en-3c9c930245a6cc12dc9cdbf2713c948c3dd47c2392a8c4749ee43751a3b1aa32.mp3",
+      "duration": 5.518
+    },
+    "b8400d5831d4e5b83457c46c566a5c7498bbe1998279eb5b53133956fe711804": {
+      "src": "/kay/audio/kimi-en-b8400d5831d4e5b83457c46c566a5c7498bbe1998279eb5b53133956fe711804.mp3",
+      "duration": 5.042
+    },
+    "ec2b7abd2458a55aaf546cca4915f6cc9c1585491428bf320803f7dc2ca125dd": {
+      "src": "/kay/audio/kimi-en-ec2b7abd2458a55aaf546cca4915f6cc9c1585491428bf320803f7dc2ca125dd.mp3",
+      "duration": 2.535
+    },
+    "5aa22953bfef7ae2630e689d9e14b0c3317b890ab85f370380cc55a71a4ddeeb": {
+      "src": "/kay/audio/kimi-en-5aa22953bfef7ae2630e689d9e14b0c3317b890ab85f370380cc55a71a4ddeeb.mp3",
+      "duration": 2.732
+    },
+    "6c01603545473c21c4a92fbaea8fd378dc92df1ce5d92a1e0b6742cdaa08117b": {
+      "src": "/kay/audio/kimi-en-6c01603545473c21c4a92fbaea8fd378dc92df1ce5d92a1e0b6742cdaa08117b.mp3",
+      "duration": 2.57
+    },
+    "f876880396ebdd56d7a31c66d9909bf78b8370095be2d183d42a0e2b8613dcd5": {
+      "src": "/kay/audio/kimi-en-f876880396ebdd56d7a31c66d9909bf78b8370095be2d183d42a0e2b8613dcd5.mp3",
+      "duration": 1.617
+    },
+    "85e53d293efb4ca1a9bd2f3d499ca5637ed6d86b606fab928e48a24987620dcf": {
+      "src": "/kay/audio/kimi-en-85e53d293efb4ca1a9bd2f3d499ca5637ed6d86b606fab928e48a24987620dcf.mp3",
+      "duration": 6.389
+    },
+    "8c245dc7ce6f9c8f7fa6c1b6e1a6d499aa0411f5634f3e0b2c9e5cb3ccc36f1b": {
+      "src": "/kay/audio/kimi-en-8c245dc7ce6f9c8f7fa6c1b6e1a6d499aa0411f5634f3e0b2c9e5cb3ccc36f1b.mp3",
+      "duration": 1.071
+    },
+    "0994d12e98f5a5f1b8d9ef09dad067c775bb7c24bda0cd7616baba190983b5c9": {
+      "src": "/kay/audio/kimi-en-0994d12e98f5a5f1b8d9ef09dad067c775bb7c24bda0cd7616baba190983b5c9.mp3",
+      "duration": 5.518
+    },
+    "9d9636eac82aa8d6190f6b3540dc7bce88e0d9b552965bac6372df83ad608d39": {
+      "src": "/kay/audio/kimi-en-9d9636eac82aa8d6190f6b3540dc7bce88e0d9b552965bac6372df83ad608d39.mp3",
+      "duration": 2.871
+    },
+    "b48a6e379c627a659f4ba36dfa8dfb03c484d2894a3e1cfa7b290b67b48626b8": {
+      "src": "/kay/audio/kimi-en-b48a6e379c627a659f4ba36dfa8dfb03c484d2894a3e1cfa7b290b67b48626b8.mp3",
+      "duration": 1.327
+    },
+    "b777654accdbf6d1dfcf03952493fbc7b11fe4e065cda2706d44e45e98bdbadb": {
+      "src": "/kay/audio/kimi-en-b777654accdbf6d1dfcf03952493fbc7b11fe4e065cda2706d44e45e98bdbadb.mp3",
+      "duration": 5.542
+    },
+    "30070d89015ee423511e589bf814f87b500bd334b063251df3dc898eabf790a8": {
+      "src": "/kay/audio/kimi-en-30070d89015ee423511e589bf814f87b500bd334b063251df3dc898eabf790a8.mp3",
+      "duration": 1.316
+    },
+    "fa6e70f1d72aecfaf15c524f409e8009cb56053630fb4b5f9133e0339bee73c4": {
+      "src": "/kay/audio/kimi-en-fa6e70f1d72aecfaf15c524f409e8009cb56053630fb4b5f9133e0339bee73c4.mp3",
+      "duration": 5.984
+    },
+    "1b2e6ab4d3ab5a6e0f705cd8e9beea9e10298a09c1d3a5967fc6e2962b0e630e": {
+      "src": "/kay/audio/kimi-en-1b2e6ab4d3ab5a6e0f705cd8e9beea9e10298a09c1d3a5967fc6e2962b0e630e.mp3",
+      "duration": 5.24
+    },
+    "4ab139764949f6539e11a346d7dfa750dc8dcf5c3e7a687702982fcc70807829": {
+      "src": "/kay/audio/kimi-en-4ab139764949f6539e11a346d7dfa750dc8dcf5c3e7a687702982fcc70807829.mp3",
+      "duration": 3.997
+    },
+    "74f838b5aeb9217fa8a9a9e4c101c09b7afe22a9712cd82e8dcd3db52f02bb9e": {
+      "src": "/kay/audio/kimi-en-74f838b5aeb9217fa8a9a9e4c101c09b7afe22a9712cd82e8dcd3db52f02bb9e.mp3",
+      "duration": 1.513
+    },
+    "b9d9cf7125dfb370d2e23a50f41441c92c978cec413fbe15692aa49b02daac36": {
+      "src": "/kay/audio/kimi-en-b9d9cf7125dfb370d2e23a50f41441c92c978cec413fbe15692aa49b02daac36.mp3",
+      "duration": 6.609
+    },
+    "6c6f1638eba8ab9cbd04155a02847d5fa63b085ac9c8f33c132252f3291a7a28": {
+      "src": "/kay/audio/kimi-en-6c6f1638eba8ab9cbd04155a02847d5fa63b085ac9c8f33c132252f3291a7a28.mp3",
+      "duration": 1.292
+    },
+    "e50b163232705e87849ccde46db176227d8f40782eeb945a64858a8ba8a2d4a0": {
+      "src": "/kay/audio/kimi-en-e50b163232705e87849ccde46db176227d8f40782eeb945a64858a8ba8a2d4a0.mp3",
+      "duration": 5.322
+    },
+    "7358b4fb8dbbe0d0764ae2ee828d08d6d1d39d52fee6e36fd85c1167149a3619": {
+      "src": "/kay/audio/kimi-en-7358b4fb8dbbe0d0764ae2ee828d08d6d1d39d52fee6e36fd85c1167149a3619.mp3",
+      "duration": 5.693
+    },
+    "9b9c7d16e95cc4c73f7f4ad7d74f23122c4a5c344b9d5e0247e393b60e35321c": {
+      "src": "/kay/audio/kimi-en-9b9c7d16e95cc4c73f7f4ad7d74f23122c4a5c344b9d5e0247e393b60e35321c.mp3",
+      "duration": 1.965
+    },
+    "0053888877d51f7a78f249f8df973eb2684fbacfa0cdc749291e4039aaaf8419": {
+      "src": "/kay/audio/kimi-en-0053888877d51f7a78f249f8df973eb2684fbacfa0cdc749291e4039aaaf8419.mp3",
+      "duration": 2.744
+    },
+    "c7d935823b4c5bef5672390d637d61e281510e3ad679f36366f2237303495355": {
+      "src": "/kay/audio/kimi-en-c7d935823b4c5bef5672390d637d61e281510e3ad679f36366f2237303495355.mp3",
+      "duration": 2.813
+    },
+    "ad7b9a892deb3f30cbc98a91884bb4ad780952d15c50aff87a9bbd30f1456a2f": {
+      "src": "/kay/audio/kimi-en-ad7b9a892deb3f30cbc98a91884bb4ad780952d15c50aff87a9bbd30f1456a2f.mp3",
+      "duration": 2.628
+    },
+    "873e75c354f870a3ee45e6940088071b7174c340e47db5502bc63a7de31286ae": {
+      "src": "/kay/audio/kimi-en-873e75c354f870a3ee45e6940088071b7174c340e47db5502bc63a7de31286ae.mp3",
+      "duration": 2.604
+    },
+    "abc7860fc706ffbaa9eeb0b51ce14db0c92758b2967a8eea0b553f39ad896e2a": {
+      "src": "/kay/audio/kimi-en-abc7860fc706ffbaa9eeb0b51ce14db0c92758b2967a8eea0b553f39ad896e2a.mp3",
+      "duration": 5.448
+    },
+    "61ef59d73a9d75c5bdb0e8acf66f1f5637e0109d57bdf8484d7158bf2cb3c1c2": {
+      "src": "/kay/audio/kimi-en-61ef59d73a9d75c5bdb0e8acf66f1f5637e0109d57bdf8484d7158bf2cb3c1c2.mp3",
+      "duration": 1.513
+    },
+    "e387f127ea8854b08cba33768e10c41736a957403563440446f5269f052ac3e6": {
+      "src": "/kay/audio/kimi-en-e387f127ea8854b08cba33768e10c41736a957403563440446f5269f052ac3e6.mp3",
+      "duration": 6.308
+    },
+    "24136df6e157398a955b03b05e71d8572671554fb5b94fabdf1308dfb108d53c": {
+      "src": "/kay/audio/kimi-en-24136df6e157398a955b03b05e71d8572671554fb5b94fabdf1308dfb108d53c.mp3",
+      "duration": 3.196
+    },
+    "fc3fadd988e8d2f7ffaeb2b5e2b14c8776763772aca0e374a0854ca8a6906c09": {
+      "src": "/kay/audio/kimi-en-fc3fadd988e8d2f7ffaeb2b5e2b14c8776763772aca0e374a0854ca8a6906c09.mp3",
+      "duration": 1.548
+    },
+    "13ff00876c7ea1a4abec638a154dffe69996a4bdaa092dc68b7426c843cf42ce": {
+      "src": "/kay/audio/kimi-en-13ff00876c7ea1a4abec638a154dffe69996a4bdaa092dc68b7426c843cf42ce.mp3",
+      "duration": 7.468
+    },
+    "40c73541240b1ffabe816b33d66abea5e626cca047cb2defcd0d6f1762b43e99": {
+      "src": "/kay/audio/kimi-en-40c73541240b1ffabe816b33d66abea5e626cca047cb2defcd0d6f1762b43e99.mp3",
+      "duration": 1.687
+    },
+    "31d6461bdfc53cf3f1401d741104ef0bea5576fb406fe780709b778e4b6901f8": {
+      "src": "/kay/audio/kimi-en-31d6461bdfc53cf3f1401d741104ef0bea5576fb406fe780709b778e4b6901f8.mp3",
+      "duration": 5.716
+    },
+    "63601552f017227380b2d5de6882c976c9e3d78747bf5d81bd78ad3d33743637": {
+      "src": "/kay/audio/kimi-en-63601552f017227380b2d5de6882c976c9e3d78747bf5d81bd78ad3d33743637.mp3",
+      "duration": 5.31
+    },
+    "b7e685ebb831795d6f9e17a34a8d5a316514c53742e370b5be23df571844810c": {
+      "src": "/kay/audio/kimi-en-b7e685ebb831795d6f9e17a34a8d5a316514c53742e370b5be23df571844810c.mp3",
+      "duration": 3.997
+    },
+    "b831edd4b8f5c28041c4b42ca2afd2892febc72d1f4f1108bbbd2522c759c484": {
+      "src": "/kay/audio/kimi-en-b831edd4b8f5c28041c4b42ca2afd2892febc72d1f4f1108bbbd2522c759c484.mp3",
+      "duration": 1.443
+    },
+    "cb01c23b5c8bbb6b86f1f9d9346e3a977fc9e12a23a7f9016197c6f8f71adddb": {
+      "src": "/kay/audio/kimi-en-cb01c23b5c8bbb6b86f1f9d9346e3a977fc9e12a23a7f9016197c6f8f71adddb.mp3",
+      "duration": 6.447
+    },
+    "305a3baff8f53558b1134b73dd12506f6b8aeeeee270a87f17e42ee1cd278989": {
+      "src": "/kay/audio/kimi-en-305a3baff8f53558b1134b73dd12506f6b8aeeeee270a87f17e42ee1cd278989.mp3",
+      "duration": 1.617
+    },
+    "0884b03ceb0db1a14c1f2beb1cf691f0d1c66e1d85b475a9b19b94c9628582ad": {
+      "src": "/kay/audio/kimi-en-0884b03ceb0db1a14c1f2beb1cf691f0d1c66e1d85b475a9b19b94c9628582ad.mp3",
+      "duration": 4.775
+    },
+    "5e189a86f1c8fe9705937847aa38d0722ab70ea9d46973859ed220d920315af8": {
+      "src": "/kay/audio/kimi-en-5e189a86f1c8fe9705937847aa38d0722ab70ea9d46973859ed220d920315af8.mp3",
+      "duration": 5.518
+    },
+    "bebf1c02c9c9c3864437f834162f5d231fbb4051c926b326b1d8dff66a4e5f6d": {
+      "src": "/kay/audio/kimi-en-bebf1c02c9c9c3864437f834162f5d231fbb4051c926b326b1d8dff66a4e5f6d.mp3",
+      "duration": 2.686
+    },
+    "0b675374452c676e4a3080e68d441c624ca63a219ac7082bce0401174c37a0d3": {
+      "src": "/kay/audio/kimi-en-0b675374452c676e4a3080e68d441c624ca63a219ac7082bce0401174c37a0d3.mp3",
+      "duration": 2.953
+    },
+    "a0df85927b85b6c0f4db8bceec84f84b5125fe60b58af52cf98df90f83e10219": {
+      "src": "/kay/audio/kimi-en-a0df85927b85b6c0f4db8bceec84f84b5125fe60b58af52cf98df90f83e10219.mp3",
+      "duration": 2.951
+    },
+    "6154be2ec2ac241fe4ba82c78d5b98e19a2297411ea7da91f0d340ed11bdddba": {
+      "src": "/kay/audio/kimi-en-6154be2ec2ac241fe4ba82c78d5b98e19a2297411ea7da91f0d340ed11bdddba.mp3",
+      "duration": 2.21
+    },
+    "7b86b2b51c20c7729437ee462f322d4dade878b7b0ab2439148fe3d94cb19b86": {
+      "src": "/kay/audio/kimi-en-7b86b2b51c20c7729437ee462f322d4dade878b7b0ab2439148fe3d94cb19b86.mp3",
+      "duration": 3.185
+    },
+    "fc668db647ce5a38230795d7ead36acd89a57af1eae788aea37de29416cc787b": {
+      "src": "/kay/audio/kimi-en-fc668db647ce5a38230795d7ead36acd89a57af1eae788aea37de29416cc787b.mp3",
+      "duration": 2.198
+    },
+    "6fa599203c557434bafb7135e08515f7d342231e38957d523da2a7ab2a1f13d2": {
+      "src": "/kay/audio/kimi-en-6fa599203c557434bafb7135e08515f7d342231e38957d523da2a7ab2a1f13d2.mp3",
+      "duration": 6.262
+    },
+    "fd09246cc9b815efd1ff48c1527c418b084637b8d87e19ff452369a4fb789b0e": {
+      "src": "/kay/audio/kimi-en-fd09246cc9b815efd1ff48c1527c418b084637b8d87e19ff452369a4fb789b0e.mp3",
+      "duration": 1.281
+    },
+    "bd34794e56a79e78dc4c4fcf2a344b4fb8f9e9be1e90b3e64e5ef4e2a1baa402": {
+      "src": "/kay/audio/kimi-en-bd34794e56a79e78dc4c4fcf2a344b4fb8f9e9be1e90b3e64e5ef4e2a1baa402.mp3",
+      "duration": 6.168
+    },
+    "465a50791ba2ad7e729245b9659a829fe985e7f1539d12d7c4ac00826b881abb": {
+      "src": "/kay/audio/kimi-en-465a50791ba2ad7e729245b9659a829fe985e7f1539d12d7c4ac00826b881abb.mp3",
+      "duration": 3.521
+    },
+    "665aebaeb332e5f0069898b82e1643a1eb6aa84f1043b7be19469efac8b2e731": {
+      "src": "/kay/audio/kimi-en-665aebaeb332e5f0069898b82e1643a1eb6aa84f1043b7be19469efac8b2e731.mp3",
+      "duration": 1.431
+    },
+    "c82fdb53eeb99ecbe4652e0a80a16d65e2abc82ab9b9ed404087d85a00303b40": {
+      "src": "/kay/audio/kimi-en-c82fdb53eeb99ecbe4652e0a80a16d65e2abc82ab9b9ed404087d85a00303b40.mp3",
+      "duration": 6.448
+    },
+    "e137eb55d3e8ffbd5fcd4d819bdb7771c6b219d776b9e8d5426612af21322bef": {
+      "src": "/kay/audio/kimi-en-e137eb55d3e8ffbd5fcd4d819bdb7771c6b219d776b9e8d5426612af21322bef.mp3",
+      "duration": 1.42
+    },
+    "b31288ae832e406d951a44dd9c55614cd577c64fe6eaad3277a4357dbaa43728": {
+      "src": "/kay/audio/kimi-en-b31288ae832e406d951a44dd9c55614cd577c64fe6eaad3277a4357dbaa43728.mp3",
+      "duration": 5.542
+    },
+    "027426da0ec32fec2be1a7881c0485787479da0a8a2ce68002d94f151ce543b2": {
+      "src": "/kay/audio/kimi-en-027426da0ec32fec2be1a7881c0485787479da0a8a2ce68002d94f151ce543b2.mp3",
+      "duration": 2.86
+    },
+    "97b13b86aafc6c3c002e369fc1b6fd4024bfa18a271b5aa00975fd1c4f7f4797": {
+      "src": "/kay/audio/kimi-en-97b13b86aafc6c3c002e369fc1b6fd4024bfa18a271b5aa00975fd1c4f7f4797.mp3",
+      "duration": 1.083
+    },
+    "553656e5d302dc9d7df5c22a99057d19554e692c657c3f0bb69f723b2be9eb4c": {
+      "src": "/kay/audio/kimi-en-553656e5d302dc9d7df5c22a99057d19554e692c657c3f0bb69f723b2be9eb4c.mp3",
+      "duration": 3.858
+    },
+    "9d1a91150846ab50afa7b23cf299a25e7479a58d2540c33e9b22fdcbf31a8356": {
+      "src": "/kay/audio/kimi-en-9d1a91150846ab50afa7b23cf299a25e7479a58d2540c33e9b22fdcbf31a8356.mp3",
+      "duration": 5.123
+    },
+    "b6edf772d61be4e60f1330d48d517f78308c9b3588f6d700560aa3a5717aeb1d": {
+      "src": "/kay/audio/kimi-en-b6edf772d61be4e60f1330d48d517f78308c9b3588f6d700560aa3a5717aeb1d.mp3",
+      "duration": 2.848
+    },
+    "82905974da38e4b4d1a98fd9d6f99d3b8ebc42640415575bc03f9c0cc5a6fa47": {
+      "src": "/kay/audio/kimi-en-82905974da38e4b4d1a98fd9d6f99d3b8ebc42640415575bc03f9c0cc5a6fa47.mp3",
+      "duration": 5.588
+    },
+    "3ad46c766676773cda360be2c8baed8a38dfaaf94a36b0d61775052bd63359b9": {
+      "src": "/kay/audio/kimi-en-3ad46c766676773cda360be2c8baed8a38dfaaf94a36b0d61775052bd63359b9.mp3",
+      "duration": 5.507
+    },
+    "aba62d2b42ede277ada89ef4346d3d4c88cf196792b9239de0e5af9516645506": {
+      "src": "/kay/audio/kimi-en-aba62d2b42ede277ada89ef4346d3d4c88cf196792b9239de0e5af9516645506.mp3",
+      "duration": 2.987
+    },
+    "65a47fb074e500a19fb6666819edca5f7f65abd6490ff0d2a3a5424c17583fe5": {
+      "src": "/kay/audio/kimi-en-65a47fb074e500a19fb6666819edca5f7f65abd6490ff0d2a3a5424c17583fe5.mp3",
+      "duration": 1.014
+    },
+    "aa690cc224edf9a9673637b7e9c1b7d054c573910d710d3c060334008d3effc1": {
+      "src": "/kay/audio/kimi-en-aa690cc224edf9a9673637b7e9c1b7d054c573910d710d3c060334008d3effc1.mp3",
+      "duration": 5.611
+    },
+    "a546fca6014c62ae901a7a0d491c56214e31567ae1ab6836bdf8b086d15050cd": {
+      "src": "/kay/audio/kimi-en-a546fca6014c62ae901a7a0d491c56214e31567ae1ab6836bdf8b086d15050cd.mp3",
+      "duration": 5.959
+    },
+    "9421dbd033fa3471b21565993a423087cdf16189256b678396abe5d77eae0176": {
+      "src": "/kay/audio/kimi-en-9421dbd033fa3471b21565993a423087cdf16189256b678396abe5d77eae0176.mp3",
+      "duration": 5.763
+    },
+    "68320ffbf3e4aab1b03d867bb14829907457e5d0c8f5a43ae53b361ca6e90db6": {
+      "src": "/kay/audio/kimi-en-68320ffbf3e4aab1b03d867bb14829907457e5d0c8f5a43ae53b361ca6e90db6.mp3",
+      "duration": 6.656
+    },
+    "0b2436f258897b9e8b45781b8dbfdcf5856a5a14c9dbb557ae4914e8021c7193": {
+      "src": "/kay/audio/kimi-en-0b2436f258897b9e8b45781b8dbfdcf5856a5a14c9dbb557ae4914e8021c7193.mp3",
+      "duration": 7.481
+    },
+    "284ce224421ab2eaf8f0852950679bbd363531ada361d4235e57789dc9273146": {
+      "src": "/kay/audio/kimi-ko-284ce224421ab2eaf8f0852950679bbd363531ada361d4235e57789dc9273146.mp3",
+      "duration": 3.055
+    },
+    "d0d9d78121bd6cde0a9f535174e7316535f01c332a766d6ca1511243980696fe": {
+      "src": "/kay/audio/kimi-ko-d0d9d78121bd6cde0a9f535174e7316535f01c332a766d6ca1511243980696fe.mp3",
+      "duration": 2.779
+    },
+    "ed4a7f58d6a15e2e9259fd63b93da415fa0df57dafa84d8f8f1c2a5550e253d7": {
+      "src": "/kay/audio/kimi-en-ed4a7f58d6a15e2e9259fd63b93da415fa0df57dafa84d8f8f1c2a5550e253d7.mp3",
+      "duration": 2.486
+    },
+    "183cde219167afa7a211fb72f0e242830f80054cc606755c3ad391cf7205ea40": {
+      "src": "/kay/audio/kimi-en-183cde219167afa7a211fb72f0e242830f80054cc606755c3ad391cf7205ea40.mp3",
+      "duration": 2.825
     }
   },
   "voiceVersion": "kay-cast-v1"

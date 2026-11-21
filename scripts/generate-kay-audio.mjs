@@ -11,6 +11,7 @@ import { join } from "node:path";
 import nextEnv from "@next/env";
 import { KAY_VOICES, KAY_AUDIO_VERSION, speechIdentity } from "../lib/kay/voices.ts";
 import { STORIES } from "../lib/kay/stories.ts";
+import { getGameMoment, practiceFor, practicePrompt, choicePrompt, successPrompt, retryPrompt, defaultPractice } from "../lib/kay/interactions.ts";
 
 nextEnv.loadEnvConfig(process.cwd());
 const dryRun = process.argv.includes("--dry-run");
@@ -41,7 +42,38 @@ for (const story of STORIES) {
       }
     }
     if (scene.practice) for (const language of ["ko", "en"]) add(scene.practice[language], language, "kimi");
+    for (const language of ["ko", "en"]) {
+      const target = language === "ko" ? "en" : "ko";
+      const word = practiceFor(story, scene);
+      add(word[language], language, "kimi");
+      add(practicePrompt(word, language, target), language, "kimi");
+      for (const choice of scene.choices) add(choice.label[language], language, "kimi");
+    }
+    const moment = getGameMoment(story, scene);
+    if (moment) for (const language of ["ko", "en"]) {
+      add(moment.question[language], language, "kimi");
+      for (const choice of moment.choices) {
+        add(choice.label[language], language, "kimi");
+        add(choice.response[language], language, choice.speaker);
+      }
+    }
   }
+}
+// The parent-generated stories also reuse these fixed invitations and responses.
+const customExample = { ...STORIES[0], id: "custom-example", custom: true };
+for (const scene of Object.values(customExample.scenes)) {
+  const moment = getGameMoment(customExample, scene);
+  if (moment) for (const language of ["ko", "en"]) {
+    add(moment.question[language], language, "kimi");
+    for (const choice of moment.choices) {
+      add(choice.label[language], language, "kimi");
+      add(choice.response[language], language, choice.speaker);
+    }
+  }
+}
+for (const language of ["ko", "en"]) {
+  for (const text of [choicePrompt, successPrompt, retryPrompt]) add(text[language], language, "kimi");
+  add(practicePrompt(defaultPractice, language, language === "ko" ? "en" : "ko"), language, "kimi");
 }
 const pending = [];
 for (const clip of unique.values()) {
