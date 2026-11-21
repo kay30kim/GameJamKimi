@@ -1,11 +1,14 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type { CSSProperties } from "react";
 import type { SceneLanguage } from "@/app/api/scene/contract";
 import { Icon } from "@/components/kay/icons";
 import { LESSONS, MAX_OWN_LESSON, OWN, OWN_CARD } from "./lessons";
 import type { Localized } from "./lessons";
 import styles from "./landing.module.css";
+
+const LandingScene = dynamic(() => import("./landing-scene"), { ssr: false });
 
 const POINTS: Localized[] = [
   { en: "Each scene is written live from your child's choices", ko: "아이의 선택에 맞춰 장면을 새로 써요" },
@@ -35,6 +38,7 @@ export default function Landing({ home, age, language, lesson, ownLesson, onAge,
 
       <section className={styles.hero}>
         <div className={styles.pitch}>
+          <div className={styles.scene}><LandingScene /></div>
           <h1>{t("이야기로 배우는 마음과 새 언어", "Stories that teach kids a lesson and a new language")}</h1>
           <p>{t("3–6세 · 한국어와 영어", "Ages 3–6 · Korean and English")}</p>
           <ul>{POINTS.map((point) => <li key={point.en}><Icon name="check" size={16} />{point[home]}</li>)}</ul>

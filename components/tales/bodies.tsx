@@ -44,6 +44,8 @@ export interface Talk {
   line: SceneLine | null;
   /** True while the line's audio is actually playing. */
   speaking: boolean;
+  /** A point in the world the cast turns their heads toward while nobody is talking, such as the pointer. */
+  watch?: { x: number; y: number; z: number } | null;
 }
 
 const wrapAngle = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
@@ -69,10 +71,14 @@ function useFace(id: KayActor, sim: Sim, talk: Talk) {
     const mood = moodOf(id, sim, talk);
     const partner = line?.speaker === id ? line.to : line?.to === id ? line.speaker : undefined;
     const other = partner && sim.actors[partner];
-    const yaw = other ? MathUtils.clamp(wrapAngle(Math.atan2(other.x - actor.x, other.z - actor.z) - actor.heading), -0.7, 0.7) : 0;
+    const target = other || (!line && talk.watch);
+    const yaw = target ? MathUtils.clamp(wrapAngle(Math.atan2(target.x - actor.x, target.z - actor.z) - actor.heading), -0.7, 0.7) : 0;
+    // Only a watched point has a height; partners are looked at level.
+    const watching = !other && !line && talk.watch;
+    const up = watching ? MathUtils.clamp(-Math.atan2(watching.y - HEAD[id], Math.hypot(watching.x - actor.x, watching.z - actor.z)), -0.35, 0.3) : 0;
     look.current.rotation.y = MathUtils.damp(look.current.rotation.y, yaw, 5, delta);
     const bob = talking ? Math.sin(t * 4.1) * 0.06 : 0;
-    look.current.rotation.x = MathUtils.damp(look.current.rotation.x, (mood === "sad" ? 0.13 : 0) + bob, 6, delta);
+    look.current.rotation.x = MathUtils.damp(look.current.rotation.x, (mood === "sad" ? 0.13 : 0) + bob + up, 6, delta);
     look.current.rotation.z = MathUtils.damp(look.current.rotation.z, mood === "curious" ? -0.1 : mood === "sad" ? 0.1 : talking ? Math.sin(t * 2.9) * 0.07 : 0, 6, delta);
     const blink = Math.sin(t * 1.23) > 0.992 || Math.sin(t * 0.79 + 2) > 0.997;
     if (eyes.current) eyes.current.scale.y = MathUtils.damp(eyes.current.scale.y, blink ? 0.06 : mood === "excited" ? 1.1 : 1, 28, delta);

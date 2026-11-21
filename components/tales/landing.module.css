@@ -30,6 +30,25 @@
   margin: 0 auto;
   padding: 64px 40px 72px;
 }
+.scene {
+  position: relative;
+  height: 250px;
+  margin: -32px -40px 8px;
+  /* Melt the meadow into the page on every side instead of showing a box. */
+  -webkit-mask-image: radial-gradient(ellipse 50% 56% at 50% 46%, #000 50%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 56% at 50% 46%, #000 50%, transparent 100%);
+  animation: scene-in 0.9s ease-out both;
+}
+.pitch > :not(.scene) { animation: rise 0.6s ease-out both; }
+.pitch > h1 { animation-delay: 0.1s; }
+.pitch > p { animation-delay: 0.18s; }
+.pitch > ul { animation-delay: 0.26s; }
+.setup { animation: rise 0.6s 0.2s ease-out both; }
+@keyframes scene-in { from { opacity: 0; transform: translateY(16px); } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: reduce) {
+  .scene, .pitch > *, .setup { animation: none; }
+}
 .pitch h1 { font-size: clamp(36px, 4.2vw, 58px); line-height: 1.12; letter-spacing: -2px; font-weight: 700; }
 .pitch p { margin-top: 18px; font-size: 18px; color: var(--muted); }
 .pitch ul { list-style: none; padding: 0; margin-top: 28px; display: grid; gap: 12px; }
@@ -89,6 +108,7 @@
 
 @media (max-width: 1000px) {
   .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 40px; }
+  .scene { height: 220px; margin: -16px -20px 4px; }
 }
 @media (max-width: 640px) {
   .nav, .hero { padding-left: 20px; padding-right: 20px; }
