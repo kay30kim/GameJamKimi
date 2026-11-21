@@ -4,7 +4,14 @@ import type { ActorId, Beat, Emotion, PropId, Spot, Stage } from "../world";
 /** A point on the ground, [x, z] in meters, matching lib/world.ts. */
 export type Point = readonly [number, number];
 
-export type Pose = "idle" | "walk" | "run" | "jump" | "sit" | "wave" | "hug" | "help" | "celebrate" | "reach";
+export type Pose = "idle" | "walk" | "run" | "jump" | "roll" | "sit" | "wave" | "hug" | "help" | "celebrate" | "reach";
+
+/** One hop: crouch, flight, and landing. Celebrate is two hops. */
+export const JUMP_SECONDS = 0.8;
+/** One forward roll: tuck, somersault, and stand back up. */
+export const ROLL_SECONDS = 1.1;
+/** How far a roll carries the body forward, in meters. */
+const ROLL_DISTANCE = 1.2;
 
 export interface ActorState {
   id: ActorId;
@@ -15,6 +22,8 @@ export interface ActorState {
   pose: Pose;
   /** Seconds since the current pose started, for animation phase. */
   poseTime: number;
+  /** Meters walked or run so far, so steps line up with the ground instead of sliding. */
+  travelled: number;
   sitting: boolean;
   /** Who a hug or help leans toward. */
   facing?: ActorId;
@@ -70,7 +79,7 @@ export function createSim(stage: Stage): Sim {
   for (const [spot, ids] of bySpot) {
     ids.forEach((id, slot) => {
       const [x, z] = standingPoint(spot, slot, ids.length);
-      actors[id] = { id, x, z, heading: 0, pose: "idle", poseTime: 0, sitting: false, emotionLeft: 0 };
+      actors[id] = { id, x, z, heading: 0, pose: "idle", poseTime: 0, travelled: 0, sitting: false, emotionLeft: 0 };
     });
   }
 
@@ -133,6 +142,7 @@ export function createSim(stage: Stage): Sim {
       const stride = Math.min(gap, speed * dt);
       a.x += (dx / length) * stride;
       a.z += (dz / length) * stride;
+      a.travelled += stride;
       yield;
     }
     setPose(a, "idle");
@@ -180,7 +190,7 @@ export function createSim(stage: Stage): Sim {
       if (prop) prop.holder = other.id;
       other.emotion = "happy";
       other.emotionLeft = EMOTION_SECONDS;
-      yield* hold(other, "jump", 0.7);
+      yield* hold(other, "jump", JUMP_SECONDS);
     },
     *hug(beat, a) {
       const other = actor(beat.target);
@@ -203,7 +213,7 @@ export function createSim(stage: Stage): Sim {
       a.facing = other.id;
       yield* hold(a, "help", 0.7);
       a.facing = undefined;
-      yield* hold(other, "jump", 0.6);
+      yield* hold(other, "jump", JUMP_SECONDS);
     },
     *wave(beat, a) {
       const other = beat.target ? actor(beat.target) : undefined;
@@ -211,7 +221,22 @@ export function createSim(stage: Stage): Sim {
       yield* hold(a, "wave", 1.4);
     },
     *jump(_beat, a) {
-      yield* hold(a, "jump", 1);
+      yield* hold(a, "jump", JUMP_SECONDS);
+      for (let left = 0.2; left > 0; left -= dt) yield;
+    },
+    *roll(_beat, a) {
+      setPose(a, "roll");
+      // The body only travels while it is tucked and turning over, between 20% and 80% of the roll.
+      const start = ROLL_SECONDS * 0.2, end = ROLL_SECONDS * 0.8;
+      const speed = ROLL_DISTANCE / (end - start);
+      for (let t = 0; t < ROLL_SECONDS; t += dt) {
+        if (t > start && t < end) {
+          a.x += Math.sin(a.heading) * speed * dt;
+          a.z += Math.cos(a.heading) * speed * dt;
+        }
+        yield;
+      }
+      setPose(a, "idle");
     },
     *sit(_beat, a) {
       a.sitting = true;
@@ -219,7 +244,7 @@ export function createSim(stage: Stage): Sim {
       for (let left = 0.8; left > 0; left -= dt) yield;
     },
     *celebrate(_beat, a) {
-      yield* hold(a, "celebrate", 1.6);
+      yield* hold(a, "celebrate", JUMP_SECONDS * 2);
     },
     *emote(beat, a) {
       a.emotion = beat.emotion;

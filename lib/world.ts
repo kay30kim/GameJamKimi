@@ -49,7 +49,7 @@ export type Beat =
   | { actor: ActorId; action: "give"; prop: PropId; target: ActorId }
   | { actor: ActorId; action: "hug" | "help"; target: ActorId }
   | { actor: ActorId; action: "wave"; target?: ActorId }
-  | { actor: ActorId; action: "jump" | "sit" | "celebrate" }
+  | { actor: ActorId; action: "jump" | "roll" | "sit" | "celebrate" }
   | { actor: ActorId; action: "emote"; emotion: Emotion };
 
 export type Action = Beat["action"];
@@ -77,6 +77,7 @@ export const ACTIONS = {
   help: { args: "target (an actor)", meaning: "help someone up or comfort them" },
   wave: { args: "optional target (an actor)", meaning: "wave hello or goodbye" },
   jump: { args: "none", meaning: "jump for joy" },
+  roll: { args: "none", meaning: "tuck into a ball and roll forward, for fun or to show off" },
   sit: { args: "none", meaning: "sit down where they are" },
   celebrate: { args: "none", meaning: "dance and celebrate" },
   emote: { args: "emotion", meaning: "show a feeling on their face" },

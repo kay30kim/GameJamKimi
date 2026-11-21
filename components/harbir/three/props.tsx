@@ -3,6 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import type { Group } from "three";
+import { motionOf } from "@/lib/harbir/motion";
 import type { Sim } from "@/lib/harbir/sim";
 import { PALETTE, ROUGHNESS } from "@/lib/harbir/style";
 import type { PropId } from "@/lib/world";
@@ -62,7 +63,7 @@ function PropBody({ id }: { id: PropId }) {
 /** A prop on the ground, or carried in front of whoever holds it. */
 export function PropItem({ id, sim }: { id: PropId; sim: Sim }) {
   const ref = useRef<Group>(null);
-  useFrame(() => {
+  useFrame(({ clock }) => {
     const prop = sim.props[id];
     const group = ref.current;
     if (!prop || !group) return;
@@ -70,7 +71,9 @@ export function PropItem({ id, sim }: { id: PropId; sim: Sim }) {
     if (holder) {
       const reach = id === "umbrella" ? 0.2 : 0.42;
       const lift = id === "umbrella" ? Math.max(0.55, HEAD_HEIGHT[holder.id] - 1) : id === "kite" ? 1.3 : 0.55;
-      group.position.set(holder.x + Math.sin(holder.heading) * reach, lift, holder.z + Math.cos(holder.heading) * reach);
+      // Carried things rise and fall with the body, so they stay in hand through a hop.
+      const hop = motionOf(holder, clock.elapsedTime).lift;
+      group.position.set(holder.x + Math.sin(holder.heading) * reach, lift + hop, holder.z + Math.cos(holder.heading) * reach);
       group.rotation.y = holder.heading;
     } else {
       group.position.set(prop.x, 0, prop.z);

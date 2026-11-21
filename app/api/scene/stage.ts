@@ -21,6 +21,7 @@ const BEAT_PARSERS: Record<Beat["action"], (actor: ActorId, raw: Fields) => Beat
   help: (actor, { target }) => isActor(target) && target !== actor ? { actor, action: "help", target } : null,
   wave: (actor, { target }) => isActor(target) && target !== actor ? { actor, action: "wave", target } : { actor, action: "wave" },
   jump: (actor) => ({ actor, action: "jump" }),
+  roll: (actor) => ({ actor, action: "roll" }),
   sit: (actor) => ({ actor, action: "sit" }),
   celebrate: (actor) => ({ actor, action: "celebrate" }),
   emote: (actor, { emotion }) => isEmotion(emotion) ? { actor, action: "emote", emotion } : null,
