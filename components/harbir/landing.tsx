@@ -25,7 +25,7 @@ export default function Landing({ onBegin }: { onBegin: () => void }) {
       <section className={styles.features}>
         <article>
           <h2>Kindness</h2>
-          <p>Your child decides what Kimi does.</p>
+          <p>Every story is written live, so it follows your child&apos;s choices.</p>
           <div className={styles.example} aria-hidden="true">
             <p>Momo looks sad. His ball rolled away.</p>
             <div className={styles.choices}>

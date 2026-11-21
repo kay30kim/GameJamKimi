@@ -26,7 +26,8 @@ export async function generateScene(
   const apiKey = (options.apiKey ?? process.env.KIMI_API_KEY)?.trim();
   if (!apiKey) return { scene: createStubScene(request), mode: "stub" };
 
-  const model = options.model ?? (process.env.KIMI_MODEL?.trim() || "kimi-k3");
+  // The highspeed model returns a valid scene in about 2-4 s, versus 6-20 s for kimi-k3.
+  const model = options.model ?? (process.env.KIMI_MODEL?.trim() || "kimi-k3.1-pro-highspeed");
   const fetcher = options.fetcher ?? fetch;
   const messages = buildSceneMessages(request);
   for (let attempt = 0; attempt < 2; attempt++) {

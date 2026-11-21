@@ -14,7 +14,7 @@ Without `KIMI_API_KEY`, the API keeps the integration stub: a fixed kindness sto
 
 ## Builder A: server configuration
 
-Set `KIMI_API_KEY` in `.env.local` for local development and in Vercel environment variables for deployment. Never use a `NEXT_PUBLIC_` variable for the key. Optionally set `KIMI_MODEL` (default `kimi-k3`). No new package is required. Restart the local server or redeploy after changing environment variables.
+Set `KIMI_API_KEY` in `.env.local` for local development and in Vercel environment variables for deployment. Never use a `NEXT_PUBLIC_` variable for the key. Optionally set `KIMI_MODEL` (default `kimi-k3.1-pro-highspeed`, the fastest K3 model). No new package is required. Restart the local server or redeploy after changing environment variables.
 
 The request uses Moonshot's [Chat Completions API](https://platform.kimi.ai/docs/api/chat), JSON mode, low reasoning effort, and a 4,096-token completion budget. Each attempt times out after 20 seconds. Invalid, truncated, or malformed model responses, network errors, HTTP 429, and server errors retry once. Other HTTP errors (including invalid credentials) immediately fall back. The route has a 60-second execution budget.
 
