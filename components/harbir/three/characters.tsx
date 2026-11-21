@@ -1,22 +1,30 @@
 "use client";
 
 import { useFrame, useLoader } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
+import type { RefObject } from "react";
 import type { ReactNode } from "react";
-import { AnimationMixer, MathUtils } from "three";
-import type { Group, Object3D } from "three";
+import { Group, MathUtils } from "three";
+import type { Object3D } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import type { ActorState, Sim } from "@/lib/harbir/sim";
+import { motionOf } from "@/lib/harbir/motion";
+import type { Motion } from "@/lib/harbir/motion";
+import type { Sim } from "@/lib/harbir/sim";
 import { PALETTE } from "@/lib/harbir/style";
 import type { ActorId } from "@/lib/world";
 import { Blob, Face } from "./primitives";
 
-/** Named limbs the engine swings. Each is a group whose origin is the shoulder or hip. */
+/** The parts the engine moves. Limb groups have their origin at the shoulder or hip. */
 interface Rig {
   leftArm?: Object3D | null;
   rightArm?: Object3D | null;
   leftLeg?: Object3D | null;
   rightLeg?: Object3D | null;
+  /** Only Kimi's model has a separate head, ears, and tail. */
+  head?: Object3D | null;
+  leftEar?: Object3D | null;
+  rightEar?: Object3D | null;
+  tail?: Object3D | null;
 }
 /** Registers a limb group with the character's rig. */
 type SetLimb = (name: keyof Rig, limb: Object3D | null) => void;
@@ -24,99 +32,182 @@ type SetLimb = (name: keyof Rig, limb: Object3D | null) => void;
 /** Where the emotion bubble floats, per character. */
 export const HEAD_HEIGHT: Record<ActorId, number> = { hero: 1.85, friend: 1.5, puppy: 1.15, grownup: 2 };
 
-/** Whole-body motion: bobbing, hopping, sitting, leaning, spinning, and facing. */
-function applyBody(group: Group, actor: ActorState, sim: Sim) {
-  const t = actor.poseTime;
-  let y = 0, lean = 0, spin = 0, squash = 1;
-  switch (actor.pose) {
-    case "walk": y = Math.abs(Math.sin(t * 9)) * 0.06; break;
-    case "run": y = Math.abs(Math.sin(t * 15)) * 0.14; lean = 0.15; break;
-    case "jump": y = Math.abs(Math.sin(t * Math.PI * 2)) * 0.55; break;
-    case "celebrate": y = Math.abs(Math.sin(t * 7)) * 0.4; spin = t * 6; break;
-    case "hug": case "help": case "reach": lean = 0.22; break;
-    case "idle": if (!actor.sitting) y = Math.sin(t * 2.2) * 0.015; break;
-  }
-  if (actor.sitting && (actor.pose === "idle" || actor.pose === "sit")) { y = -0.12; squash = 0.86; }
-  let heading = actor.heading;
+/** Somersaults turn around the middle of the body, about half its height. */
+const MIDDLE: Record<ActorId, number> = { hero: 0.85, friend: 0.68, puppy: 0.45, grownup: 0.95 };
+
+/** Smoothed values that carry over between frames, one set per character. */
+interface Follow {
+  heading: number;
+  squash: number;
+  lean: number;
+  sway: number;
+  curl: number;
+  ear: number;
+  earSpeed: number;
+  droop: number;
+  lastLift: number;
+}
+const newFollow = (heading: number): Follow => ({ heading, squash: 1, lean: 0, sway: 0, curl: 1, ear: 0.1, earSpeed: 0, droop: 0, lastLift: 0 });
+
+/** The nested groups that pose a body: place and turn, lift, squash, lean, then flip around the middle. */
+interface Frame {
+  place: Group;
+  lift: Group;
+  squash: Group;
+  lean: Group;
+  flip: Group;
+  center: Group;
+}
+
+/** Turn by the shortest way round. */
+const wrapAngle = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
+
+/**
+ * Pose one character for this frame. Big body moves follow the motion closely; limbs, head,
+ * and lean ease toward it so pose changes blend; ears ride a spring so they flop.
+ */
+function pose(id: ActorId, sim: Sim, frame: Frame, rig: Rig, follow: Follow, delta: number, clock: number) {
+  const actor = sim.actors[id];
+  if (!actor) return;
+  const dt = Math.min(delta, 1 / 30);
+  const m: Motion = motionOf(actor, clock);
+
   const facing = actor.facing && sim.actors[actor.facing];
-  if (facing) heading = Math.atan2(facing.x - actor.x, facing.z - actor.z);
-  group.position.set(actor.x, y, actor.z);
-  group.rotation.set(lean, heading + spin, 0, "YXZ");
-  group.scale.set(1, squash, 1);
-}
+  const heading = facing ? Math.atan2(facing.x - actor.x, facing.z - actor.z) : actor.heading;
+  const turn = wrapAngle(heading - follow.heading) * (1 - Math.exp(-dt * 10));
+  follow.heading += turn;
+  // Lean into turns while moving, like a child taking a corner.
+  const moving = actor.pose === "walk" || actor.pose === "run";
+  const corner = moving ? MathUtils.clamp((-turn / dt) * 0.05, -0.25, 0.25) : 0;
 
-/** Target limb angles for each pose: [arm swing x, arm raise z, leg swing x]. */
-function limbTargets(actor: ActorState) {
-  const t = actor.poseTime;
-  const swing = (speed: number, size: number) => Math.sin(t * speed) * size;
-  switch (actor.pose) {
-    case "walk": return { arm: -swing(9, 0.5), raiseLeft: 0, raiseRight: 0, leg: swing(9, 0.6) };
-    case "run": return { arm: -swing(15, 0.9), raiseLeft: 0, raiseRight: 0, leg: swing(15, 0.9) };
-    case "wave": return { arm: 0, raiseLeft: 0, raiseRight: 2.5 + swing(10, 0.3), leg: 0 };
-    case "hug": case "help": case "reach": return { arm: -1.3, raiseLeft: 0, raiseRight: 0, leg: 0 };
-    case "celebrate": case "jump": return { arm: 0, raiseLeft: 2.4, raiseRight: 2.4, leg: 0 };
-    case "sit": return { arm: 0, raiseLeft: 0.15, raiseRight: 0.15, leg: -1.4 };
-    case "idle": return actor.sitting
-      ? { arm: 0, raiseLeft: 0.15, raiseRight: 0.15, leg: -1.4 }
-      : { arm: swing(2, 0.04), raiseLeft: 0.05, raiseRight: 0.05, leg: 0 };
-  }
-}
+  const ease = 1 - Math.exp(-dt * 18);
+  follow.squash += (m.squash - follow.squash) * ease;
+  follow.lean += (m.lean - follow.lean) * ease;
+  follow.sway += (m.sway + corner - follow.sway) * ease;
+  follow.curl += (m.curl - follow.curl) * ease;
 
-/** Swing the rig toward the pose. Legs mirror each other; the left arm raises with negative z. */
-function animateLimbs(rig: Rig, actor: ActorState, delta: number, snap = false) {
-  const target = limbTargets(actor);
-  const ease = (from: number, to: number) => (snap ? to : MathUtils.damp(from, to, 14, delta));
-  const set = (limb: Object3D | null | undefined, x: number, z: number) => {
-    if (!limb) return;
-    limb.rotation.x = ease(limb.rotation.x, x);
-    limb.rotation.z = ease(limb.rotation.z, z);
+  frame.place.position.set(actor.x, 0, actor.z);
+  frame.place.rotation.y = follow.heading + m.spin;
+  frame.lift.position.y = m.lift;
+  const width = 1 / Math.sqrt(follow.squash);
+  frame.squash.scale.set(width, follow.squash, width);
+  frame.lean.rotation.set(follow.lean, 0, follow.sway);
+  const middle = MIDDLE[id];
+  // Pivot at the middle of the curled body, so a tucked ball still rests on the ground.
+  frame.flip.position.y = middle * follow.curl;
+  frame.flip.rotation.x = m.flip;
+  frame.flip.scale.setScalar(follow.curl);
+  frame.center.position.y = -middle;
+
+  const limb = (part: Object3D | null | undefined, x: number, z: number) => {
+    if (!part) return;
+    part.rotation.x = MathUtils.damp(part.rotation.x, x, 16, dt);
+    part.rotation.z = MathUtils.damp(part.rotation.z, z, 16, dt);
   };
-  const stride = actor.pose === "walk" || actor.pose === "run";
-  set(rig.leftArm, target.arm, -target.raiseLeft);
-  set(rig.rightArm, stride ? -target.arm : target.arm, target.raiseRight);
-  set(rig.leftLeg, target.leg, 0);
-  set(rig.rightLeg, stride ? -target.leg : target.leg, 0);
+  // A puppy's front legs are its arms; they swing but never lift out to the side.
+  const raise = id === "puppy" ? 0 : 1;
+  limb(rig.leftArm, m.armLeft, -m.raiseLeft * raise);
+  limb(rig.rightArm, m.armRight, m.raiseRight * raise);
+  limb(rig.leftLeg, m.legLeft, 0);
+  limb(rig.rightLeg, m.legRight, 0);
+  limb(rig.head, m.nod, m.tilt);
+
+  // Ears lag behind the body: rising pushes them back, falling lifts them.
+  const rising = (m.lift - follow.lastLift) / dt;
+  follow.lastLift = m.lift;
+  const earTarget = m.ears + MathUtils.clamp(rising * 0.3, -0.5, 0.7);
+  follow.earSpeed += (160 * (earTarget - follow.ear) - 11 * follow.earSpeed) * dt;
+  follow.ear += follow.earSpeed * dt;
+  follow.droop = MathUtils.damp(follow.droop, m.droop, 6, dt);
+  if (rig.leftEar) rig.leftEar.rotation.set(-follow.ear, 0, follow.droop);
+  if (rig.rightEar) rig.rightEar.rotation.set(-follow.ear, 0, -follow.droop);
+  if (rig.tail) rig.tail.rotation.y = m.tail;
 }
 
-/** Kimi, from Kay's model. Its clips drive walking and running; the engine handles the rest. */
+/** Wraps a body in the posing groups and drives it every frame. */
+function Puppet({ id, sim, rig, children }: { id: ActorId; sim: Sim; rig: RefObject<Rig>; children: ReactNode }) {
+  const place = useRef<Group>(null);
+  const lift = useRef<Group>(null);
+  const squash = useRef<Group>(null);
+  const lean = useRef<Group>(null);
+  const flip = useRef<Group>(null);
+  const center = useRef<Group>(null);
+  const follow = useRef<Follow | null>(null);
+  useFrame(({ clock }, delta) => {
+    if (!place.current || !lift.current || !squash.current || !lean.current || !flip.current || !center.current) return;
+    follow.current ??= newFollow(sim.actors[id]?.heading ?? 0);
+    const frame = { place: place.current, lift: lift.current, squash: squash.current, lean: lean.current, flip: flip.current, center: center.current };
+    pose(id, sim, frame, rig.current, follow.current, delta, clock.elapsedTime);
+  });
+  return (
+    <group ref={place}>
+      <group ref={lift}>
+        <group ref={squash}>
+          <group ref={lean}>
+            <group ref={flip}>
+              <group ref={center}>{children}</group>
+            </group>
+          </group>
+        </group>
+      </group>
+    </group>
+  );
+}
+
+/**
+ * Regroup Kimi's model so its head moves as one piece and each ear swings from its base.
+ * The model ships as loose parts under one root; attach keeps every part where it was.
+ */
+function rigKimi(model: Object3D): Rig {
+  model.updateMatrixWorld(true);
+  const part = (name: string) => model.getObjectByName(name);
+  const root = part("Head")?.parent;
+  if (!root) return {};
+  const pivot = (parent: Object3D, x: number, y: number, z: number) => {
+    const group = new Group();
+    group.position.set(x, y, z);
+    parent.add(group);
+    group.updateMatrixWorld(true);
+    return group;
+  };
+  const head = pivot(root, 0, 1.15, 0);
+  for (const name of ["Head", "Eye-1", "Eye1", "EyeSparkle-1", "EyeSparkle1", "Cheek-1", "Cheek1", "Nose", "Mouth"]) {
+    const piece = part(name);
+    if (piece) head.attach(piece);
+  }
+  const ear = (side: "-1" | "1", x: number) => {
+    const group = pivot(head, x, 0.43, -0.04);
+    for (const name of [`Ear${side}`, `EarInner${side}`]) {
+      const piece = part(name);
+      if (piece) group.attach(piece);
+    }
+    return group;
+  };
+  const tail = part("Tail");
+  const tailPivot = tail ? pivot(root, 0, 0.67, -0.2) : null;
+  if (tail && tailPivot) tailPivot.attach(tail);
+  return {
+    leftArm: part("LeftArm"),
+    rightArm: part("RightArm"),
+    leftLeg: part("LeftLeg"),
+    rightLeg: part("RightLeg"),
+    head,
+    leftEar: ear("-1", -0.23),
+    rightEar: ear("1", 0.23),
+    tail: tailPivot,
+  };
+}
+
+/** Kimi, from Kay's model, posed by the same motion as everyone else. */
 export function Kimi({ sim }: { sim: Sim }) {
   const gltf = useLoader(GLTFLoader, "/demo/kimi.glb");
-  const outer = useRef<Group>(null);
-  const model = useMemo(() => {
+  const [model, rig] = useMemo(() => {
     const copy = gltf.scene.clone(true);
     copy.traverse((object) => { object.castShadow = true; });
-    return copy;
+    copy.scale.setScalar(0.72);
+    return [copy, { current: rigKimi(copy) }] as const;
   }, [gltf]);
-  const rig = useMemo<Rig>(() => ({
-    leftArm: model.getObjectByName("LeftArm"),
-    rightArm: model.getObjectByName("RightArm"),
-    leftLeg: model.getObjectByName("LeftLeg"),
-    rightLeg: model.getObjectByName("RightLeg"),
-  }), [model]);
-  const mixer = useMemo(() => new AnimationMixer(model), [model]);
-  /** The sim moves Kimi through the world, so drop the clips' own back-and-forth root motion. */
-  const clips = useMemo(() => Object.fromEntries(gltf.animations.map((clip) => {
-    const limbsOnly = clip.clone();
-    limbsOnly.tracks = limbsOnly.tracks.filter((track) => !track.name.endsWith(".position"));
-    return [clip.name, limbsOnly];
-  })), [gltf]);
-  const playing = useRef("");
-
-  useEffect(() => () => { mixer.stopAllAction(); mixer.uncacheRoot(model); }, [mixer, model]);
-  useFrame((_state, delta) => {
-    const kimi = sim.actors.hero;
-    if (!kimi || !outer.current) return;
-    applyBody(outer.current, kimi, sim);
-    const clip = kimi.pose === "walk" || kimi.pose === "run" ? kimi.pose : "idle";
-    if (clip !== playing.current && clips[clip]) {
-      mixer.stopAllAction();
-      mixer.clipAction(clips[clip]).reset().fadeIn(0.15).play();
-      playing.current = clip;
-    }
-    mixer.update(Math.min(delta, 0.05));
-    if (clip === "idle") animateLimbs(rig, kimi, delta, true);
-  });
-  return <group ref={outer}><primitive object={model} scale={0.72} dispose={null} /></group>;
+  return <Puppet id="hero" sim={sim} rig={rig}><primitive object={model} dispose={null} /></Puppet>;
 }
 
 function Limb({ rig, name, position, children }: { rig: SetLimb; name: keyof Rig; position: [number, number, number]; children: ReactNode }) {
@@ -228,15 +319,13 @@ const BODIES = { friend: Momo, puppy: Bori, grownup: GrandmaOwl } as const;
 const BODY_SCALE = { friend: 0.88, puppy: 0.9, grownup: 1 } as const;
 
 export function Character({ id, sim }: { id: keyof typeof BODIES; sim: Sim }) {
-  const group = useRef<Group>(null);
+  // Filled in by each limb's ref callback after render; Puppet only reads it inside useFrame.
   const rig = useRef<Rig>({});
   const setLimb = useCallback<SetLimb>((name, limb) => { rig.current[name] = limb; }, []);
   const Body = BODIES[id];
-  useFrame((_state, delta) => {
-    const actor = sim.actors[id];
-    if (!actor || !group.current) return;
-    applyBody(group.current, actor, sim);
-    animateLimbs(rig.current, actor, delta);
-  });
-  return <group ref={group}><group scale={BODY_SCALE[id]}><Body rig={setLimb} /></group></group>;
+  return (
+    <Puppet id={id} sim={sim} rig={rig}>
+      <group scale={BODY_SCALE[id]}><Body rig={setLimb} /></group>
+    </Puppet>
+  );
 }

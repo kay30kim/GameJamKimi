@@ -4,18 +4,23 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Component, Suspense, useMemo } from "react";
 import type { ReactNode } from "react";
 import { MathUtils } from "three";
+import { JUMP_SECONDS, ROLL_SECONDS } from "@/lib/harbir/sim";
 import type { ActorState, Pose, Sim } from "@/lib/harbir/sim";
 import { LIGHT, PALETTE } from "@/lib/harbir/style";
 import { Kimi } from "./three/characters";
 import { Blob } from "./three/primitives";
 
-/** What Kimi does on the landing page, on a loop: stand, wave, stand, hop. */
+/** What Kimi does on the landing page, on a loop: stand, wave, hop, roll over. */
 const LOOP: { pose: Pose; seconds: number }[] = [
   { pose: "idle", seconds: 2.2 },
   { pose: "wave", seconds: 1.8 },
-  { pose: "idle", seconds: 2.6 },
-  { pose: "jump", seconds: 1 },
+  { pose: "idle", seconds: 1.6 },
+  { pose: "jump", seconds: JUMP_SECONDS + 0.2 },
+  { pose: "idle", seconds: 1.8 },
+  { pose: "roll", seconds: ROLL_SECONDS },
 ];
+/** The loop entry a tap jumps to. */
+const HOP = LOOP.findIndex(({ pose }) => pose === "jump");
 
 type LoopingKimi = Sim & {
   /** Jump right away, then carry on with the loop. */
@@ -26,7 +31,7 @@ type LoopingKimi = Sim & {
 
 /** A one-actor sim that only cycles poses, so Kimi can stand alone without the meadow. */
 function createLoopingKimi(): LoopingKimi {
-  const hero: ActorState = { id: "hero", x: 0, z: 0, heading: 0, pose: "idle", poseTime: 0, sitting: false, emotionLeft: 0 };
+  const hero: ActorState = { id: "hero", x: 0, z: 0, heading: 0, pose: "idle", poseTime: 0, travelled: 0, sitting: false, emotionLeft: 0 };
   let step = 0;
   let left = LOOP[0].seconds;
   return {
@@ -43,7 +48,7 @@ function createLoopingKimi(): LoopingKimi {
       hero.poseTime = 0;
     },
     hop() {
-      step = LOOP.length - 1;
+      step = HOP;
       left = LOOP[step].seconds;
       hero.pose = "jump";
       hero.poseTime = 0;
