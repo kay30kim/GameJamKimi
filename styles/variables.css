@@ -1,0 +1,37 @@
+
+:root {
+  /* Brand colours */
+  --color-cream: #FFF4E5;
+  --color-peach: #FFCB8A;
+  --color-coral: #F59F75;
+  --color-sage: #8ABF9F;
+  --color-sky: #8AB7D9;
+  --color-yellow: #F5D76E;
+
+  /* Text colours */
+  --color-text: #594B42;
+  --color-text-light: #88796E;
+  --color-white: #FFFFFF;
+
+  /* Backgrounds */
+  --color-background: #FFF4E5;
+  --color-surface: #FFFFFF;
+
+  /* Typography */
+  --font-primary: "Nunito", "Noto Sans KR", sans-serif;
+
+  /* Rounded corners */
+  --radius-small: 12px;
+  --radius-medium: 20px;
+  --radius-large: 30px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-soft: 0 4px 16px rgba(89, 75, 66, 0.08);
+
+  /* Spacing */
+  --spacing-small: 8px;
+  --spacing-medium: 16px;
+  --spacing-large: 24px;
+  --spacing-xl: 40px;
+}
