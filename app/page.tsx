@@ -13,12 +13,13 @@ import type {
   SceneRequest,
   SceneResponse,
 } from "@/app/api/scene/contract";
-import { fetchScene } from "@/lib/scene";
+import { fetchScene, prefetchScene } from "@/lib/scene";
 import {
   isListeningSupported,
   listenOnce,
   matchesWord,
   meaningLocale,
+  preloadSpeech,
   speak,
   speechLocale,
   stopSpeaking,
@@ -45,6 +46,36 @@ const LESSONS = [
 const CUSTOM_LESSON = "custom";
 const subscribeToListeningSupport = () => () => {};
 const getServerListeningSupport = () => false;
+
+/** The request choose() sends. Prefetching builds the same one, so the cached scene matches. */
+function nextSceneRequest(
+  settings: GameSettings,
+  history: SceneRequest["history"],
+  wordsLearned: string[],
+  scene: SceneResponse,
+  choice: string,
+): SceneRequest {
+  return {
+    ...settings,
+    wordsLearned: dedupeWords([...wordsLearned, ...scene.newWords.map(({ word }) => word)]),
+    history: [...history, { narration: scene.narration, choice }],
+  };
+}
+
+/** Warm the scene's narration and word audio so it plays as soon as the scene shows. */
+function preloadSceneSpeech(scene: SceneResponse, language: SceneLanguage) {
+  preloadSpeech(scene.narration, meaningLocale(language));
+  for (const { word, meaning } of scene.newWords) {
+    preloadSpeech(word, speechLocale(language));
+    preloadSpeech(meaning, meaningLocale(language));
+  }
+}
+
+function prefetch(request: SceneRequest) {
+  prefetchScene(request)
+    .then((scene) => preloadSceneSpeech(scene, request.language))
+    .catch(() => {});
+}
 
 function dedupeWords(words: string[]): string[] {
   const seen = new Set<string>();
@@ -225,24 +256,10 @@ export default function Home() {
       return;
     }
 
-    const nextWords = dedupeWords([
-      ...wordsLearned,
-      ...scene.newWords.map(({ word }) => word),
-    ]);
-    const nextHistory = [
-      ...history,
-      { narration: scene.narration, choice },
-    ];
-
-    setWordsLearned(nextWords);
-    setHistory(nextHistory);
-    void runRequest({
-      lesson: settings.lesson,
-      language: settings.language,
-      age: settings.age,
-      wordsLearned: nextWords,
-      history: nextHistory,
-    });
+    const request = nextSceneRequest(settings, history, wordsLearned, scene, choice);
+    setWordsLearned(request.wordsLearned);
+    setHistory(request.history);
+    void runRequest(request);
   }
 
   function retryLastRequest() {
@@ -309,6 +326,21 @@ export default function Home() {
       if (generation === speechGeneration.current) setListeningWord(null);
     }
   }
+
+  useEffect(() => {
+    if (phase !== "setup" || !lesson) return;
+    const timer = setTimeout(() => {
+      prefetch({ lesson, language, age, history: [], wordsLearned: [] });
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [phase, lesson, language, age]);
+
+  useEffect(() => {
+    if (phase !== "scene" || !scene || !settings || scene.lessonComplete) return;
+    for (const choice of scene.choices) {
+      prefetch(nextSceneRequest(settings, history, wordsLearned, scene, choice));
+    }
+  }, [phase, scene, settings, history, wordsLearned]);
 
   useEffect(() => {
     speechGeneration.current += 1;

@@ -266,6 +266,13 @@ async function processSpeechQueue(): Promise<void> {
 }
 
 /** Queue speech, preferring server audio with browser speech as a fallback. */
+/** Fetch speech audio ahead of time so speak() can play it without waiting. */
+export function preloadSpeech(text: string, locale: string): void {
+  const content = text.trim();
+  if (!content || typeof window === "undefined") return;
+  void getAudio(content, locale.trim()).catch(() => {});
+}
+
 export function speak(text: string, locale: string): void {
   const content = text.trim();
   if (!content || typeof window === "undefined") return;

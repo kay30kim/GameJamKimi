@@ -11,8 +11,50 @@ import mockScene from "@/mocks/scene.json";
  */
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_SCENE === "1";
 
-export async function fetchScene(
+const MAX_PREFETCHED = 12;
+const prefetched = new Map<string, Promise<SceneResponse>>();
+const keyOf = ({ lesson, language, age, wordsLearned, history }: SceneRequest) =>
+  JSON.stringify([lesson, language, age, wordsLearned, history]);
+
+/** Thrown when Kimi failed and the server sent its generic closing instead of a real scene. */
+class FallbackScene extends Error {}
+
+/**
+ * Start generating a scene before the child asks for it. A later fetchScene with
+ * the same request picks up this result instead of calling Kimi again.
+ */
+export function prefetchScene(request: SceneRequest): Promise<SceneResponse> {
+  const key = keyOf(request);
+  const existing = prefetched.get(key);
+  if (existing) return existing;
+
+  const pending = requestScene(request, { rejectFallback: true });
+  prefetched.set(key, pending);
+  pending.catch(() => {
+    if (prefetched.get(key) === pending) prefetched.delete(key);
+  });
+  for (const oldest of prefetched.keys()) {
+    if (prefetched.size <= MAX_PREFETCHED) break;
+    prefetched.delete(oldest);
+  }
+  return pending;
+}
+
+/** Uses a prefetched scene when there is one. If that background attempt failed, asks again live. */
+export async function fetchScene(request: SceneRequest): Promise<SceneResponse> {
+  const key = keyOf(request);
+  const pending = prefetched.get(key);
+  if (pending) {
+    prefetched.delete(key);
+    const scene = await pending.catch(() => null);
+    if (scene) return scene;
+  }
+  return requestScene(request);
+}
+
+async function requestScene(
   request: SceneRequest,
+  { rejectFallback = false } = {},
 ): Promise<SceneResponse> {
   if (USE_MOCK) return mockScene as SceneResponse;
 
@@ -38,6 +80,9 @@ export async function fetchScene(
     throw new Error(
       "error" in data ? data.error.message : "The story server had a problem.",
     );
+  }
+  if (rejectFallback && res.headers.get("X-Scene-Mode") === "fallback") {
+    throw new FallbackScene("Kimi didn't return a scene in time.");
   }
   return data;
 }
