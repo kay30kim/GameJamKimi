@@ -1,0 +1,124 @@
+"use client";
+
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Component, Suspense, useMemo } from "react";
+import type { ReactNode } from "react";
+import { MathUtils } from "three";
+import type { ActorState, Pose, Sim } from "@/lib/harbir/sim";
+import { LIGHT, PALETTE } from "@/lib/harbir/style";
+import { Kimi } from "./three/characters";
+import { Blob } from "./three/primitives";
+
+/** What Kimi does on the landing page, on a loop: stand, wave, stand, hop. */
+const LOOP: { pose: Pose; seconds: number }[] = [
+  { pose: "idle", seconds: 2.2 },
+  { pose: "wave", seconds: 1.8 },
+  { pose: "idle", seconds: 2.6 },
+  { pose: "jump", seconds: 1 },
+];
+
+type LoopingKimi = Sim & {
+  /** Jump right away, then carry on with the loop. */
+  hop(): void;
+  /** Turn a little toward the pointer; x runs from -1 (left edge) to 1 (right edge). */
+  look(x: number, dt: number): void;
+};
+
+/** A one-actor sim that only cycles poses, so Kimi can stand alone without the meadow. */
+function createLoopingKimi(): LoopingKimi {
+  const hero: ActorState = { id: "hero", x: 0, z: 0, heading: 0, pose: "idle", poseTime: 0, sitting: false, emotionLeft: 0 };
+  let step = 0;
+  let left = LOOP[0].seconds;
+  return {
+    actors: { hero },
+    props: {},
+    done: false,
+    step(dt) {
+      hero.poseTime += dt;
+      left -= dt;
+      if (left > 0) return;
+      step = (step + 1) % LOOP.length;
+      left = LOOP[step].seconds;
+      hero.pose = LOOP[step].pose;
+      hero.poseTime = 0;
+    },
+    hop() {
+      step = LOOP.length - 1;
+      left = LOOP[step].seconds;
+      hero.pose = "jump";
+      hero.poseTime = 0;
+    },
+    look(x, dt) {
+      hero.heading = MathUtils.damp(hero.heading, x * 0.6, 4, dt);
+    },
+  };
+}
+
+/** Aims the camera at Kimi, steps the loop, and turns Kimi a little toward the pointer. */
+function Driver({ sim }: { sim: LoopingKimi }) {
+  useFrame(({ camera, pointer }, delta) => {
+    camera.lookAt(0, 0.7, 0);
+    sim.step(Math.min(delta, 0.05));
+    sim.look(pointer.x, delta);
+  });
+  return null;
+}
+
+/** A small round patch of grass with a few flowers, so Kimi has somewhere to stand. */
+function Patch() {
+  const flowers: [number, number, string][] = [[-0.85, 0.4, PALETTE.flowers[0]], [0.75, 0.6, PALETTE.flowers[2]], [0.95, -0.3, PALETTE.flowers[4]], [-0.55, -0.65, PALETTE.flowers[3]]];
+  return (
+    <group>
+      <mesh position={[0, -0.12, 0]} receiveShadow>
+        <cylinderGeometry args={[1.35, 1.25, 0.24, 48]} />
+        <meshStandardMaterial color={PALETTE.grass} roughness={0.95} />
+      </mesh>
+      <mesh position={[0, -0.36, 0]}>
+        <cylinderGeometry args={[1.25, 1.05, 0.26, 48]} />
+        <meshStandardMaterial color={PALETTE.soil} roughness={0.95} />
+      </mesh>
+      {flowers.map(([x, z, color]) => (
+        <group key={`${x},${z}`} position={[x, 0, z]}>
+          <Blob position={[0, 0.08, 0]} scale={[0.02, 0.09, 0.02]} color={PALETTE.stem} />
+          <Blob position={[0, 0.18, 0]} scale={[0.07, 0.05, 0.07]} color={color} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+class PreviewBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+export default function RabbitPreview() {
+  const sim = useMemo(() => createLoopingKimi(), []);
+  return (
+    <PreviewBoundary>
+      <Canvas
+        shadows="soft"
+        dpr={[1, 2]}
+        gl={{ antialias: true, alpha: true }}
+        camera={{ position: [0, 2, 6], fov: 28, near: 0.1, far: 40 }}
+        onPointerDown={() => sim.hop()}
+        aria-label="Kimi the bunny. Click to make Kimi hop."
+      >
+        <ambientLight intensity={LIGHT.ambient} />
+        <hemisphereLight args={[LIGHT.hemisphere.sky, LIGHT.hemisphere.ground, LIGHT.hemisphere.intensity]} />
+        <directionalLight
+          position={[3, 6, 4]}
+          color={LIGHT.sun.color}
+          intensity={LIGHT.sun.intensity}
+          castShadow
+          shadow-mapSize={[1024, 1024]}
+          shadow-normalBias={0.04}
+        />
+        <Driver sim={sim} />
+        <Patch />
+        <Suspense fallback={null}><Kimi sim={sim} /></Suspense>
+      </Canvas>
+    </PreviewBoundary>
+  );
+}

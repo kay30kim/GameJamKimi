@@ -6,37 +6,16 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { SceneLanguage, SceneRequest, SceneResponse } from "@/app/api/scene/contract";
 import { dedupeWords, fetchScene, nextSceneRequest, prefetch } from "@/lib/scene";
 import { isListeningSupported, listenOnce, matchesWord, meaningLocale, speak, speechLocale, stopListening, stopSpeaking } from "@/lib/speech";
-import type { Stage } from "@/lib/world";
 import styles from "./harbir.module.css";
+import Landing from "./landing";
+import SetupFlow, { type Lesson } from "./setup-flow";
 
 const MeadowStage = dynamic(() => import("./meadow-stage"), {
   ssr: false,
   loading: () => <div className={styles.stageLoading}>Opening the meadow…</div>,
 });
 
-const LESSONS = {
-  kindness: "Small acts that help others",
-  empathy: "Notice how a friend feels",
-  sharing: "Make room for everyone",
-  honesty: "Tell the truth gently",
-  patience: "Wait and try again",
-} as const;
-type Lesson = keyof typeof LESSONS;
-
-/** Shown before the story starts: everyone comes to say hello. */
-const WELCOME_STAGE: Stage = {
-  weather: "sunny",
-  cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "playground" }, { actor: "puppy", at: "garden" }, { actor: "grownup", at: "home" }],
-  props: [{ prop: "ball", at: "playground" }],
-  beats: [
-    { actor: "hero", action: "wave" },
-    { actor: "puppy", action: "run_to", target: "hero" },
-    { actor: "hero", action: "emote", emotion: "happy" },
-    { actor: "puppy", action: "jump" },
-  ],
-};
-
-type Phase = "setup" | "loading" | "scene" | "ending";
+type Phase = "landing" | "setup" | "loading" | "scene" | "ending";
 /** Children under this age say the new words instead of picking a choice. */
 const SAY_WORDS_UNDER_AGE = 4;
 type SayState = "idle" | "listening" | "yay" | "retry";
@@ -46,7 +25,7 @@ const subscribeNothing = () => () => {};
 const notSupported = () => false;
 
 export default function HarbirStory() {
-  const [phase, setPhase] = useState<Phase>("setup");
+  const [phase, setPhase] = useState<Phase>("landing");
   const [lesson, setLesson] = useState<Lesson>("kindness");
   const [language, setLanguage] = useState<SceneLanguage>("ko");
   const [age, setAge] = useState(5);
@@ -149,16 +128,30 @@ export default function HarbirStory() {
     return () => stopSpeaking();
   }, [phase, scene, settings]);
 
-  const stage = scene && phase !== "setup" ? scene.stage : WELCOME_STAGE;
   const story = (phase === "scene" || phase === "ending") && scene && settings ? { scene, settings } : null;
   const sayWords = story !== null && story.settings.age < SAY_WORDS_UNDER_AGE;
   const canSay = sayWords && story.scene.newWords.length > 0 && canListen;
-  const otherLanguage = language === "ko" ? "English" : "Korean";
+
+  if (phase === "landing") return <Landing onBegin={() => setPhase("setup")} />;
+  if (phase === "setup") {
+    return (
+      <SetupFlow
+        age={age}
+        language={language}
+        lesson={lesson}
+        onAge={setAge}
+        onLanguage={setLanguage}
+        onLesson={setLesson}
+        onStart={start}
+        onExit={() => setPhase("landing")}
+      />
+    );
+  }
 
   return (
     <main className={styles.page}>
       <div className={styles.stage} aria-label="Story stage">
-        <MeadowStage stage={stage} replay={replay} />
+        {scene && <MeadowStage stage={scene.stage} replay={replay} />}
       </div>
 
       <header className={styles.topBar}>
@@ -167,32 +160,6 @@ export default function HarbirStory() {
           {story && <button className={styles.pill} onClick={() => setReplay((n) => n + 1)}>Watch again</button>}
         </div>
       </header>
-
-      {phase === "setup" && (
-        <aside className={`${styles.card} ${styles.setup}`}>
-          <p className={styles.eyebrow}>For the grown-ups</p>
-          <h1 className={styles.title}>Make it their story</h1>
-          <label className={styles.field} htmlFor="harbir-age">Age <strong>{age} years</strong></label>
-          <input id="harbir-age" className={styles.slider} type="range" min={3} max={6} value={age} onChange={(event) => setAge(Number(event.target.value))} />
-          <div className={styles.marks}><span>3</span><span>4</span><span>5</span><span>6</span></div>
-          <label className={styles.field} htmlFor="harbir-language">Language to learn</label>
-          <select id="harbir-language" className={styles.select} value={language} onChange={(event) => setLanguage(event.target.value as SceneLanguage)}>
-            <option value="ko">Korean · 한국어</option>
-            <option value="en">English</option>
-          </select>
-          <p className={styles.hint}>Story told in {otherLanguage}. New words in {otherLanguage === "English" ? "Korean" : "English"}.</p>
-          <span className={styles.field}>A little lesson in…</span>
-          <div className={styles.lessons}>
-            {(Object.keys(LESSONS) as Lesson[]).map((option) => (
-              <button key={option} aria-pressed={lesson === option} onClick={() => setLesson(option)}>
-                <strong>{option[0].toUpperCase() + option.slice(1)}</strong>
-                <small>{LESSONS[option]}</small>
-              </button>
-            ))}
-          </div>
-          <button className={styles.primary} onClick={start}>Begin our adventure</button>
-        </aside>
-      )}
 
       {phase === "loading" && !error && <div className={styles.thinking} role="status">Kimi is thinking…</div>}
 
@@ -210,7 +177,7 @@ export default function HarbirStory() {
             <button className={styles.link} onClick={() => speak(story.scene.narration, meaningLocale(story.settings.language))}>Hear again</button>
           </div>
           <p className={styles.narration} lang={meaningLocale(story.settings.language)}>{story.scene.narration}</p>
-          {sayWords && story.scene.newWords.length > 0 && (
+          {story.scene.newWords.length > 0 && (
             <div className={styles.words}>
               {story.scene.newWords.map(({ word, meaning }) => (
                 <button key={word} onClick={() => speak(word, speechLocale(story.settings.language))}>

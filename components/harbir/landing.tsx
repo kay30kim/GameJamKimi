@@ -1,0 +1,48 @@
+import dynamic from "next/dynamic";
+import styles from "./landing.module.css";
+
+const RabbitPreview = dynamic(() => import("./rabbit-preview"), { ssr: false });
+
+/** The page parents see first: what KimiTales teaches, then a button into setup. */
+export default function Landing({ onBegin }: { onBegin: () => void }) {
+  return (
+    <main className={styles.page}>
+      <header className={styles.bar}>
+        <span className={styles.wordmark}>KimiTales</span>
+      </header>
+
+      <section className={styles.hero}>
+        <div className={styles.kimi}><RabbitPreview /></div>
+        <h1>Stories that teach kindness, and a new language.</h1>
+        <p>For kids 3 to 6, in Korean or English.</p>
+        <button className={styles.cta} onClick={onBegin}>Set up a story</button>
+      </section>
+
+      <section className={styles.features}>
+        <article>
+          <h2>Kindness</h2>
+          <p>Your child decides what Kimi does.</p>
+          <div className={styles.example} aria-hidden="true">
+            <p>Momo looks sad. His ball rolled away.</p>
+            <div className={styles.choices}>
+              <span>Help Momo</span>
+              <span>Keep playing</span>
+            </div>
+          </div>
+        </article>
+
+        <article>
+          <h2>New words</h2>
+          <p>A few in every scene. Tap one to hear it.</p>
+          <div className={styles.example} aria-hidden="true">
+            <div className={styles.words}>
+              <span><strong lang="ko">공</strong> ball</span>
+              <span><strong lang="ko">친구</strong> friend</span>
+              <span><strong lang="ko">고마워</strong> thank you</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  );
+}
