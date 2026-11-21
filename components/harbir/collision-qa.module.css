@@ -1,0 +1,102 @@
+.page {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  background: #fbf8f1;
+  color: #1f2b24;
+  font-family: var(--font-noto-sans-kr), sans-serif;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 1px solid #e4ded1;
+}
+
+.list h1 {
+  font-size: 20px;
+}
+
+.list > p {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #5b665e;
+}
+
+.list button {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid #e4ded1;
+  border-radius: 10px;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+}
+
+.list button[aria-pressed="true"] {
+  border-color: #2f4a36;
+  box-shadow: inset 0 0 0 1px #2f4a36;
+}
+
+.list strong {
+  font-size: 14px;
+}
+
+.list small {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5b665e;
+}
+
+.pass,
+.fail {
+  justify-self: start;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pass {
+  background: #e0eed8;
+  color: #2f4a36;
+}
+
+.fail {
+  background: #f8d9d4;
+  color: #8a2b20;
+}
+
+.stage {
+  position: relative;
+}
+
+.caption {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #fffefae6;
+  font-size: 14px;
+}
+
+.caption button {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #2f4a36;
+  color: #fff;
+  font-weight: 600;
+}

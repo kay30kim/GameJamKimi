@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createSim, standingPoint } from "./sim";
+import { pushOut } from "./obstacles";
+import { createSim, RADIUS, standingPoint } from "./sim";
 import type { Stage } from "../world";
 
 function runToEnd(stage: Stage, maxSeconds = 30) {
@@ -39,7 +40,8 @@ test("give walks over, hands the prop across, and the prop follows its new holde
   const umbrella = sim.props.umbrella!, friend = sim.actors.friend!;
   assert.equal(umbrella.holder, "friend");
   assert.deepEqual([umbrella.x, umbrella.z], [friend.x, friend.z]);
-  const [px, pz] = standingPoint("pond");
+  // The pond's standing point is at the water's edge, so Momo stops just outside the water.
+  const [px, pz] = pushOut(...standingPoint("pond"), RADIUS.friend);
   assert.ok(Math.hypot(friend.x - px, friend.z - pz) < 0.05);
 });
 

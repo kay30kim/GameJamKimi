@@ -38,6 +38,7 @@ function createLoopingKimi(): LoopingKimi {
     actors: { hero },
     props: {},
     done: false,
+    together: () => false,
     step(dt) {
       hero.poseTime += dt;
       left -= dt;
