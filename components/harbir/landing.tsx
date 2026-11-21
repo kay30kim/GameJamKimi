@@ -33,7 +33,7 @@ export default function Landing({ onBegin }: { onBegin: () => void }) {
 
         <article>
           <h2>New words</h2>
-          <p>A few in every scene. Tap one to hear it.</p>
+          <p>A few in every scene.</p>
           <div className={styles.example} aria-hidden="true">
             <div className={styles.words}>
               <span><strong lang="ko">공</strong> ball</span>

@@ -177,7 +177,7 @@ export default function HarbirStory() {
             <button className={styles.link} onClick={() => speak(story.scene.narration, meaningLocale(story.settings.language))}>Hear again</button>
           </div>
           <p className={styles.narration} lang={meaningLocale(story.settings.language)}>{story.scene.narration}</p>
-          {story.scene.newWords.length > 0 && (
+          {sayWords && story.scene.newWords.length > 0 && (
             <div className={styles.words}>
               {story.scene.newWords.map(({ word, meaning }) => (
                 <button key={word} onClick={() => speak(word, speechLocale(story.settings.language))}>
