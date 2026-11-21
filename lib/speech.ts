@@ -568,3 +568,8 @@ export function matchesWord(transcript: string, target: string): boolean {
 
   return false;
 }
+
+/** Cancel a microphone session when leaving an interactive demo. */
+export function stopListening(): void {
+  activeRecognition?.cancel();
+}
