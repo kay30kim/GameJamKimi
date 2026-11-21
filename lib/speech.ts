@@ -63,35 +63,230 @@ function pickVoice(
   return bestVoice;
 }
 
-/** Queue an utterance. Call stopSpeaking() first to interrupt prior speech. */
-export function speak(text: string, locale: string): void {
-  const content = text.trim();
-  const synthesis = getSpeechSynthesis();
+interface QueuedSpeech {
+  content: string;
+  locale: string;
+  generation: number;
+  audio: Promise<Blob>;
+}
+
+interface ActiveAudio {
+  audio: HTMLAudioElement;
+  cancel: () => void;
+}
+
+interface ActiveBrowserSpeech {
+  utterance: SpeechSynthesisUtterance;
+  cancel: () => void;
+}
+
+const audioCache = new Map<string, Promise<Blob>>();
+const speechQueue: QueuedSpeech[] = [];
+let playbackGeneration = 0;
+let processingQueue = false;
+let activeAudio: ActiveAudio | undefined;
+let activeBrowserSpeech: ActiveBrowserSpeech | undefined;
+
+async function fetchAudio(content: string, locale: string): Promise<Blob> {
+  const response = await fetch("/api/tts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: content, lang: locale }),
+  });
+  const contentType = response.headers.get("content-type");
   if (
-    !content ||
-    !synthesis ||
-    typeof SpeechSynthesisUtterance === "undefined"
+    !response.ok ||
+    contentType?.split(";", 1)[0].trim().toLowerCase() !== "audio/mpeg"
   ) {
-    return;
+    throw new Error("Speech audio is unavailable.");
   }
 
-  try {
-    const utterance = new SpeechSynthesisUtterance(content);
-    if (locale.trim()) utterance.lang = locale.trim();
-    utterance.rate = 0.95;
+  const audio = await response.blob();
+  if (audio.size === 0) throw new Error("Speech audio is empty.");
+  return audio;
+}
 
-    const voice = pickVoice(synthesis, locale);
-    if (voice) utterance.voice = voice;
-    synthesis.speak(utterance);
-  } catch {
-    // Speech can fail when a browser's speech service is unavailable.
+function getAudio(content: string, locale: string): Promise<Blob> {
+  const key = JSON.stringify([content, normalizeLocale(locale)]);
+  const cached = audioCache.get(key);
+  if (cached) return cached;
+
+  const request = fetchAudio(content, locale);
+  audioCache.set(key, request);
+  void request.catch(() => {
+    if (audioCache.get(key) === request) audioCache.delete(key);
+  });
+  return request;
+}
+
+function playAudio(audioBlob: Blob): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (
+      typeof Audio === "undefined" ||
+      typeof URL.createObjectURL !== "function" ||
+      typeof URL.revokeObjectURL !== "function"
+    ) {
+      reject(new Error("Audio playback is unavailable."));
+      return;
+    }
+
+    let objectUrl: string;
+    try {
+      objectUrl = URL.createObjectURL(audioBlob);
+    } catch {
+      reject(new Error("Audio playback is unavailable."));
+      return;
+    }
+
+    let audio: HTMLAudioElement;
+    try {
+      audio = new Audio();
+    } catch {
+      try {
+        URL.revokeObjectURL(objectUrl);
+      } catch {
+        // Ignore URL cleanup failures when audio cannot be constructed.
+      }
+      reject(new Error("Audio playback is unavailable."));
+      return;
+    }
+
+    let settled = false;
+    const cleanup = () => {
+      audio.onended = null;
+      audio.onerror = null;
+      if (activeAudio?.audio === audio) activeAudio = undefined;
+      try {
+        URL.revokeObjectURL(objectUrl);
+      } catch {
+        // The object URL may already have been revoked during page teardown.
+      }
+    };
+    const finish = (error?: Error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      if (error) reject(error);
+      else resolve();
+    };
+    const pauseAndFinish = (error?: Error) => {
+      if (settled) return;
+      settled = true;
+      try {
+        audio.pause();
+      } catch {
+        // Playback may already have stopped.
+      }
+      cleanup();
+      if (error) reject(error);
+      else resolve();
+    };
+
+    activeAudio = {
+      audio,
+      cancel: () => pauseAndFinish(),
+    };
+    audio.onended = () => finish();
+    audio.onerror = () => pauseAndFinish(new Error("Audio playback failed."));
+
+    try {
+      audio.src = objectUrl;
+      const playback = audio.play();
+      if (playback) {
+        void playback.catch(() =>
+          pauseAndFinish(new Error("Audio playback failed.")),
+        );
+      }
+    } catch {
+      pauseAndFinish(new Error("Audio playback failed."));
+    }
+  });
+}
+
+function speakWithBrowser(content: string, locale: string): Promise<void> {
+  const synthesis = getSpeechSynthesis();
+  if (!synthesis || typeof SpeechSynthesisUtterance === "undefined") {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    let utterance: SpeechSynthesisUtterance;
+    try {
+      utterance = new SpeechSynthesisUtterance(content);
+      if (locale) utterance.lang = locale;
+      utterance.rate = 0.95;
+      const voice = pickVoice(synthesis, locale);
+      if (voice) utterance.voice = voice;
+    } catch {
+      resolve();
+      return;
+    }
+
+    const finish = () => {
+      utterance.onend = null;
+      utterance.onerror = null;
+      if (activeBrowserSpeech?.utterance === utterance) {
+        activeBrowserSpeech = undefined;
+      }
+      resolve();
+    };
+    utterance.onend = finish;
+    utterance.onerror = finish;
+    activeBrowserSpeech = { utterance, cancel: finish };
+
+    try {
+      synthesis.speak(utterance);
+    } catch {
+      finish();
+    }
+  });
+}
+
+async function processSpeechQueue(): Promise<void> {
+  if (processingQueue) return;
+  processingQueue = true;
+
+  try {
+    while (speechQueue.length > 0) {
+      const item = speechQueue.shift();
+      if (!item || item.generation !== playbackGeneration) continue;
+
+      try {
+        const audioBlob = await item.audio;
+        if (item.generation !== playbackGeneration) continue;
+        await playAudio(audioBlob);
+      } catch {
+        if (item.generation !== playbackGeneration) continue;
+        await speakWithBrowser(item.content, item.locale);
+      }
+    }
+  } finally {
+    processingQueue = false;
   }
 }
 
+/** Queue speech, preferring server audio with browser speech as a fallback. */
+export function speak(text: string, locale: string): void {
+  const content = text.trim();
+  if (!content || typeof window === "undefined") return;
+
+  speechQueue.push({
+    content,
+    locale: locale.trim(),
+    generation: playbackGeneration,
+    audio: getAudio(content, locale.trim()),
+  });
+  void processSpeechQueue().catch(() => undefined);
+}
+
 export function stopSpeaking(): void {
+  playbackGeneration += 1;
+  speechQueue.length = 0;
+  activeAudio?.cancel();
+  activeBrowserSpeech?.cancel();
+
   const synthesis = getSpeechSynthesis();
   if (!synthesis) return;
-
   try {
     synthesis.cancel();
   } catch {
