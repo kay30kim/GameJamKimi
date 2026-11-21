@@ -4,9 +4,11 @@
 
 - `POST /api/scene` on the same origin as the Next.js app.
 - Local URL after starting the app: `http://localhost:3000/api/scene` (adjust port if needed).
-- Deployment URL: `<your Vercel deployment URL>/api/scene`. No deployment exists from this change.
+- Production URL: `https://gamejam-kimi.vercel.app/api/scene`.
+- Vercel project `gamejam-kimi` is connected to `kay30kim/GameJamKimi`; pushes to `main` trigger production deployments.
 - This directory is a Next.js App Router route. No API key or extra package is required for this stub.
-- Builder B owns scaffolding, package files, the root layout, and deployment. Preserve this directory when scaffolding. If the app uses `src/app`, move this entire directory to `src/app/api/scene` instead; do not keep both app trees.
+- The Next.js app is already scaffolded. Run `npm ci` and `npm run dev`. Builder B owns the game client, layout, and styling; this API requires no frontend or package changes. If the app moves to `src/app`, move this entire directory to `src/app/api/scene` instead; do not keep both app trees.
+- Use relative `/api/scene` calls from the app. Cross-origin browser access is not enabled; a separately hosted client should proxy requests through its own server.
 
 This is an integration stub, not the Kimi engine. It returns a fixed kindness story in the selected language, ends on the third response, and does not yet adapt to lesson, age, or the selected choice. Successful responses include `X-Scene-Mode: stub`. Real generation will keep the same JSON contract.
 
