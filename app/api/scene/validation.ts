@@ -1,4 +1,7 @@
-import type { SceneResponse } from "./contract";
+import { ACTORS, EMOTIONS } from "../../../lib/world";
+import type { ActorId, Emotion, Stage } from "../../../lib/world";
+import { MAX_LINES } from "./contract";
+import type { SceneLine, SceneResponse } from "./contract";
 import { parseStage } from "./stage";
 
 function record(value: unknown): value is Record<string, unknown> {
@@ -7,6 +10,30 @@ function record(value: unknown): value is Record<string, unknown> {
 
 function shortText(value: unknown, max: number): value is string {
   return typeof value === "string" && value.trim().length > 0 && value.length <= max;
+}
+
+const isActor = (value: unknown): value is ActorId => typeof value === "string" && Object.hasOwn(ACTORS, value);
+const isEmotion = (value: unknown): value is Emotion => EMOTIONS.includes(value as Emotion);
+
+/**
+ * Dialogue is extra color on top of the narration, so a bad line is dropped rather than
+ * failing the scene. Only actors on stage may speak or be spoken to.
+ */
+export function parseLines(raw: unknown, stage: Stage): SceneLine[] {
+  if (!Array.isArray(raw)) return [];
+  const cast = new Set(stage.cast.map(({ actor }) => actor));
+  const lines: SceneLine[] = [];
+  for (const line of raw) {
+    if (!record(line) || !isActor(line.speaker) || !cast.has(line.speaker) || !shortText(line.text, 300)) continue;
+    const to = isActor(line.to) && line.to !== line.speaker && cast.has(line.to) ? line.to : undefined;
+    lines.push({
+      speaker: line.speaker,
+      text: line.text.trim(),
+      ...(to ? { to } : {}),
+      ...(isEmotion(line.emotion) ? { emotion: line.emotion } : {}),
+    });
+  }
+  return lines.slice(0, MAX_LINES);
 }
 
 /** Validate semantics as well as JSON syntax; return only the public contract. */
@@ -32,12 +59,14 @@ export function parseScene(content: string): SceneResponse {
   if (new Set(words.map(({ word }) => word)).size !== words.length) {
     throw new Error("Duplicate vocabulary");
   }
+  const stage = parseStage(value.stage);
   return {
     narration: value.narration.trim(),
+    lines: parseLines(value.lines, stage),
     newWords: words,
     choices: choices.map((choice: string) => choice.trim()),
     lessonComplete: value.lessonComplete,
-    stage: parseStage(value.stage),
+    stage,
   };
 }
 

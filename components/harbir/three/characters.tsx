@@ -15,7 +15,7 @@ import type { ActorId } from "@/lib/world";
 import { Blob, Face } from "./primitives";
 
 /** The parts the engine moves. Limb groups have their origin at the shoulder or hip. */
-interface Rig {
+export interface Rig {
   leftArm?: Object3D | null;
   rightArm?: Object3D | null;
   leftLeg?: Object3D | null;
@@ -31,6 +31,14 @@ type SetLimb = (name: keyof Rig, limb: Object3D | null) => void;
 
 /** Where the emotion bubble floats, per character. */
 export const HEAD_HEIGHT: Record<ActorId, number> = { hero: 1.85, friend: 1.5, puppy: 1.15, grownup: 2, kitten: 1.1, duck: 1 };
+
+/** How a body differs from the default build for its actor id. */
+export interface Build {
+  /** Height of the middle of the body, where somersaults turn. */
+  middle?: number;
+  /** Stands on two legs, so arm raises apply even to the puppy and kitten. */
+  upright?: boolean;
+}
 
 /** Somersaults turn around the middle of the body, about half its height. */
 const MIDDLE: Record<ActorId, number> = { hero: 0.85, friend: 0.68, puppy: 0.45, grownup: 0.95, kitten: 0.42, duck: 0.4 };
@@ -66,7 +74,7 @@ const wrapAngle = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
  * Pose one character for this frame. Big body moves follow the motion closely; limbs, head,
  * and lean ease toward it so pose changes blend; ears ride a spring so they flop.
  */
-function pose(id: ActorId, sim: Sim, frame: Frame, rig: Rig, follow: Follow, delta: number, clock: number) {
+function pose(id: ActorId, sim: Sim, frame: Frame, rig: Rig, follow: Follow, delta: number, clock: number, build: Build) {
   const actor = sim.actors[id];
   if (!actor) return;
   const dt = Math.min(delta, 1 / 30);
@@ -92,7 +100,7 @@ function pose(id: ActorId, sim: Sim, frame: Frame, rig: Rig, follow: Follow, del
   const width = 1 / Math.sqrt(follow.squash);
   frame.squash.scale.set(width, follow.squash, width);
   frame.lean.rotation.set(follow.lean, 0, follow.sway);
-  const middle = MIDDLE[id];
+  const middle = build.middle ?? MIDDLE[id];
   // Pivot at the middle of the curled body, so a tucked ball still rests on the ground.
   frame.flip.position.y = middle * follow.curl;
   frame.flip.rotation.x = m.flip;
@@ -105,7 +113,7 @@ function pose(id: ActorId, sim: Sim, frame: Frame, rig: Rig, follow: Follow, del
     part.rotation.z = MathUtils.damp(part.rotation.z, z, 16, dt);
   };
   // Four-legged friends use their arms as front legs: they swing but never lift out to the side.
-  const raise = id === "puppy" || id === "kitten" ? 0 : 1;
+  const raise = !build.upright && (id === "puppy" || id === "kitten") ? 0 : 1;
   limb(rig.leftArm, m.armLeft, -m.raiseLeft * raise);
   limb(rig.rightArm, m.armRight, m.raiseRight * raise);
   limb(rig.leftLeg, m.legLeft, 0);
@@ -125,7 +133,7 @@ function pose(id: ActorId, sim: Sim, frame: Frame, rig: Rig, follow: Follow, del
 }
 
 /** Wraps a body in the posing groups and drives it every frame. */
-function Puppet({ id, sim, rig, children }: { id: ActorId; sim: Sim; rig: RefObject<Rig>; children: ReactNode }) {
+export function Puppet({ id, sim, rig, build = {}, children }: { id: ActorId; sim: Sim; rig: RefObject<Rig>; build?: Build; children: ReactNode }) {
   const place = useRef<Group>(null);
   const lift = useRef<Group>(null);
   const squash = useRef<Group>(null);
@@ -137,7 +145,7 @@ function Puppet({ id, sim, rig, children }: { id: ActorId; sim: Sim; rig: RefObj
     if (!place.current || !lift.current || !squash.current || !lean.current || !flip.current || !center.current) return;
     follow.current ??= newFollow(sim.actors[id]?.heading ?? 0);
     const frame = { place: place.current, lift: lift.current, squash: squash.current, lean: lean.current, flip: flip.current, center: center.current };
-    pose(id, sim, frame, rig.current, follow.current, delta, clock.elapsedTime);
+    pose(id, sim, frame, rig.current, follow.current, delta, clock.elapsedTime, build);
   });
   return (
     <group ref={place}>

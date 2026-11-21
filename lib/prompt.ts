@@ -1,4 +1,4 @@
-import { MAX_SCENES } from "../app/api/scene/contract";
+import { MAX_LINES, MAX_SCENES } from "../app/api/scene/contract";
 import type { SceneRequest } from "../app/api/scene/contract";
 import { OPENINGS } from "./openings";
 import { ACTIONS, ACTORS, EMOTIONS, MAX_BEATS, PROPS, SPOTS, WEATHERS } from "./world";
@@ -68,8 +68,9 @@ export function buildSceneMessages(
           ? "End the story now with a warm, resolved closing. Set lessonComplete to true and choices to an empty array. Do not introduce a new problem."
           : "End early when the situation is resolved and the lesson has been demonstrated. An ending must set lessonComplete to true and choices to an empty array. Otherwise set lessonComplete to false.",
         WORLD_RULES,
+        `Dialogue: after the narration, the characters on stage talk to each other in 1 to ${MAX_LINES} short lines, in the narration language. Each line has a speaker from the stage cast, optionally who they talk "to" (also in the cast), and an emotion. Write natural childlike direct speech that listens and answers; never narrate ("Kimi says"). Keep each line within the narration length rules for this age. Do not repeat the narration, and do not use learning-language words.`,
         "Return ONLY one valid JSON object, without markdown, commentary, or extra fields, using this schema:",
-        '{"narration":"string","newWords":[{"word":"string","meaning":"string"}],"choices":["string","string"],"lessonComplete":false,"stage":{"weather":"sunny","cast":[{"actor":"hero","at":"path"},{"actor":"puppy","at":"tree"}],"props":[{"prop":"umbrella","at":"hero"}],"beats":[{"actor":"hero","action":"walk_to","target":"puppy"},{"actor":"hero","action":"give","prop":"umbrella","target":"puppy"},{"actor":"puppy","action":"emote","emotion":"happy"}]}}',
+        '{"narration":"string","lines":[{"speaker":"puppy","text":"string","emotion":"sad"},{"speaker":"hero","to":"puppy","text":"string","emotion":"curious"}],"newWords":[{"word":"string","meaning":"string"}],"choices":["string","string"],"lessonComplete":false,"stage":{"weather":"sunny","cast":[{"actor":"hero","at":"path"},{"actor":"puppy","at":"tree"}],"props":[{"prop":"umbrella","at":"hero"}],"beats":[{"actor":"hero","action":"walk_to","target":"puppy"},{"actor":"hero","action":"give","prop":"umbrella","target":"puppy"},{"actor":"puppy","action":"emote","emotion":"happy"}]}}',
         "An ending uses the same schema with choices: [] and lessonComplete: true, and a stage that shows the warm resolution. newWords may be empty in any scene.",
       ].join("\n"),
     },

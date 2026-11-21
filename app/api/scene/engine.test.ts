@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { generateScene } from "./engine";
-import { parseScene } from "./validation";
+import { parseLines, parseScene } from "./validation";
 import { defaultStage, parseStage } from "./stage";
 import { ACTIONS, ACTORS, PROPS, SPOTS } from "../../../lib/world";
 import { buildSceneMessages } from "../../../lib/prompt";
 import type { SceneRequest, SceneResponse } from "./contract";
 
 const input: SceneRequest = { lesson: "kindness", language: "en", age: 5, wordsLearned: [], history: [] };
-const scene: SceneResponse = { narration: "미나가 친구를 만났어요.", newWords: [{ word: "friend", meaning: "친구" }], choices: ["인사해요", "손을 흔들어요"], lessonComplete: false, stage: {
+const scene: SceneResponse = { narration: "미나가 친구를 만났어요.", lines: [{ speaker: "friend", text: "안녕!", to: "hero", emotion: "happy" }], newWords: [{ word: "friend", meaning: "친구" }], choices: ["인사해요", "손을 흔들어요"], lessonComplete: false, stage: {
   weather: "sunny",
   cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "playground" }],
   props: [{ prop: "ball", at: "friend" }],
@@ -217,4 +217,48 @@ test("an opening id reaches the prompt as its situation, and the new world entri
   for (const name of ["kitten", "duck", "balloon", "watering_can", "dance", "nap", "look_around", "sunset"]) {
     assert.match(messages[0].content, new RegExp(name));
   }
+});
+
+test("dialogue keeps only cast members and drops malformed lines", () => {
+  const stage = parseStage(scene.stage);
+  const lines = parseLines([
+    { speaker: "hero", text: " Hi, Momo! ", to: "friend", emotion: "excited" },
+    { speaker: "duck", text: "Not on stage." },
+    { speaker: "friend", text: "Hello!", to: "duck", emotion: "grumpy" },
+    { speaker: "friend", text: "" },
+    { speaker: "hero", text: "Talking to myself.", to: "hero" },
+    "nonsense",
+  ], stage);
+  assert.deepEqual(lines, [
+    { speaker: "hero", text: "Hi, Momo!", to: "friend", emotion: "excited" },
+    { speaker: "friend", text: "Hello!" },
+    { speaker: "hero", text: "Talking to myself." },
+  ]);
+  assert.equal(parseLines(Array(9).fill({ speaker: "hero", text: "Again!" }), stage).length, 4);
+  assert.deepEqual(parseLines(undefined, stage), []);
+});
+
+test("a scene without dialogue still parses", () => {
+  const withoutLines: Partial<SceneResponse> = { ...scene };
+  delete withoutLines.lines;
+  assert.deepEqual(parseScene(JSON.stringify(withoutLines)).lines, []);
+});
+
+test("stub scenes only give lines to actors on stage", async () => {
+  for (const language of ["en", "ko"] as const) {
+    const state: SceneRequest = { ...input, language, history: [] };
+    for (let i = 0; i < 3; i++) {
+      const { scene: stub } = await generateScene(state, { apiKey: "" });
+      const cast = new Set(stub.stage.cast.map(({ actor }) => actor));
+      assert.ok(stub.lines.length > 0);
+      for (const line of stub.lines) assert.ok(cast.has(line.speaker) && (!line.to || cast.has(line.to)));
+      state.history.push({ narration: stub.narration, choice: stub.choices[0] ?? "" });
+    }
+  }
+});
+
+test("the prompt asks for dialogue from the cast", () => {
+  const system = buildSceneMessages(input)[0].content;
+  assert.match(system, /Dialogue:/);
+  assert.match(system, /"lines":\[/);
 });

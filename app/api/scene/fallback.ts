@@ -48,6 +48,9 @@ export function createStubScene(request: SceneRequest): SceneResponse {
       narration: narrateInKorean
         ? "키미와 강아지가 함께 집에 도착했어요. 서로 도우니 마음이 따뜻해졌어요."
         : "Kimi and the puppy arrive home together. Helping each other feels good.",
+      lines: narrateInKorean
+        ? [{ speaker: "grownup", text: "어서 오렴! 둘이 함께 와서 참 좋구나.", to: "hero", emotion: "happy" }, { speaker: "hero", text: "우리가 서로 도왔어요!", to: "grownup", emotion: "excited" }]
+        : [{ speaker: "grownup", text: "Welcome home! I'm so glad you came together.", to: "hero", emotion: "happy" }, { speaker: "hero", text: "We helped each other!", to: "grownup", emotion: "excited" }],
       newWords: [],
       choices: [],
       lessonComplete: true,
@@ -66,6 +69,13 @@ export function createStubScene(request: SceneRequest): SceneResponse {
       : first
         ? "Kimi sees a puppy in the rain. How can Kimi help?"
         : "Kimi and the puppy are out of the rain. What can Kimi do with a new friend?",
+    lines: narrateInKorean
+      ? first
+        ? [{ speaker: "puppy", text: "비가 와서 너무 추워…", emotion: "sad" }, { speaker: "hero", text: "괜찮아? 내가 도와줄게!", to: "puppy", emotion: "curious" }]
+        : [{ speaker: "puppy", text: "고마워, 키미! 이제 따뜻해.", to: "hero", emotion: "happy" }]
+      : first
+        ? [{ speaker: "puppy", text: "The rain is so cold…", emotion: "sad" }, { speaker: "hero", text: "Are you okay? I can help!", to: "puppy", emotion: "curious" }]
+        : [{ speaker: "puppy", text: "Thank you, Kimi! I feel warm now.", to: "hero", emotion: "happy" }],
     newWords: request.wordsLearned.includes(word.word) ? [] : [word],
     choices: narrateInKorean
       ? first ? ["우산을 함께 써요", "어른에게 도움을 청해요"] : ["함께 걸어요", "친구에게 웃어 줘요"]
@@ -81,7 +91,7 @@ export function createClosingScene(language: SceneRequest["language"]): SceneRes
     narration: language === "en"
       ? "오늘의 이야기는 여기까지예요. 함께 생각하고 배워 줘서 고마워요."
       : "That is the end of our story today. Thank you for thinking and learning together.",
-    newWords: [], choices: [], lessonComplete: true,
+    lines: [], newWords: [], choices: [], lessonComplete: true,
     stage: defaultStage([{ actor: "hero", action: "wave" }, { actor: "hero", action: "celebrate" }]),
   };
 }

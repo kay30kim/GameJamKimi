@@ -107,6 +107,7 @@ export function nextSceneRequest(
 /** Warm the scene's narration and word audio so it plays as soon as the scene shows. */
 function preloadSceneSpeech(scene: SceneResponse, language: SceneLanguage) {
   preloadSpeech(scene.narration, meaningLocale(language));
+  for (const line of scene.lines) preloadSpeech(line.text, meaningLocale(language), line.speaker);
   for (const { word, meaning } of scene.newWords) {
     preloadSpeech(word, speechLocale(language));
     preloadSpeech(meaning, meaningLocale(language));

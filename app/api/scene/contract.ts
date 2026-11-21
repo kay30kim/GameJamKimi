@@ -1,6 +1,6 @@
 /** Shared wire contract. Client code should use `import type`. */
 import type { OpeningId } from "../../../lib/openings";
-import type { Stage } from "../../../lib/world";
+import type { ActorId, Emotion, Stage } from "../../../lib/world";
 
 export type { Beat, Stage } from "../../../lib/world";
 
@@ -18,9 +18,22 @@ export interface SceneRequest {
   opening?: OpeningId;
 }
 
+/** One spoken line of dialogue, voiced by the speaker's own character voice. */
+export interface SceneLine {
+  /** Always a member of the stage cast. */
+  speaker: ActorId;
+  /** Uses the narration language. */
+  text: string;
+  /** Who the speaker is talking to, also in the cast. */
+  to?: ActorId;
+  emotion?: Emotion;
+}
+
 export interface SceneResponse {
-  /** Uses the other language, matching vocabulary meanings. */
+  /** Uses the other language, matching vocabulary meanings. Spoken by the narrator before the lines. */
   narration: string;
+  /** Up to MAX_LINES lines the characters say after the narration. May be empty. */
+  lines: SceneLine[];
   /** word uses the selected language; meaning uses the other language. */
   newWords: { word: string; meaning: string }[];
   /** Uses the other language; empty when lessonComplete is true. */
@@ -35,3 +48,4 @@ export interface SceneErrorResponse {
 }
 
 export const MAX_SCENES = 8;
+export const MAX_LINES = 4;
