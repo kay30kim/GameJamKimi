@@ -1,5 +1,8 @@
+import { generateScene } from "./engine";
 import { MAX_SCENES } from "./contract";
-import type { SceneRequest, SceneResponse } from "./contract";
+import type { SceneRequest } from "./contract";
+
+export const maxDuration = 60;
 
 function isSceneRequest(value: unknown): value is SceneRequest {
   if (!value || typeof value !== "object") return false;
@@ -21,41 +24,6 @@ function isSceneRequest(value: unknown): value is SceneRequest {
   );
 }
 
-/** Integration stub. Replace this function with the story engine later. */
-function createScene(request: SceneRequest): SceneResponse {
-  const korean = request.language === "ko";
-  // Three scenes keep frontend integration quick; the server also caps at eight.
-  const complete = request.history.length >= 2 || request.history.length >= MAX_SCENES - 1;
-  if (complete) {
-    return {
-      narration: korean
-        ? "미나와 강아지가 함께 집에 도착했어요. 서로 도우니 마음이 따뜻해졌어요."
-        : "Mina and the puppy arrive home together. Helping each other feels good.",
-      newWords: [],
-      choices: [],
-      lessonComplete: true,
-    };
-  }
-  const first = request.history.length === 0;
-  const word = korean
-    ? { word: first ? "강아지" : "친구", meaning: first ? "puppy" : "friend" }
-    : { word: first ? "puppy" : "friend", meaning: first ? "강아지" : "친구" };
-  return {
-    narration: korean
-      ? first
-        ? "미나가 빗속에 있는 강아지를 만났어요. 어떻게 도와줄까요?"
-        : "미나와 강아지가 비를 피했어요. 새 친구와 무엇을 할까요?"
-      : first
-        ? "Mina sees a puppy in the rain. How can she help?"
-        : "Mina and the puppy are out of the rain. What can she do with her new friend?",
-    newWords: request.wordsLearned.includes(word.word) ? [] : [word],
-    choices: korean
-      ? first ? ["우산을 함께 써요", "어른에게 도움을 청해요"] : ["함께 걸어요", "친구에게 웃어 줘요"]
-      : first ? ["Share your umbrella", "Ask a grown-up for help"] : ["Walk together", "Smile at your friend"],
-    lessonComplete: false,
-  };
-}
-
 export async function POST(request: Request): Promise<Response> {
   let body: unknown;
   try {
@@ -68,8 +36,9 @@ export async function POST(request: Request): Promise<Response> {
       "Expected lesson (1–500 characters), language (en or ko), age (integer 3–6), wordsLearned (up to 100 strings), and history (up to 8 narration/choice entries).",
     );
   }
-  return Response.json(createScene(body), {
-    headers: { "Cache-Control": "no-store", "X-Scene-Mode": "stub" },
+  const result = await generateScene(body);
+  return Response.json(result.scene, {
+    headers: { "Cache-Control": "no-store", "X-Scene-Mode": result.mode },
   });
 }
 
