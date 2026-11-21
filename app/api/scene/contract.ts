@@ -1,4 +1,8 @@
 /** Shared wire contract. Client code should use `import type`. */
+import type { Stage } from "../../../lib/world";
+
+export type { Beat, Stage } from "../../../lib/world";
+
 export type SceneLanguage = "en" | "ko";
 
 export interface SceneRequest {
@@ -19,6 +23,8 @@ export interface SceneResponse {
   /** Uses the other language; empty when lessonComplete is true. */
   choices: string[];
   lessonComplete: boolean;
+  /** What the 3D engine plays for this scene, always valid for the world in lib/world.ts. */
+  stage: Stage;
 }
 
 export interface SceneErrorResponse {

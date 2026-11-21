@@ -2,11 +2,18 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { generateScene } from "./engine";
 import { parseScene } from "./validation";
+import { defaultStage, parseStage } from "./stage";
+import { ACTIONS, ACTORS, PROPS, SPOTS } from "../../../lib/world";
 import { buildSceneMessages } from "../../../lib/prompt";
 import type { SceneRequest, SceneResponse } from "./contract";
 
 const input: SceneRequest = { lesson: "kindness", language: "en", age: 5, wordsLearned: [], history: [] };
-const scene: SceneResponse = { narration: "미나가 친구를 만났어요.", newWords: [{ word: "friend", meaning: "친구" }], choices: ["인사해요", "손을 흔들어요"], lessonComplete: false };
+const scene: SceneResponse = { narration: "미나가 친구를 만났어요.", newWords: [{ word: "friend", meaning: "친구" }], choices: ["인사해요", "손을 흔들어요"], lessonComplete: false, stage: {
+  weather: "sunny",
+  cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "playground" }],
+  props: [{ prop: "ball", at: "friend" }],
+  beats: [{ actor: "hero", action: "walk_to", target: "friend" }, { actor: "hero", action: "wave", target: "friend" }],
+} };
 const completion = (value: unknown = scene) => Response.json({ choices: [{ message: { content: JSON.stringify(value) }, finish_reason: "stop" }] });
 
 test("without a key both languages keep the three-scene integration flow", async () => {
@@ -19,10 +26,10 @@ test("without a key both languages keep the three-scene integration flow", async
       assert.doesNotThrow(() => parseScene(JSON.stringify(result.scene)));
       if (language === "ko") {
         assert.doesNotMatch(result.scene.narration, /[가-힣]/);
-        assert.match(result.scene.narration, /Mina/);
+        assert.match(result.scene.narration, /Kimi/);
         result.scene.choices.forEach((choice) => assert.doesNotMatch(choice, /[가-힣]/));
       } else {
-        assert.match(result.scene.narration, /미나/);
+        assert.match(result.scene.narration, /키미/);
         result.scene.choices.forEach((choice) => assert.match(choice, /[가-힣]/));
       }
       if (i < 2) {
@@ -140,4 +147,56 @@ test("prompt uses the learning language only for words in both language directio
     assert.ok(system.includes(`Write narration, choices, and newWords[].meaning in ${other}.`));
     assert.ok(system.includes(`Write only newWords[].word in ${learning}.`));
   }
+});
+
+test("stub stages are already valid for the world", async () => {
+  const state: SceneRequest = { ...input, history: [] };
+  for (let i = 0; i < 3; i++) {
+    const { scene: stub } = await generateScene(state, { apiKey: "" });
+    assert.deepEqual(parseStage(stub.stage), stub.stage);
+    state.history.push({ narration: stub.narration, choice: stub.choices[0] ?? "" });
+  }
+});
+
+test("a missing or garbage stage never rejects the scene", () => {
+  const { stage, ...withoutStage } = scene;
+  assert.ok(stage);
+  assert.deepEqual(parseScene(JSON.stringify(withoutStage)).stage, defaultStage());
+  assert.deepEqual(parseScene(JSON.stringify({ ...scene, stage: "dragon" })).stage, defaultStage());
+});
+
+test("stage parser drops unknown names and adds whoever a beat needs", () => {
+  const stage = parseStage({
+    weather: "stormy",
+    cast: [{ actor: "dragon", at: "castle" }, { actor: "puppy", at: "moon" }],
+    props: [{ prop: "sword", at: "hero" }, { prop: "flower", at: "grownup" }],
+    beats: [
+      { actor: "hero", action: "fly", target: "sky" },
+      { actor: "hero", action: "hug", target: "hero" },
+      { actor: "hero", action: "give", prop: "apple", target: "friend" },
+      { actor: "friend", action: "emote", emotion: "angry" },
+      { actor: "friend", action: "emote", emotion: "happy" },
+      { actor: "puppy", action: "jump" },
+      { actor: "hero", action: "wave" },
+      { actor: "hero", action: "celebrate" },
+    ],
+  });
+  assert.equal(stage.weather, "sunny");
+  assert.deepEqual(stage.cast, [{ actor: "hero", at: "path" }, { actor: "puppy", at: "garden" }, { actor: "friend", at: "playground" }]);
+  assert.deepEqual(stage.props, [{ prop: "flower", at: "garden" }, { prop: "apple", at: "hero" }]);
+  assert.deepEqual(stage.beats, [
+    { actor: "hero", action: "give", prop: "apple", target: "friend" },
+    { actor: "friend", action: "emote", emotion: "happy" },
+    { actor: "puppy", action: "jump" },
+    { actor: "hero", action: "wave" },
+  ]);
+  assert.deepEqual(parseStage({ beats: [{ actor: "nobody", action: "jump" }] }).beats, defaultStage().beats);
+});
+
+test("prompt offers every world name and nothing else is needed to grow the world", () => {
+  const system = buildSceneMessages(input)[0].content;
+  for (const id of [...Object.keys(SPOTS), ...Object.keys(ACTORS), ...Object.keys(PROPS), ...Object.keys(ACTIONS)]) {
+    assert.ok(system.includes(id), `prompt is missing ${id}`);
+  }
+  assert.match(system, /"stage":\{/);
 });

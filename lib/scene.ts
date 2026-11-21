@@ -14,7 +14,7 @@ const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_SCENE === "1";
 export async function fetchScene(
   request: SceneRequest,
 ): Promise<SceneResponse> {
-  if (USE_MOCK) return mockScene;
+  if (USE_MOCK) return mockScene as SceneResponse;
 
   let res: Response;
   try {

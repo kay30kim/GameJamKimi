@@ -1,9 +1,25 @@
 import { MAX_SCENES } from "../app/api/scene/contract";
 import type { SceneRequest } from "../app/api/scene/contract";
+import { ACTIONS, ACTORS, EMOTIONS, MAX_BEATS, PROPS, SPOTS, WEATHERS } from "./world";
 
-/** Temporary character brief until the designer supplies the final version. */
+/** From design/character-brief.md. The child plays Kimi. */
 export const DEFAULT_CHARACTER_BRIEF =
-  "Mina is a curious, kind child. Use a warm, playful voice without shaming or lecturing.";
+  "The child plays Kimi, a small cream-colored bunny with long ears and a peach scarf. Kimi is curious, kind, patient, and playful. Use a warm, playful voice without shaming or lecturing.";
+
+const list = (table: Record<string, { en: string; ko: string }>) =>
+  Object.entries(table).map(([id, { en, ko }]) => `${id} (${en} / ${ko})`).join(", ");
+
+/** Built from lib/world.ts so the prompt can never offer a name the engine doesn't have. */
+const WORLD_RULES = [
+  "Every story happens in Sunny Meadow, a small village meadow. Use only the places, characters, and objects below, in narration as well as in the stage.",
+  `Spots: ${list(SPOTS)}.`,
+  `Actors: ${list(ACTORS)}. Call them by these names, in the narration language.`,
+  `Props: ${list(PROPS)}.`,
+  `Weather: ${WEATHERS.join(" or ")}. Emotions: ${EMOTIONS.join(", ")}.`,
+  `Actions, each with exactly these fields: ${Object.entries(ACTIONS).map(([id, { args, meaning }]) => `${id} [${args}]: ${meaning}`).join("; ")}.`,
+  `Return a stage that acts out this scene's narration: the weather, the cast with each actor's starting spot (always include hero), the props in the scene (at a spot, or held by an actor id), and 1 to ${MAX_BEATS} beats played in order.`,
+  "Make the beats show what the narration describes and what the child's latest choice did. Use ids exactly as written, never translated.",
+].join("\n");
 
 /** Call only after the API has validated the request. No provider-specific code. */
 export function buildSceneMessages(
@@ -36,9 +52,10 @@ export function buildSceneMessages(
         finalScene
           ? "End the story now with a warm, resolved closing. Set lessonComplete to true and choices to an empty array. Do not introduce a new problem."
           : "End early when the situation is resolved and the lesson has been demonstrated. An ending must set lessonComplete to true and choices to an empty array. Otherwise set lessonComplete to false.",
+        WORLD_RULES,
         "Return ONLY one valid JSON object, without markdown, commentary, or extra fields, using this schema:",
-        '{"narration":"string","newWords":[{"word":"string","meaning":"string"}],"choices":["string","string"],"lessonComplete":false}',
-        "An ending uses the same schema with choices: [] and lessonComplete: true. newWords may be empty in any scene.",
+        '{"narration":"string","newWords":[{"word":"string","meaning":"string"}],"choices":["string","string"],"lessonComplete":false,"stage":{"weather":"sunny","cast":[{"actor":"hero","at":"path"},{"actor":"puppy","at":"tree"}],"props":[{"prop":"umbrella","at":"hero"}],"beats":[{"actor":"hero","action":"walk_to","target":"puppy"},{"actor":"hero","action":"give","prop":"umbrella","target":"puppy"},{"actor":"puppy","action":"emote","emotion":"happy"}]}}',
+        "An ending uses the same schema with choices: [] and lessonComplete: true, and a stage that shows the warm resolution. newWords may be empty in any scene.",
       ].join("\n"),
     },
     {

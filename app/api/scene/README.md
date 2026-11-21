@@ -47,8 +47,33 @@ const response = await fetch("/api/scene", {
 });
 const data = await response.json();
 if (!response.ok) throw new Error(data.error.message);
-// data: { narration, newWords, choices, lessonComplete }
+// data: { narration, newWords, choices, lessonComplete, stage }
 ```
+
+## Stage: what the 3D engine plays
+
+Every response has a `stage` for the scene. The world is fixed: every story happens in Sunny Meadow, and `lib/world.ts` lists every spot (with its `[x, z]` position in meters), actor, prop, weather, emotion, and action. The prompt and the server both read that file, so the model can only use names the engine knows.
+
+```json
+"stage": {
+  "weather": "rainy",
+  "cast": [{ "actor": "hero", "at": "path" }, { "actor": "puppy", "at": "tree" }],
+  "props": [{ "prop": "umbrella", "at": "hero" }],
+  "beats": [
+    { "actor": "hero", "action": "walk_to", "target": "puppy" },
+    { "actor": "hero", "action": "give", "prop": "umbrella", "target": "puppy" },
+    { "actor": "puppy", "action": "emote", "emotion": "happy" }
+  ]
+}
+```
+
+- `cast` gives each actor's starting spot and always includes `hero` (Kimi the bunny, the child's character).
+- A prop's `at` is either a spot or the id of an actor holding it.
+- `beats` has one to four steps, played in order. The `Beat` type in `lib/world.ts` lists the exact fields for each action.
+- The server repairs the stage instead of rejecting the scene. It drops unknown names and malformed beats, adds anyone or anything a beat needs at its usual spot, and falls back to Kimi looking happy if no beats are left. The engine can play any stage it receives without checking names.
+- The stub returns hand-written stages for its three scenes, so you can build the engine without a key.
+
+To grow the world, add an entry to `lib/world.ts`. The prompt picks it up automatically; the engine needs a model and animation for it.
 
 ## Story state rules
 

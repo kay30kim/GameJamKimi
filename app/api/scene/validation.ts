@@ -1,4 +1,5 @@
 import type { SceneResponse } from "./contract";
+import { parseStage } from "./stage";
 
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -36,6 +37,7 @@ export function parseScene(content: string): SceneResponse {
     newWords: words,
     choices: choices.map((choice: string) => choice.trim()),
     lessonComplete: value.lessonComplete,
+    stage: parseStage(value.stage),
   };
 }
 

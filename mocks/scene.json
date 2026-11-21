@@ -1,6 +1,51 @@
 {
-  "narration": "Mina sees a puppy shivering in the rain.",
-  "newWords": [{ "word": "강아지", "meaning": "puppy" }],
-  "choices": ["Share your umbrella", "Keep walking"],
-  "lessonComplete": false
+  "narration": "Kimi sees a puppy shivering in the rain.",
+  "newWords": [
+    {
+      "word": "강아지",
+      "meaning": "puppy"
+    }
+  ],
+  "choices": [
+    "Share your umbrella",
+    "Keep walking"
+  ],
+  "lessonComplete": false,
+  "stage": {
+    "weather": "rainy",
+    "cast": [
+      {
+        "actor": "hero",
+        "at": "path"
+      },
+      {
+        "actor": "puppy",
+        "at": "tree"
+      }
+    ],
+    "props": [
+      {
+        "prop": "umbrella",
+        "at": "hero"
+      }
+    ],
+    "beats": [
+      {
+        "actor": "puppy",
+        "action": "emote",
+        "emotion": "sad"
+      },
+      {
+        "actor": "hero",
+        "action": "walk_to",
+        "target": "puppy"
+      },
+      {
+        "actor": "hero",
+        "action": "give",
+        "prop": "umbrella",
+        "target": "puppy"
+      }
+    ]
+  }
 }
