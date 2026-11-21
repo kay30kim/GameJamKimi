@@ -23,7 +23,7 @@ An interactive educational game for kids under elementary-school age. A parent p
 
 The game engine is fixed and the content is variable:
 
-- **Engine (fixed code):** screens, layout, the choice buttons, the speak button, text-to-speech, and speech recognition. This part never changes between runs, so it loads instantly.
+- **Engine (fixed code):** screens, layout, the choice buttons, the speak button, audio playback, and speech recognition. This part never changes between runs, so it loads instantly.
 - **Content (from Kimi K3):** each call returns one scene as JSON in a fixed shape, which the engine drops straight into the page. For example:
 
   ```json
@@ -43,10 +43,25 @@ This is a hackathon project with a build window of a few hours, so we keep the f
 
 - **Hosting:** Vercel. The Kimi K3 API key stays on the server in a Vercel serverless function and never reaches the browser.
 - **Languages:** English and Korean.
-- **Speech:** the browser's built-in Web Speech API turns the child's speech into text and reads scenes aloud. The game compares the transcript to the target word. Speech recognition works best in Chrome.
+- **Audio:** ElevenLabs generates the spoken audio: the narration for each scene and each new word, read in the target language. Like the Kimi K3 key, the ElevenLabs API key stays in a Vercel serverless function.
+- **Speech recognition:** the browser's built-in Web Speech API turns the child's speech into text, and the game compares the transcript to the target word. Speech recognition works best in Chrome.
 - **Safety:** a system prompt keeps content age-appropriate, and the parent can preview a run first.
 - **MVP:** a setup screen for the lesson, language, and age, then the story loop. Each scene has a few choices, introduces a few simple words, and has a speak button for feedback. The loop repeats until Kimi K3 marks the lesson complete.
 - **Out of scope for now:** accounts, saved progress, parent dashboards, custom art, and pronunciation scoring.
+
+## Run locally
+
+You need Node.js 20.9 or later.
+
+```bash
+npm install
+cp .env.example .env.local   # then add the Kimi K3 and ElevenLabs keys
+npm run dev
+```
+
+Open http://localhost:3000. If that port is busy, Next.js picks the next free one and prints it. Edits reload in the browser as you save.
+
+Until the API is ready, the game client can read the sample scene in `mocks/scene.json`, so the UI works without any API keys.
 
 ## Example lessons
 
