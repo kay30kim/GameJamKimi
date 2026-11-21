@@ -1,6 +1,9 @@
+import { lessonGuide } from "./lesson-guides";
+
 /**
  * Small situations a story can start from. The client picks one at random for each new story,
- * so first scenes don't all open the same way. The server only accepts ids from this table.
+ * from the openings that fit the chosen lesson (lib/lesson-guides.ts), so first scenes vary
+ * and still set up that lesson. The server only accepts ids from this table.
  */
 export const OPENINGS = {
   balloon: "A balloon slips out of someone's paw and floats toward the big tree.",
@@ -17,13 +20,28 @@ export const OPENINGS = {
   spilled_apples: "Someone trips and their apples roll all over the path.",
   race: "The friends race to the pond, and someone falls behind.",
   flower_crown: "Someone's flower crown falls apart just before a picnic.",
+  quiet_duck: "Dodo the duckling sits alone by the pond, looking sad, and doesn't say why.",
+  new_ball: "Kimi has a shiny new ball, and Nabi the kitten has nothing to play with.",
+  broken_flowers: "While playing ball by the garden, Kimi accidentally knocks over Grandma Owl's favorite flowers, and nobody saw.",
+  found_ball: "Kimi finds a red ball under the bench. It looks just like the one Momo lost yesterday.",
+  saved_apple: "Kimi ate the apple Grandma Owl was saving for later, and now Grandma Owl is looking for it.",
+  cookies_baking: "Grandma Owl's cookies smell wonderful, but they need a little more time in the oven.",
+  no_wind: "Kimi wants to fly a kite at the playground, but there is no wind yet.",
+  big_slide: "Kimi has never gone down the big slide at the playground, and it looks very tall.",
+  stepping_stones: "The friends hop across the low, flat stepping stones in the shallow end of the pond, and Kimi has never tried.",
+  shy_to_ask: "Momo and Bori are playing ball, and Kimi wants to join but feels too shy to ask.",
+  kite_fixed: "Momo spent the whole morning fixing Kimi's broken kite.",
+  flower_gift: "Bori the puppy picked a flower from the garden just for Kimi.",
+  umbrella_lent: "Grandma Owl lent Kimi her umbrella in yesterday's rain, and today the sun is out.",
+  picnic_prep: "The picnic starts soon, but the cookies, apples, and flowers are all in different places.",
 } as const;
 
 export type OpeningId = keyof typeof OPENINGS;
 
 export const isOpening = (value: unknown): value is OpeningId => typeof value === "string" && Object.hasOwn(OPENINGS, value);
 
-export function randomOpening(): OpeningId {
-  const ids = Object.keys(OPENINGS) as OpeningId[];
+/** An opening that fits the lesson, or any opening for a custom lesson. */
+export function randomOpening(lesson?: string): OpeningId {
+  const ids = lessonGuide(lesson ?? "")?.openings ?? (Object.keys(OPENINGS) as OpeningId[]);
   return ids[Math.floor(Math.random() * ids.length)];
 }

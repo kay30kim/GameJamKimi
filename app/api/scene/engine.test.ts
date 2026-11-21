@@ -5,6 +5,8 @@ import { parseLines, parseScene } from "./validation";
 import { defaultStage, parseStage } from "./stage";
 import { ACTIONS, ACTORS, PROPS, SPOTS } from "../../../lib/world";
 import { buildSceneMessages } from "../../../lib/prompt";
+import { LESSON_GUIDES } from "../../../lib/lesson-guides";
+import { isOpening, randomOpening } from "../../../lib/openings";
 import type { SceneRequest, SceneResponse } from "./contract";
 
 const input: SceneRequest = { lesson: "kindness", language: "en", age: 5, wordsLearned: [], history: [] };
@@ -115,12 +117,26 @@ test("eighth scene closes without a model call, even if previous scenes never en
   }
 });
 
-test("truncated completion is rejected and safe early endings are accepted", async () => {
+test("truncated completion is rejected and endings from scene 3 are accepted", async () => {
   const truncated = await generateScene(input, { apiKey: "test", fetcher: async () => Response.json({ choices: [{ finish_reason: "length", message: { content: JSON.stringify(scene) } }] }) });
   assert.equal(truncated.mode, "fallback");
   const ending = { ...scene, choices: [], lessonComplete: true };
-  const result = await generateScene(input, { apiKey: "test", fetcher: async () => completion(ending) });
+  const third = { ...input, history: [{ narration: "a", choice: "b" }, { narration: "c", choice: "d" }] };
+  let calls = 0;
+  const result = await generateScene(third, { apiKey: "test", fetcher: async () => { calls++; return completion(ending); } });
   assert.deepEqual(result.scene, ending);
+  assert.equal(calls, 1);
+});
+
+test("an ending before scene 3 is retried with a note, and the continued scene is used", async () => {
+  const bodies: string[] = [];
+  const replies = [{ ...scene, choices: [], lessonComplete: true }, scene];
+  const result = await generateScene(input, { apiKey: "test", fetcher: async (_url, init) => { bodies.push(String(init?.body)); return completion(replies[bodies.length - 1]); } });
+  assert.equal(bodies.length, 2);
+  assert.match(bodies[1], /Too early to end/);
+  assert.equal(result.scene.lessonComplete, false);
+  const [first] = buildSceneMessages(input);
+  assert.match(first.content, /Do not end the story yet/);
 });
 
 test("prompt keeps story data separate and carries age, language, history, and ending rules", () => {
@@ -133,12 +149,12 @@ test("prompt keeps story data separate and carries age, language, history, and e
   assert.match(messages[0].content, /in Korean/);
 });
 
-test("prompt scales sentence length with age and makes choices[0] the kind choice under 4", () => {
+test("prompt scales sentence length with age and makes the story follow choices[0] under 4", () => {
   const system = (age: number) => buildSceneMessages({ ...input, age })[0].content;
   assert.match(system(3), /at most 8 words/);
-  assert.match(system(3), /choices\[0\] must always be the kind, lesson-aligned action/);
+  assert.match(system(3), /continues with choices\[0\], so the story always follows the lesson choice/);
   assert.match(system(3), /exactly one newWord/);
-  assert.doesNotMatch(system(4), /choices\[0\] must/);
+  assert.doesNotMatch(system(4), /continues with choices\[0\]/);
   assert.match(system(4), /at most 10 words each/);
   assert.match(system(6), /at most about 35 words/);
 });
@@ -261,4 +277,30 @@ test("the prompt asks for dialogue from the cast", () => {
   const system = buildSceneMessages(input)[0].content;
   assert.match(system, /Dialogue:/);
   assert.match(system, /"lines":\[/);
+});
+
+test("a preset lesson leads the prompt with its guide and the choice contract", () => {
+  const [system] = buildSceneMessages({ ...input, lesson: "patience" });
+  assert.match(system.content, /The whole story teaches patience/);
+  assert.match(system.content, new RegExp(LESSON_GUIDES.patience.temptation));
+  assert.match(system.content, /choices\[0\] is Kimi practicing the lesson/);
+  const [custom] = buildSceneMessages({ ...input, lesson: "Brush teeth before bed" });
+  assert.match(custom.content, /First work out/);
+  assert.doesNotMatch(custom.content, /Brush teeth/);
+});
+
+test("every lesson's openings exist, and the picker stays within them", () => {
+  for (const [lesson, guide] of Object.entries(LESSON_GUIDES)) {
+    assert.ok(guide.openings.length >= 3, lesson);
+    guide.openings.forEach((id) => assert.ok(isOpening(id), id));
+    for (let i = 0; i < 20; i++) assert.ok(guide.openings.includes(randomOpening(lesson)));
+  }
+  assert.ok(isOpening(randomOpening("my own lesson")));
+});
+
+test("a rate-limited call waits, then retries", async () => {
+  let calls = 0;
+  const result = await generateScene(input, { apiKey: "k", retryDelayMs: 1, fetcher: async () => (++calls === 1 ? new Response("", { status: 429 }) : completion()) });
+  assert.equal(calls, 2);
+  assert.equal(result.mode, "kimi");
 });

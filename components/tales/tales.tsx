@@ -68,7 +68,7 @@ export default function Tales() {
   const [lesson, setLesson] = useState("kindness");
   const [ownLesson, setOwnLesson] = useState("");
   // The server render has no story yet; the browser picks a random opening so first scenes vary.
-  const [opening, setOpening] = useState<OpeningId>(() => (typeof window === "undefined" ? "balloon" : randomOpening()));
+  const [opening, setOpening] = useState<OpeningId>(() => (typeof window === "undefined" ? "balloon" : randomOpening("kindness")));
   const [settings, setSettings] = useState<Settings | null>(null);
   const [scene, setScene] = useState<SceneResponse | null>(null);
   const [history, setHistory] = useState<SceneRequest["history"]>([]);
@@ -177,7 +177,7 @@ export default function Tales() {
 
   function goHome() {
     stopAll();
-    setOpening(randomOpening());
+    setOpening(randomOpening(lesson));
     setScene(null);
     setSettings(null);
     setCaption(null);
@@ -237,6 +237,8 @@ export default function Tales() {
   const lessonCard = LESSONS.find(({ id }) => id === settings?.lesson);
   const sayWords = !!settings && settings.age < SAY_WORDS_UNDER_AGE && !!scene && scene.newWords.length > 0;
   const learnLocale = speechLocale(settings?.language ?? language);
+  // The model always puts the lesson choice first; flip per scene so it isn't always on top.
+  const shownChoices = scene && scene.narration.length % 2 === 1 ? [...scene.choices].reverse() : scene?.choices ?? [];
 
   return (
     <main className={`${styles.theater} ${phase === "home" ? "" : styles.storyMode}`} lang={home}>
@@ -255,7 +257,7 @@ export default function Tales() {
         </div>
       </header>}
 
-      {phase === "home" ? <Landing home={home} age={age} language={language} lesson={lesson} ownLesson={ownLesson} onAge={setAge} onLanguage={setLanguage} onLesson={setLesson} onOwnLesson={setOwnLesson} onStart={start} /> : <>
+      {phase === "home" ? <Landing home={home} age={age} language={language} lesson={lesson} ownLesson={ownLesson} onAge={setAge} onLanguage={setLanguage} onLesson={(id) => { setLesson(id); setOpening(randomOpening(id)); }} onOwnLesson={setOwnLesson} onStart={start} /> : <>
         <div className={styles.episode}>
           <span className={styles.episodeIcon} style={{ color: lessonCard?.color ?? OWN_CARD.color }}><Icon name={lessonCard?.icon ?? "spark"} size={18} /></span>
           <div><strong>{lessonCard?.name[home] ?? settings?.lesson}</strong><span>{t(`${scenesPlayed}번째 장면`, `Scene ${scenesPlayed}`)}</span></div>
@@ -291,7 +293,7 @@ export default function Tales() {
           </> : <>
             <h2>{t("키미는 어떻게 할까?", "What should Kimi do?")}</h2>
             <div className={styles.choices}>
-              {scene.choices.map((choice) => <button key={choice} onClick={() => choose(choice)}><span className={styles.choicePortrait} style={{ background: SPEAKERS.hero.color }}>K</span><span>{choice}</span></button>)}
+              {shownChoices.map((choice) => <button key={choice} onClick={() => choose(choice)}><span className={styles.choicePortrait} style={{ background: SPEAKERS.hero.color }}>K</span><span>{choice}</span></button>)}
             </div>
             <p className={styles.waitingHint}><button className={styles.nextLine} style={{ background: "none", border: 0, color: "inherit" }} onClick={watchAgain}>{t("다시 보기", "Watch again")}</button></p>
           </>}

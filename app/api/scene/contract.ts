@@ -48,4 +48,6 @@ export interface SceneErrorResponse {
 }
 
 export const MAX_SCENES = 8;
+/** A story needs room to set up the lesson, let the child choose, and show it; never end before this scene. */
+export const MIN_SCENES = 3;
 export const MAX_LINES = 4;
