@@ -1,10 +1,14 @@
 import dynamic from "next/dynamic";
+import { preload } from "react-dom";
 import styles from "./landing.module.css";
 
 const RabbitPreview = dynamic(() => import("./rabbit-preview"), { ssr: false });
 
 /** The page parents see first: what KimiTales teaches, then a button into setup. */
 export default function Landing({ onBegin }: { onBegin: () => void }) {
+  // Start fetching Kimi's model with the page, instead of after the 3D code loads.
+  // crossOrigin matches three's fetch, so the browser reuses this download.
+  preload("/demo/kimi.glb", { as: "fetch", crossOrigin: "anonymous" });
   return (
     <main className={styles.page}>
       <header className={styles.bar}>
@@ -33,7 +37,7 @@ export default function Landing({ onBegin }: { onBegin: () => void }) {
 
         <article>
           <h2>New words</h2>
-          <p>A few in every scene. Tap one to hear it.</p>
+          <p>A few in every scene.</p>
           <div className={styles.example} aria-hidden="true">
             <div className={styles.words}>
               <span><strong lang="ko">공</strong> ball</span>
