@@ -13,13 +13,12 @@ import type {
   SceneRequest,
   SceneResponse,
 } from "@/app/api/scene/contract";
-import { fetchScene, prefetchScene } from "@/lib/scene";
+import { dedupeWords, fetchScene, nextSceneRequest, prefetch } from "@/lib/scene";
 import {
   isListeningSupported,
   listenOnce,
   matchesWord,
   meaningLocale,
-  preloadSpeech,
   speak,
   speechLocale,
   stopSpeaking,
@@ -47,50 +46,6 @@ const CUSTOM_LESSON = "custom";
 const subscribeToListeningSupport = () => () => {};
 const getServerListeningSupport = () => false;
 
-/** The request choose() sends. Prefetching builds the same one, so the cached scene matches. */
-function nextSceneRequest(
-  settings: GameSettings,
-  history: SceneRequest["history"],
-  wordsLearned: string[],
-  scene: SceneResponse,
-  choice: string,
-): SceneRequest {
-  return {
-    ...settings,
-    wordsLearned: dedupeWords([...wordsLearned, ...scene.newWords.map(({ word }) => word)]),
-    history: [...history, { narration: scene.narration, choice }],
-  };
-}
-
-/** Warm the scene's narration and word audio so it plays as soon as the scene shows. */
-function preloadSceneSpeech(scene: SceneResponse, language: SceneLanguage) {
-  preloadSpeech(scene.narration, meaningLocale(language));
-  for (const { word, meaning } of scene.newWords) {
-    preloadSpeech(word, speechLocale(language));
-    preloadSpeech(meaning, meaningLocale(language));
-  }
-}
-
-function prefetch(request: SceneRequest) {
-  prefetchScene(request)
-    .then((scene) => preloadSceneSpeech(scene, request.language))
-    .catch(() => {});
-}
-
-function dedupeWords(words: string[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const word of words) {
-    const trimmed = word.trim();
-    const key = trimmed.toLowerCase();
-    if (!trimmed || seen.has(key)) continue;
-    seen.add(key);
-    result.push(trimmed);
-  }
-
-  return result;
-}
 
 function StoryStage({
   loading = false,

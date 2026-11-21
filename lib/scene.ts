@@ -1,9 +1,11 @@
 import type {
   SceneErrorResponse,
+  SceneLanguage,
   SceneRequest,
   SceneResponse,
 } from "@/app/api/scene/contract";
 import mockScene from "@/mocks/scene.json";
+import { meaningLocale, preloadSpeech, speechLocale } from "@/lib/speech";
 
 /**
  * Set NEXT_PUBLIC_USE_MOCK_SCENE=1 to play against mocks/scene.json instead of
@@ -85,4 +87,50 @@ async function requestScene(
     throw new FallbackScene("Kimi didn't return a scene in time.");
   }
   return data;
+}
+
+/** The request choose() sends. Prefetching builds the same one, so the cached scene matches. */
+export function nextSceneRequest(
+  settings: Pick<SceneRequest, "lesson" | "language" | "age">,
+  history: SceneRequest["history"],
+  wordsLearned: string[],
+  scene: SceneResponse,
+  choice: string,
+): SceneRequest {
+  return {
+    ...settings,
+    wordsLearned: dedupeWords([...wordsLearned, ...scene.newWords.map(({ word }) => word)]),
+    history: [...history, { narration: scene.narration, choice }],
+  };
+}
+
+/** Warm the scene's narration and word audio so it plays as soon as the scene shows. */
+function preloadSceneSpeech(scene: SceneResponse, language: SceneLanguage) {
+  preloadSpeech(scene.narration, meaningLocale(language));
+  for (const { word, meaning } of scene.newWords) {
+    preloadSpeech(word, speechLocale(language));
+    preloadSpeech(meaning, meaningLocale(language));
+  }
+}
+
+/** Prefetch a scene, then warm its audio. Errors are ignored; fetchScene retries live. */
+export function prefetch(request: SceneRequest) {
+  prefetchScene(request)
+    .then((scene) => preloadSceneSpeech(scene, request.language))
+    .catch(() => {});
+}
+
+export function dedupeWords(words: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const word of words) {
+    const trimmed = word.trim();
+    const key = trimmed.toLowerCase();
+    if (!trimmed || seen.has(key)) continue;
+    seen.add(key);
+    result.push(trimmed);
+  }
+
+  return result;
 }
