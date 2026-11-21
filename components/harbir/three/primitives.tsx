@@ -1,12 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { Texture } from "three";
 import { PALETTE, ROUGHNESS } from "@/lib/harbir/style";
 
 export type Vec3 = [number, number, number];
 
-export function Mat({ color, rough = ROUGHNESS.soft }: { color: string; rough?: number }) {
-  return <meshStandardMaterial color={color} roughness={rough} />;
+export function Mat({ color, rough = ROUGHNESS.soft, map }: { color: string; rough?: number; map?: Texture }) {
+  return <meshStandardMaterial color={color} roughness={rough} map={map ?? null} />;
 }
 
 /** A sphere scaled into an ellipsoid: the basic shape of every soft character and plant. */
@@ -17,6 +18,7 @@ export function Blob({
   color,
   rough,
   shadow = true,
+  map,
   children,
 }: {
   position?: Vec3;
@@ -25,12 +27,13 @@ export function Blob({
   color: string;
   rough?: number;
   shadow?: boolean;
+  map?: Texture;
   children?: ReactNode;
 }) {
   return (
     <mesh position={position} scale={scale} rotation={rotation} castShadow={shadow}>
       <sphereGeometry args={[1, 24, 16]} />
-      <Mat color={color} rough={rough} />
+      <Mat color={color} rough={rough} map={map} />
       {children}
     </mesh>
   );
