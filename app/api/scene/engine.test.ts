@@ -133,6 +133,16 @@ test("prompt keeps story data separate and carries age, language, history, and e
   assert.match(messages[0].content, /in Korean/);
 });
 
+test("prompt scales sentence length with age and makes choices[0] the kind choice under 4", () => {
+  const system = (age: number) => buildSceneMessages({ ...input, age })[0].content;
+  assert.match(system(3), /at most 8 words/);
+  assert.match(system(3), /choices\[0\] must always be the kind, lesson-aligned action/);
+  assert.match(system(3), /exactly one newWord/);
+  assert.doesNotMatch(system(4), /choices\[0\] must/);
+  assert.match(system(4), /at most 10 words each/);
+  assert.match(system(6), /at most about 35 words/);
+});
+
 test("reject malformed vocabulary, empty text, and inconsistent endings", () => {
   for (const value of [null, [], { ...scene, narration: " " }, { ...scene, newWords: [null] }, { ...scene, lessonComplete: true }, { ...scene, newWords: [scene.newWords[0], scene.newWords[0]] }]) {
     assert.throws(() => parseScene(JSON.stringify(value)));

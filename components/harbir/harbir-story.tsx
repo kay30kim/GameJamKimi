@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { SceneLanguage, SceneRequest, SceneResponse } from "@/app/api/scene/contract";
 import { dedupeWords, fetchScene, nextSceneRequest, prefetch } from "@/lib/scene";
-import { meaningLocale, speak, speechLocale, stopSpeaking } from "@/lib/speech";
+import { isListeningSupported, listenOnce, matchesWord, meaningLocale, speak, speechLocale, stopListening, stopSpeaking } from "@/lib/speech";
 import type { Stage } from "@/lib/world";
 import styles from "./harbir.module.css";
 
@@ -37,6 +37,9 @@ const WELCOME_STAGE: Stage = {
 };
 
 type Phase = "setup" | "loading" | "scene" | "ending";
+/** Children under this age say the new words instead of picking a choice. */
+const SAY_WORDS_UNDER_AGE = 4;
+type SayState = "idle" | "listening" | "yay" | "retry";
 type Settings = Pick<SceneRequest, "lesson" | "language" | "age">;
 
 const subscribeFullscreen = (notify: () => void) => {
@@ -45,6 +48,7 @@ const subscribeFullscreen = (notify: () => void) => {
 };
 const isFullscreen = () => document.fullscreenElement !== null;
 const notFullscreen = () => false;
+const subscribeNothing = () => () => {};
 
 function toggleFullscreen() {
   if (document.fullscreenElement) void document.exitFullscreen();
@@ -62,14 +66,18 @@ export default function HarbirStory() {
   const [wordsLearned, setWordsLearned] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [replay, setReplay] = useState(0);
+  const [sayState, setSayState] = useState<SayState>("idle");
   const requestId = useRef(0);
   const lastRequest = useRef<SceneRequest | null>(null);
   const fullscreen = useSyncExternalStore(subscribeFullscreen, isFullscreen, notFullscreen);
+  const canListen = useSyncExternalStore(subscribeNothing, isListeningSupported, notFullscreen);
 
   async function run(request: SceneRequest) {
     const id = ++requestId.current;
     lastRequest.current = request;
     stopSpeaking();
+    stopListening();
+    setSayState("idle");
     setError(null);
     setPhase("loading");
     try {
@@ -101,14 +109,39 @@ export default function HarbirStory() {
     void run(request);
   }
 
+  async function sayWord() {
+    if (!story || sayState === "listening") return;
+    const id = requestId.current;
+    setSayState("listening");
+    try {
+      const transcript = await listenOnce(speechLocale(story.settings.language));
+      if (id !== requestId.current) return;
+      if (story.scene.newWords.some(({ word }) => matchesWord(transcript, word))) {
+        setSayState("yay");
+        setTimeout(() => {
+          if (id === requestId.current) choose(story.scene.choices[0]);
+        }, 1000);
+        return;
+      }
+    } catch {
+      if (id !== requestId.current) return;
+    }
+    setSayState("retry");
+    const first = story.scene.newWords[0];
+    if (first) speak(first.word, speechLocale(story.settings.language));
+  }
+
   function restart() {
     requestId.current += 1;
+    stopListening();
     stopSpeaking();
     setError(null);
     setPhase("setup");
     setScene(null);
     setSettings(null);
   }
+
+  useEffect(() => () => stopListening(), []);
 
   useEffect(() => {
     if (phase !== "setup") return;
@@ -129,6 +162,8 @@ export default function HarbirStory() {
 
   const stage = scene && phase !== "setup" ? scene.stage : WELCOME_STAGE;
   const story = (phase === "scene" || phase === "ending") && scene && settings ? { scene, settings } : null;
+  const sayWords = story !== null && story.settings.age < SAY_WORDS_UNDER_AGE;
+  const canSay = sayWords && story.scene.newWords.length > 0 && canListen;
   const otherLanguage = language === "ko" ? "English" : "Korean";
 
   return (
@@ -190,7 +225,7 @@ export default function HarbirStory() {
             <button className={styles.link} onClick={() => speak(story.scene.narration, meaningLocale(story.settings.language))}>Hear again</button>
           </div>
           <p className={styles.narration} lang={meaningLocale(story.settings.language)}>{story.scene.narration}</p>
-          {story.scene.newWords.length > 0 && (
+          {sayWords && story.scene.newWords.length > 0 && (
             <div className={styles.words}>
               {story.scene.newWords.map(({ word, meaning }) => (
                 <button key={word} onClick={() => speak(word, speechLocale(story.settings.language))}>
@@ -200,7 +235,21 @@ export default function HarbirStory() {
               ))}
             </div>
           )}
-          {phase === "scene" ? (
+          {phase === "scene" && sayWords ? (
+            <div className={styles.sayIt}>
+              {canSay && sayState !== "yay" && (
+                <button className={styles.primary} disabled={sayState === "listening"} onClick={() => void sayWord()}>
+                  {sayState === "listening" ? "Listening…" : "Say it!"}
+                </button>
+              )}
+              {sayState !== "yay" && (
+                <button className={canSay ? styles.pill : styles.primary} onClick={() => choose(story.scene.choices[0])}>
+                  {canSay ? "Skip" : "Next"}
+                </button>
+              )}
+              <p role="status">{sayState === "yay" ? "Great job!" : sayState === "retry" ? "Try again!" : ""}</p>
+            </div>
+          ) : phase === "scene" ? (
             <div className={styles.choices}>
               {story.scene.choices.map((choice) => <button key={choice} onClick={() => choose(choice)}>{choice}</button>)}
             </div>

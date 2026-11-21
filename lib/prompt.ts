@@ -22,6 +22,20 @@ const WORLD_RULES = [
 ].join("\n");
 
 /** Call only after the API has validated the request. No provider-specific code. */
+/** Per-age narration and choice length. Under 4, the client skips the choice and continues with choices[0]. */
+function ageRules(age: number): string {
+  if (age <= 3) {
+    return "Narration: one very short sentence of at most 8 words, simple subject-verb-object, present tense, no clauses (for example: \"Kimi has a red apple.\"). Each choice is at most 4 words. Give exactly one newWord. The child does not pick a choice; the story continues with choices[0], so choices[0] must always be the kind, lesson-aligned action.";
+  }
+  if (age === 4) {
+    return "Narration: one or two short sentences of at most 10 words each. Each choice is at most 6 words.";
+  }
+  if (age === 5) {
+    return "Narration: two short sentences; one simple \"and\" or \"but\" is fine. Choices are short full phrases.";
+  }
+  return "Narration: two or three sentences, at most about 35 words total, with a little description and one feeling word. Choices are short full phrases.";
+}
+
 export function buildSceneMessages(
   request: SceneRequest,
   characterBrief: string = DEFAULT_CHARACTER_BRIEF,
@@ -44,9 +58,9 @@ export function buildSceneMessages(
         `The language field identifies the language the child is LEARNING, not the narration language.`,
         `Write narration, choices, and newWords[].meaning in ${narrationLanguage}. Write only newWords[].word in ${learningLanguage}.`,
         "Do not insert learning-language words into narration or choices; introduce them only through newWords[].word.",
-        `The child is ${request.age}. Use concrete, familiar words and one or two short narration sentences. For ages 3–4, use especially simple clauses; for ages 5–6, allow slightly richer descriptions.`,
+        `The child is ${request.age}. Use concrete, familiar words. ${ageRules(request.age)}`,
         "On the first scene, introduce a small situation. On later scenes, continue from the supplied history and make the latest selected choice matter. Do not restart or repeat the previous scene.",
-        "Introduce one or two useful words from this scene, excluding wordsLearned. If no suitable new words remain, return an empty newWords array. Meanings must be short, accurate translations.",
+        "Unless the age rules say otherwise, introduce one or two useful words from this scene, excluding wordsLearned. If no suitable new words remain, return an empty newWords array. Meanings must be short, accurate translations.",
         "For an ongoing scene, give exactly two distinct, short, actionable choices that a young child can understand.",
         `This is scene ${sceneNumber} of at most ${MAX_SCENES}, including the ending.`,
         finalScene

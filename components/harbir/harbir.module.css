@@ -102,7 +102,12 @@
   border: 1px solid var(--line);
   border-radius: 22px;
   box-shadow: 0 18px 40px #29463c26;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+
+.story {
+  background: #fffefab3;
+  border-color: #ffffff99;
 }
 
 .setup {
@@ -279,8 +284,8 @@
   padding: 8px 14px;
   min-height: 44px;
   border-radius: 999px;
-  border: 1px solid #ecd3b9;
-  background: #fff4e6;
+  border: 1px solid #ecd3b9cc;
+  background: #fff4e6c7;
   color: inherit;
 }
 
@@ -303,8 +308,8 @@
   min-height: 56px;
   padding: 12px 14px;
   border-radius: 14px;
-  border: 1px solid #d8dfc9;
-  background: var(--chip);
+  border: 1px solid #d8dfc9cc;
+  background: #f4f5e9b8;
   color: var(--ink);
   font-size: 16px;
   font-weight: 600;
@@ -312,8 +317,26 @@
 }
 
 .choices button:hover {
-  background: var(--chip-on);
+  background: #e5eddbe6;
   border-color: #91a67c;
+}
+
+.sayIt {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sayIt .primary {
+  width: auto;
+  margin: 0;
+  padding: 0 28px;
+}
+
+.sayIt p {
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .ending p {
