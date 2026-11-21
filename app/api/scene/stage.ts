@@ -24,6 +24,10 @@ const BEAT_PARSERS: Record<Beat["action"], (actor: ActorId, raw: Fields) => Beat
   roll: (actor) => ({ actor, action: "roll" }),
   sit: (actor) => ({ actor, action: "sit" }),
   celebrate: (actor) => ({ actor, action: "celebrate" }),
+  dance: (actor) => ({ actor, action: "dance" }),
+  clap: (actor) => ({ actor, action: "clap" }),
+  nap: (actor) => ({ actor, action: "nap" }),
+  look_around: (actor) => ({ actor, action: "look_around" }),
   emote: (actor, { emotion }) => isEmotion(emotion) ? { actor, action: "emote", emotion } : null,
 };
 

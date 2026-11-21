@@ -1,6 +1,7 @@
 import { generateScene } from "./engine";
 import { MAX_SCENES } from "./contract";
 import type { SceneRequest } from "./contract";
+import { isOpening } from "../../../lib/openings";
 
 export const maxDuration = 60;
 
@@ -11,6 +12,7 @@ function isSceneRequest(value: unknown): value is SceneRequest {
     typeof v.lesson === "string" &&
     v.lesson.trim().length > 0 && v.lesson.length <= 500 &&
     (v.language === "en" || v.language === "ko") &&
+    (v.opening === undefined || isOpening(v.opening)) &&
     typeof v.age === "number" && Number.isInteger(v.age) &&
     v.age >= 3 && v.age <= 6 &&
     Array.isArray(v.wordsLearned) && v.wordsLearned.length <= 100 &&
@@ -33,7 +35,7 @@ export async function POST(request: Request): Promise<Response> {
   }
   if (!isSceneRequest(body)) {
     return invalidRequest(
-      "Expected lesson (1–500 characters), language (en or ko), age (integer 3–6), wordsLearned (up to 100 strings), and history (up to 8 narration/choice entries).",
+      "Expected lesson (1–500 characters), language (en or ko), age (integer 3–6), wordsLearned (up to 100 strings), history (up to 8 narration/choice entries), and an optional opening id.",
     );
   }
   const result = await generateScene(body);

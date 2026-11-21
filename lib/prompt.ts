@@ -1,5 +1,6 @@
 import { MAX_SCENES } from "../app/api/scene/contract";
 import type { SceneRequest } from "../app/api/scene/contract";
+import { OPENINGS } from "./openings";
 import { ACTIONS, ACTORS, EMOTIONS, MAX_BEATS, PROPS, SPOTS, WEATHERS } from "./world";
 
 /** From design/character-brief.md. The child plays Kimi. */
@@ -59,7 +60,7 @@ export function buildSceneMessages(
         `Write narration, choices, and newWords[].meaning in ${narrationLanguage}. Write only newWords[].word in ${learningLanguage}.`,
         "Do not insert learning-language words into narration or choices; introduce them only through newWords[].word.",
         `The child is ${request.age}. Use concrete, familiar words. ${ageRules(request.age)}`,
-        "On the first scene, introduce a small situation. On later scenes, continue from the supplied history and make the latest selected choice matter. Do not restart or repeat the previous scene.",
+        "On the first scene, introduce a small situation. If the data includes an opening, start from that situation and bend it toward the lesson. Kimi is always the hero, but vary who needs help, where it happens, the props, and the weather; Kimi does not always meet Momo first. On later scenes, continue from the supplied history and make the latest selected choice matter. Do not restart or repeat the previous scene.",
         "Unless the age rules say otherwise, introduce one or two useful words from this scene, excluding wordsLearned. If no suitable new words remain, return an empty newWords array. Meanings must be short, accurate translations.",
         "For an ongoing scene, give exactly two distinct, short, actionable choices that a young child can understand.",
         `This is scene ${sceneNumber} of at most ${MAX_SCENES}, including the ending.`,
@@ -80,6 +81,7 @@ export function buildSceneMessages(
         age: request.age,
         wordsLearned: request.wordsLearned,
         history: request.history,
+        opening: request.opening ? OPENINGS[request.opening] : undefined,
       }),
     },
   ];

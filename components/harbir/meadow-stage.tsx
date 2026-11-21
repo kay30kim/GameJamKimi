@@ -18,7 +18,7 @@ import { PropItem } from "./three/props";
  * Follows Kimi from above and behind, and keeps the sun's shadow box centered on Kimi,
  * so shadows stay crisp anywhere in the open meadow.
  */
-function FollowCamera({ sim, sun }: { sim: Sim; sun: React.RefObject<DirectionalLight | null> }) {
+function FollowCamera({ sim, sun, offset }: { sim: Sim; sun: React.RefObject<DirectionalLight | null>; offset: readonly [number, number, number] }) {
   const focus = useRef(new Vector3(0, CAMERA.lookHeight, 0));
   useFrame(({ camera }, delta) => {
     const kimi = sim.actors.hero;
@@ -30,7 +30,7 @@ function FollowCamera({ sim, sun }: { sim: Sim; sun: React.RefObject<Directional
     camera.lookAt(target);
     const light = sun.current;
     if (light) {
-      const [ox, oy, oz] = LIGHT.sun.offset;
+      const [ox, oy, oz] = offset;
       light.position.set(target.x + ox, oy, target.z + oz);
       light.target.position.copy(target);
       light.target.updateMatrixWorld();
@@ -50,18 +50,20 @@ function World({ stage, paused, replay }: { stage: Stage; paused: boolean; repla
   const textures = useEmotionTextures();
   const sun = useRef<DirectionalLight>(null);
   const rainy = stage.weather === "rainy";
-  const sky = rainy ? PALETTE.skyRainy : PALETTE.sky;
+  const sunset = stage.weather === "sunset";
+  const sky = rainy ? PALETTE.skyRainy : sunset ? PALETTE.skySunset : PALETTE.sky;
+  const evening = LIGHT.sunset;
   const range = LIGHT.shadowRange;
   return (
     <>
       <color attach="background" args={[sky]} />
       <fog attach="fog" args={[sky, LIGHT.fog.near, LIGHT.fog.far]} />
-      <ambientLight intensity={LIGHT.ambient} />
-      <hemisphereLight args={[LIGHT.hemisphere.sky, LIGHT.hemisphere.ground, LIGHT.hemisphere.intensity]} />
+      <ambientLight intensity={sunset ? evening.ambient : LIGHT.ambient} />
+      <hemisphereLight args={[sunset ? evening.sky : LIGHT.hemisphere.sky, sunset ? evening.ground : LIGHT.hemisphere.ground, LIGHT.hemisphere.intensity]} />
       <directionalLight
         ref={sun}
-        color={LIGHT.sun.color}
-        intensity={rainy ? LIGHT.sun.rainyIntensity : LIGHT.sun.intensity}
+        color={sunset ? evening.color : LIGHT.sun.color}
+        intensity={rainy ? LIGHT.sun.rainyIntensity : sunset ? evening.intensity : LIGHT.sun.intensity}
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-range}
@@ -74,9 +76,9 @@ function World({ stage, paused, replay }: { stage: Stage; paused: boolean; repla
       <Meadow />
       {rainy && <Rain sim={sim} />}
       <Director sim={sim} paused={paused} />
-      <FollowCamera sim={sim} sun={sun} />
+      <FollowCamera sim={sim} sun={sun} offset={sunset ? evening.offset : LIGHT.sun.offset} />
       {sim.actors.hero && <Suspense fallback={null}><Kimi sim={sim} /></Suspense>}
-      {(["friend", "puppy", "grownup"] as const).filter((id) => sim.actors[id]).map((id) => <Character key={id} id={id} sim={sim} />)}
+      {(["friend", "puppy", "grownup", "kitten", "duck"] as const).filter((id) => sim.actors[id]).map((id) => <Character key={id} id={id} sim={sim} />)}
       {(Object.keys(sim.props) as PropId[]).map((id) => <PropItem key={id} id={id} sim={sim} />)}
       {(Object.keys(sim.actors) as ActorId[]).map((id) => <EmotionBubble key={id} id={id} sim={sim} textures={textures} />)}
     </>

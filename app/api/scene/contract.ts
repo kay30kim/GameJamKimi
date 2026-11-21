@@ -1,4 +1,5 @@
 /** Shared wire contract. Client code should use `import type`. */
+import type { OpeningId } from "../../../lib/openings";
 import type { Stage } from "../../../lib/world";
 
 export type { Beat, Stage } from "../../../lib/world";
@@ -13,6 +14,8 @@ export interface SceneRequest {
   wordsLearned: string[];
   /** Completed scenes only; append the current scene and choice before fetching. */
   history: { narration: string; choice: string }[];
+  /** Optional starting situation from lib/openings.ts, so first scenes vary between stories. */
+  opening?: OpeningId;
 }
 
 export interface SceneResponse {

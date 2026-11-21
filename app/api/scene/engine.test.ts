@@ -210,3 +210,11 @@ test("prompt offers every world name and nothing else is needed to grow the worl
   }
   assert.match(system, /"stage":\{/);
 });
+
+test("an opening id reaches the prompt as its situation, and the new world entries are offered", () => {
+  const messages = buildSceneMessages({ ...input, opening: "duck_bank" });
+  assert.match(JSON.parse(messages[1].content).opening, /can't climb out of the pond/);
+  for (const name of ["kitten", "duck", "balloon", "watering_can", "dance", "nap", "look_around", "sunset"]) {
+    assert.match(messages[0].content, new RegExp(name));
+  }
+});

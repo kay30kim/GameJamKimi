@@ -80,6 +80,50 @@ export const SCENARIOS: { name: string; about: string; stage: Stage }[] = [
     },
   },
   {
+    name: "Meet the new friends",
+    about: "Kimi, Nabi, and Dodo stand together on the path: Nabi dances, Dodo claps, Kimi looks around, then naps.",
+    stage: {
+      weather: "sunny",
+      cast: [{ actor: "kitten", at: "path" }, { actor: "hero", at: "path" }, { actor: "duck", at: "path" }],
+      props: [{ prop: "cookies", at: "path" }, { prop: "balloon", at: "duck" }],
+      beats: [
+        { actor: "kitten", action: "dance" },
+        { actor: "duck", action: "clap" },
+        { actor: "hero", action: "look_around" },
+        { actor: "hero", action: "nap" },
+      ],
+    },
+  },
+  {
+    name: "Balloon for the duckling",
+    about: "Nabi carries the balloon from the playground to Dodo at the pond, and they dance.",
+    stage: {
+      weather: "sunset",
+      cast: [{ actor: "kitten", at: "playground" }, { actor: "duck", at: "pond" }, { actor: "hero", at: "path" }],
+      props: [{ prop: "balloon", at: "playground" }],
+      beats: [
+        { actor: "kitten", action: "give", prop: "balloon", target: "duck" },
+        { actor: "duck", action: "dance" },
+        { actor: "hero", action: "clap" },
+      ],
+    },
+  },
+  {
+    name: "Watering and cookies",
+    about: "Kimi takes the watering can to the garden while Grandma Owl brings cookies to a napping Momo.",
+    stage: {
+      weather: "sunny",
+      cast: [{ actor: "hero", at: "bench" }, { actor: "grownup", at: "home" }, { actor: "friend", at: "garden" }],
+      props: [{ prop: "watering_can", at: "garden" }, { prop: "cookies", at: "home" }],
+      beats: [
+        { actor: "friend", action: "nap" },
+        { actor: "hero", action: "pick_up", prop: "watering_can" },
+        { actor: "grownup", action: "give", prop: "cookies", target: "friend" },
+        { actor: "hero", action: "look_around" },
+      ],
+    },
+  },
+  {
     name: "Share the umbrella",
     about: "Kimi carries the umbrella to Bori by the pond and hands it over.",
     stage: {

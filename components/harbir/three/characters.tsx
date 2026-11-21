@@ -30,10 +30,10 @@ interface Rig {
 type SetLimb = (name: keyof Rig, limb: Object3D | null) => void;
 
 /** Where the emotion bubble floats, per character. */
-export const HEAD_HEIGHT: Record<ActorId, number> = { hero: 1.85, friend: 1.5, puppy: 1.15, grownup: 2 };
+export const HEAD_HEIGHT: Record<ActorId, number> = { hero: 1.85, friend: 1.5, puppy: 1.15, grownup: 2, kitten: 1.1, duck: 1 };
 
 /** Somersaults turn around the middle of the body, about half its height. */
-const MIDDLE: Record<ActorId, number> = { hero: 0.85, friend: 0.68, puppy: 0.45, grownup: 0.95 };
+const MIDDLE: Record<ActorId, number> = { hero: 0.85, friend: 0.68, puppy: 0.45, grownup: 0.95, kitten: 0.42, duck: 0.4 };
 
 /** Smoothed values that carry over between frames, one set per character. */
 interface Follow {
@@ -104,8 +104,8 @@ function pose(id: ActorId, sim: Sim, frame: Frame, rig: Rig, follow: Follow, del
     part.rotation.x = MathUtils.damp(part.rotation.x, x, 16, dt);
     part.rotation.z = MathUtils.damp(part.rotation.z, z, 16, dt);
   };
-  // A puppy's front legs are its arms; they swing but never lift out to the side.
-  const raise = id === "puppy" ? 0 : 1;
+  // Four-legged friends use their arms as front legs: they swing but never lift out to the side.
+  const raise = id === "puppy" || id === "kitten" ? 0 : 1;
   limb(rig.leftArm, m.armLeft, -m.raiseLeft * raise);
   limb(rig.rightArm, m.armRight, m.raiseRight * raise);
   limb(rig.leftLeg, m.legLeft, 0);
@@ -314,9 +314,72 @@ function GrandmaOwl({ rig }: { rig: SetLimb }) {
   );
 }
 
-const BODIES = { friend: Momo, puppy: Bori, grownup: GrandmaOwl } as const;
+/** Nabi the kitten: ginger tabby fur, pointed ears, curled tail, lilac bow. Front legs use the arm slots. */
+function Nabi({ rig }: { rig: SetLimb }) {
+  return (
+    <group>
+      {([[-1, 1], [1, 1], [-1, -1], [1, -1]] as const).map(([side, front]) => (
+        <Limb
+          key={`${side}${front}`}
+          rig={rig}
+          name={front > 0 ? (side < 0 ? "leftArm" : "rightArm") : side < 0 ? "leftLeg" : "rightLeg"}
+          position={[side * 0.13, 0.3, front * 0.2]}
+        >
+          <Blob position={[0, -0.14, 0]} scale={[0.07, 0.16, 0.07]} color={PALETTE.kittenFur} />
+          <Blob position={[0, -0.28, 0.03]} scale={[0.07, 0.04, 0.08]} color={PALETTE.kittenBelly} shadow={false} />
+        </Limb>
+      ))}
+      <Blob position={[0, 0.42, 0]} scale={[0.25, 0.22, 0.38]} color={PALETTE.kittenFur} />
+      <Blob position={[0, 0.36, 0.04]} scale={[0.18, 0.14, 0.3]} color={PALETTE.kittenBelly} shadow={false} />
+      {[-0.12, 0.02, 0.16].map((z) => <Blob key={z} position={[0, 0.6, z]} scale={[0.2, 0.04, 0.035]} color={PALETTE.kittenStripe} shadow={false} />)}
+      {/* The tail curls up behind, like a question mark. */}
+      {[[0, 0.48, -0.4, 0.06], [0, 0.66, -0.48, 0.055], [0, 0.84, -0.44, 0.05], [0, 0.95, -0.34, 0.045]].map(([x, y, z, r]) => (
+        <Blob key={y} position={[x, y, z]} scale={[r, r * 1.3, r]} color={PALETTE.kittenFur} />
+      ))}
+      <Blob position={[0, 0.8, 0.3]} scale={[0.26, 0.23, 0.23]} color={PALETTE.kittenFur} />
+      {[-1, 1].map((side) => (
+        <group key={side} position={[side * 0.15, 1.0, 0.27]} rotation={[0, 0, -side * 0.25]}>
+          <mesh castShadow><coneGeometry args={[0.08, 0.17, 4]} /><meshStandardMaterial color={PALETTE.kittenFur} roughness={0.85} /></mesh>
+          <mesh position={[0, -0.01, 0.03]} scale={[0.6, 0.7, 0.4]}><coneGeometry args={[0.08, 0.17, 4]} /><meshStandardMaterial color={PALETTE.cheek} roughness={0.85} /></mesh>
+        </group>
+      ))}
+      <Blob position={[0, 0.95, 0.38]} scale={[0.05, 0.05, 0.02]} color={PALETTE.kittenStripe} shadow={false} />
+      <Blob position={[0, 0.74, 0.5]} scale={[0.11, 0.08, 0.06]} color={PALETTE.kittenBelly} shadow={false} />
+      <Blob position={[0.16, 0.66, 0.44]} rotation={[0, 0, 0.4]} scale={[0.07, 0.045, 0.04]} color={PALETTE.kittenBow} />
+      <Blob position={[0.24, 0.66, 0.42]} rotation={[0, 0, -0.4]} scale={[0.07, 0.045, 0.04]} color={PALETTE.kittenBow} />
+      <Face center={[0, 0.82, 0.3]} size={0.23} nose={PALETTE.cheek} spread={1.05} />
+    </group>
+  );
+}
+
+/** Dodo the duckling: round yellow down, orange bill and feet. Wings use the arm slots. */
+function Dodo({ rig }: { rig: SetLimb }) {
+  return (
+    <group>
+      {[-1, 1].map((side) => (
+        <Limb key={`foot${side}`} rig={rig} name={side < 0 ? "leftLeg" : "rightLeg"} position={[side * 0.12, 0.2, 0.02]}>
+          <Blob position={[0, -0.1, 0]} scale={[0.03, 0.1, 0.03]} color={PALETTE.duckBill} />
+          <Blob position={[0, -0.19, 0.06]} scale={[0.09, 0.025, 0.11]} color={PALETTE.duckBill} />
+        </Limb>
+      ))}
+      <Blob position={[0, 0.42, 0]} scale={[0.3, 0.28, 0.32]} color={PALETTE.duckDown} />
+      <Blob position={[0, 0.5, -0.3]} rotation={[0.6, 0, 0]} scale={[0.1, 0.06, 0.1]} color={PALETTE.duckDown} />
+      {[-1, 1].map((side) => (
+        <Limb key={`wing${side}`} rig={rig} name={side < 0 ? "leftArm" : "rightArm"} position={[side * 0.28, 0.52, -0.02]}>
+          <Blob position={[0, -0.1, 0]} scale={[0.06, 0.15, 0.16]} color={PALETTE.duckWing} />
+        </Limb>
+      ))}
+      <Blob position={[0, 0.82, 0.03]} scale={[0.24, 0.23, 0.22]} color={PALETTE.duckDown} />
+      <Blob position={[0, 1.06, 0]} scale={[0.04, 0.06, 0.04]} color={PALETTE.duckDown} />
+      <Blob position={[0, 0.77, 0.24]} scale={[0.11, 0.04, 0.09]} color={PALETTE.duckBill} />
+      <Face center={[0, 0.84, 0.03]} size={0.22} nose={PALETTE.duckDown} spread={0.95} />
+    </group>
+  );
+}
+
+const BODIES = { friend: Momo, puppy: Bori, grownup: GrandmaOwl, kitten: Nabi, duck: Dodo } as const;
 /** Kimi stays the biggest child; Grandma Owl is the tallest. */
-const BODY_SCALE = { friend: 0.88, puppy: 0.9, grownup: 1 } as const;
+const BODY_SCALE = { friend: 0.88, puppy: 0.9, grownup: 1, kitten: 0.95, duck: 0.95 } as const;
 
 export function Character({ id, sim }: { id: keyof typeof BODIES; sim: Sim }) {
   // Filled in by each limb's ref callback after render; Puppet only reads it inside useFrame.

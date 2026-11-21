@@ -5,12 +5,17 @@ import type { ActorId, Beat, Emotion, PropId, Spot, Stage } from "../world";
 /** A point on the ground, [x, z] in meters, matching lib/world.ts. */
 export type Point = readonly [number, number];
 
-export type Pose = "idle" | "walk" | "run" | "jump" | "roll" | "sit" | "wave" | "hug" | "help" | "celebrate" | "reach";
+export type Pose = "idle" | "walk" | "run" | "jump" | "roll" | "sit" | "wave" | "hug" | "help" | "celebrate" | "reach" | "dance" | "clap" | "nap" | "look";
 
 /** One hop: crouch, flight, and landing. Celebrate is two hops. */
 export const JUMP_SECONDS = 0.8;
 /** One forward roll: tuck, somersault, and stand back up. */
 export const ROLL_SECONDS = 1.1;
+/** Short actions that play in place. */
+export const DANCE_SECONDS = 2.2;
+export const CLAP_SECONDS = 1.3;
+export const NAP_SECONDS = 2.6;
+export const LOOK_SECONDS = 1.8;
 /** How far a roll carries the body forward, in meters. */
 const ROLL_DISTANCE = 1.2;
 
@@ -58,9 +63,9 @@ export interface Sim {
 const WALK_SPEED = 1.8;
 const RUN_SPEED = 3.6;
 /** Body radius on the ground, so characters keep their distance instead of walking through each other. */
-export const RADIUS: Record<ActorId, number> = { hero: 0.38, friend: 0.42, puppy: 0.45, grownup: 0.5 };
+export const RADIUS: Record<ActorId, number> = { hero: 0.38, friend: 0.42, puppy: 0.45, grownup: 0.5, kitten: 0.36, duck: 0.32 };
 /** Footprint of each prop lying on the ground. Bodies push these aside instead of standing in them. */
-export const PROP_RADIUS: Record<PropId, number> = { ball: 0.22, apple: 0.16, flower: 0.12, book: 0.24, kite: 0.3, umbrella: 0.25 };
+export const PROP_RADIUS: Record<PropId, number> = { ball: 0.22, apple: 0.16, flower: 0.12, book: 0.24, kite: 0.3, umbrella: 0.25, balloon: 0.2, cookies: 0.22, watering_can: 0.26 };
 /** How hard a walker's bump sends the ball rolling, and how quickly grass slows it down. */
 const KICK_SPEED = 1.6;
 const ROLL_FRICTION = 1.4;
@@ -273,6 +278,18 @@ export function createSim(stage: Stage): Sim {
       a.sitting = true;
       setPose(a, "sit");
       for (let left = 0.8; left > 0; left -= dt) yield;
+    },
+    *dance(_beat, a) {
+      yield* hold(a, "dance", DANCE_SECONDS);
+    },
+    *clap(_beat, a) {
+      yield* hold(a, "clap", CLAP_SECONDS);
+    },
+    *nap(_beat, a) {
+      yield* hold(a, "nap", NAP_SECONDS);
+    },
+    *look_around(_beat, a) {
+      yield* hold(a, "look", LOOK_SECONDS);
     },
     *celebrate(_beat, a) {
       yield* hold(a, "celebrate", JUMP_SECONDS * 2);

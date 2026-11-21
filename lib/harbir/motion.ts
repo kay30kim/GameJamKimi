@@ -1,5 +1,5 @@
 import type { ActorId, Emotion } from "../world";
-import { JUMP_SECONDS, ROLL_SECONDS } from "./sim";
+import { JUMP_SECONDS, LOOK_SECONDS, NAP_SECONDS, ROLL_SECONDS } from "./sim";
 import type { ActorState } from "./sim";
 
 /**
@@ -45,8 +45,8 @@ const REST: Motion = {
   nod: 0, tilt: 0, ears: 0.1, droop: 0, tail: 0,
 };
 
-/** Bunnies and puppies bound with both back legs together; bears and owls step. */
-const BOUNDS: Record<ActorId, boolean> = { hero: true, puppy: true, friend: false, grownup: false };
+/** Bunnies, puppies, and kittens bound with both back legs together; bears, owls, and ducks step. */
+const BOUNDS: Record<ActorId, boolean> = { hero: true, puppy: true, kitten: true, friend: false, grownup: false, duck: false };
 
 /** Meters covered by one full step cycle (left and right), or by one bound. */
 const WALK_STRIDE = 1.0;
@@ -261,6 +261,62 @@ function pose(a: ActorState): Motion {
     case "hug": {
       const squeeze = Math.sin(clamp01(t / 1.4) * Math.PI);
       return { ...REST, lean: 0.22, squash: 1 - 0.05 * squeeze, armLeft: -1.35, armRight: -1.35, raiseLeft: 0.55, raiseRight: 0.55, tilt: 0.18, nod: 0.05, ears: 0.3, tail: 0.5 * Math.sin(t * 12) };
+    }
+    case "dance": {
+      // Step side to side on the beat, arms waving in turn, with a little twist.
+      const beat = Math.sin(t * 6);
+      return {
+        ...REST,
+        lift: 0.08 * Math.abs(beat),
+        sway: 0.22 * beat,
+        spin: 0.5 * Math.sin(t * 3),
+        squash: 1 + 0.04 * Math.cos(t * 12),
+        raiseLeft: 1.3 + 0.8 * beat,
+        raiseRight: 1.3 - 0.8 * beat,
+        legLeft: 0.35 * beat,
+        legRight: -0.35 * beat,
+        tilt: 0.18 * beat,
+        ears: 0.2 + 0.2 * Math.abs(beat),
+        tail: 0.6 * Math.sin(t * 12),
+      };
+    }
+    case "clap": {
+      // Paws out front, meeting in the middle about four times a second.
+      const meet = Math.sin(t * 26);
+      return {
+        ...REST,
+        lift: 0.03 * Math.abs(Math.sin(t * 6.5)),
+        armLeft: -1.25,
+        armRight: -1.25,
+        raiseLeft: 0.25 + 0.3 * meet,
+        raiseRight: 0.25 + 0.3 * meet,
+        nod: -0.08,
+        tail: 0.4 * Math.sin(t * 10),
+      };
+    }
+    case "nap": {
+      // Lie down on one side, breathe slowly, then get back up at the end.
+      const down = easeOut(clamp01(t / 0.5)) * (1 - easeInOut(clamp01((t - (NAP_SECONDS - 0.5)) / 0.5)));
+      const breathe = Math.sin(t * 2.4);
+      return {
+        ...REST,
+        sway: 1.4 * down,
+        lift: 0.26 * down,
+        curl: 1 - 0.12 * down,
+        squash: 1 + 0.03 * breathe * down,
+        legLeft: -0.6 * down,
+        legRight: -0.6 * down,
+        armLeft: -0.5 * down,
+        armRight: -0.5 * down,
+        nod: 0.25 * down,
+        ears: 0.1 + 0.7 * down,
+      };
+    }
+    case "look": {
+      // Turn to look one way, then the other, then back, with the head cocked.
+      const u = clamp01(t / LOOK_SECONDS);
+      const turn = Math.sin(u * TAU) * hump(u);
+      return { ...REST, spin: 0.75 * turn, tilt: 0.2 * turn, nod: -0.08, ears: -0.1, raiseRight: 0.08 + 0.3 * hump(u) };
     }
     case "help":
     case "reach": {

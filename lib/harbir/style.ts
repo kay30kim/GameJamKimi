@@ -8,6 +8,7 @@
 export const PALETTE = {
   sky: "#dcece6",
   skyRainy: "#bccad0",
+  skySunset: "#f3d3b4",
 
   grass: "#a3c194",
   grassDeep: "#8fb284",
@@ -51,6 +52,13 @@ export const PALETTE = {
   puppyFur: "#f0d0a0",
   puppyEar: "#c99862",
   puppyCollar: "#e98f8f",
+  kittenFur: "#f2c08a",
+  kittenStripe: "#d9975a",
+  kittenBelly: "#fff3e2",
+  kittenBow: "#b9a5e8",
+  duckDown: "#ffe17a",
+  duckWing: "#f7cf5c",
+  duckBill: "#f2a65a",
   owlFeather: "#a08b78",
   owlBelly: "#f0e6d6",
   owlShawl: "#c9b3d9",
@@ -68,6 +76,8 @@ export const LIGHT = {
   ambient: 0.9,
   hemisphere: { sky: "#fff6e6", ground: "#8fb284", intensity: 1.1 },
   sun: { offset: [8, 14, 6] as const, intensity: 2.4, rainyIntensity: 1.2, color: "#fff4e0" },
+  /** Evening: a low, warm sun from the side and a peach sky. */
+  sunset: { offset: [12, 5, 3] as const, intensity: 2.6, color: "#ffb47a", sky: "#ffd9b8", ground: "#9a8a6a", ambient: 0.65 },
   shadowRange: 14,
   fog: { near: 26, far: 60 },
 } as const;

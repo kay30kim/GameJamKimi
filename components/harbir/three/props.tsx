@@ -58,6 +58,34 @@ function PropBody({ id }: { id: PropId }) {
         {[0.32, 0.5, 0.68].map((y, i) => <Blob key={y} position={[0, -y, 0]} scale={[0.05, 0.03, 0.02]} color={PALETTE.flowers[i + 1]} shadow={false} />)}
       </group>
     );
+    case "balloon": return (
+      // Floats on its string above a small weight, so it reads the same held or tied down.
+      <group>
+        <Blob position={[0, 0.05, 0]} scale={[0.06, 0.05, 0.06]} color={PALETTE.stone} />
+        <mesh position={[0, 0.65, 0]}><cylinderGeometry args={[0.006, 0.006, 1.2, 4]} /><Mat color={PALETTE.sparkle} /></mesh>
+        <Blob position={[0, 1.42, 0]} scale={[0.26, 0.31, 0.26]} color={PALETTE.flowers[2]} rough={ROUGHNESS.satin} />
+        <Blob position={[0, 1.1, 0]} scale={[0.04, 0.04, 0.04]} color={PALETTE.flowers[2]} rough={ROUGHNESS.satin} shadow={false} />
+      </group>
+    );
+    case "cookies": return (
+      <group position={[0, 0.03, 0]}>
+        <mesh castShadow><cylinderGeometry args={[0.24, 0.2, 0.04, 20]} /><Mat color={PALETTE.sparkle} /></mesh>
+        {[[-0.08, 0.05, -0.05], [0.09, 0.05, -0.03], [0, 0.05, 0.09], [0.01, 0.09, 0.01]].map(([x, y, z], i) => (
+          <group key={i} position={[x, y, z]}>
+            <mesh><cylinderGeometry args={[0.08, 0.08, 0.03, 14]} /><Mat color={PALETTE.wood} /></mesh>
+            {[[-0.03, 0.02], [0.03, -0.01], [0, 0.04]].map(([cx, cz]) => <Blob key={`${cx}${cz}`} position={[cx, 0.018, cz]} scale={[0.012, 0.008, 0.012]} color={PALETTE.woodDark} shadow={false} />)}
+          </group>
+        ))}
+      </group>
+    );
+    case "watering_can": return (
+      <group position={[0, 0.17, 0]}>
+        <mesh castShadow><cylinderGeometry args={[0.14, 0.16, 0.32, 16]} /><Mat color={PALETTE.playBlue} rough={ROUGHNESS.satin} /></mesh>
+        <mesh position={[0.19, 0.06, 0]} rotation={[0, 0, -0.9]}><cylinderGeometry args={[0.025, 0.035, 0.32, 8]} /><Mat color={PALETTE.playBlue} rough={ROUGHNESS.satin} /></mesh>
+        <mesh position={[0.31, 0.16, 0]} rotation={[0, 0, -0.9]}><cylinderGeometry args={[0.05, 0.03, 0.05, 10]} /><Mat color={PALETTE.playBlue} rough={ROUGHNESS.satin} /></mesh>
+        <mesh position={[-0.02, 0.2, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.1, 0.018, 8, 20, Math.PI]} /><Mat color={PALETTE.playBlue} rough={ROUGHNESS.satin} /></mesh>
+      </group>
+    );
   }
 }
 
@@ -73,7 +101,8 @@ export function PropItem({ id, sim }: { id: PropId; sim: Sim }) {
     const holder = prop.holder ? sim.actors[prop.holder] : undefined;
     if (holder) {
       const reach = id === "umbrella" ? 0.2 : 0.42;
-      const lift = id === "umbrella" ? Math.max(0.55, HEAD_HEIGHT[holder.id] - 1) : id === "kite" ? 1.3 : 0.55;
+      // Umbrellas sit overhead, kites fly high, balloons hang from the paw on their string.
+      const lift = id === "umbrella" ? Math.max(0.55, HEAD_HEIGHT[holder.id] - 1) : id === "kite" ? 1.3 : id === "balloon" ? 0.45 : 0.55;
       // Carried things rise and fall with the body, so they stay in hand through a hop.
       const hop = motionOf(holder, clock.elapsedTime).lift;
       group.position.set(holder.x + Math.sin(holder.heading) * reach, lift + hop, holder.z + Math.cos(holder.heading) * reach);
