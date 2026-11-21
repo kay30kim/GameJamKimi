@@ -42,18 +42,8 @@ const SAY_WORDS_UNDER_AGE = 4;
 type SayState = "idle" | "listening" | "yay" | "retry";
 type Settings = Pick<SceneRequest, "lesson" | "language" | "age">;
 
-const subscribeFullscreen = (notify: () => void) => {
-  document.addEventListener("fullscreenchange", notify);
-  return () => document.removeEventListener("fullscreenchange", notify);
-};
-const isFullscreen = () => document.fullscreenElement !== null;
-const notFullscreen = () => false;
 const subscribeNothing = () => () => {};
-
-function toggleFullscreen() {
-  if (document.fullscreenElement) void document.exitFullscreen();
-  else void document.documentElement.requestFullscreen?.().catch(() => {});
-}
+const notSupported = () => false;
 
 export default function HarbirStory() {
   const [phase, setPhase] = useState<Phase>("setup");
@@ -69,8 +59,7 @@ export default function HarbirStory() {
   const [sayState, setSayState] = useState<SayState>("idle");
   const requestId = useRef(0);
   const lastRequest = useRef<SceneRequest | null>(null);
-  const fullscreen = useSyncExternalStore(subscribeFullscreen, isFullscreen, notFullscreen);
-  const canListen = useSyncExternalStore(subscribeNothing, isListeningSupported, notFullscreen);
+  const canListen = useSyncExternalStore(subscribeNothing, isListeningSupported, notSupported);
 
   async function run(request: SceneRequest) {
     const id = ++requestId.current;
@@ -175,11 +164,7 @@ export default function HarbirStory() {
       <header className={styles.topBar}>
         <Link href="/" className={styles.brand}><span aria-hidden="true">k.</span>KimiTales</Link>
         <div className={styles.topActions}>
-          <span className={styles.badge}>Sunny Meadow</span>
           {story && <button className={styles.pill} onClick={() => setReplay((n) => n + 1)}>Watch again</button>}
-          <button className={styles.pill} onClick={toggleFullscreen} aria-pressed={fullscreen}>
-            {fullscreen ? "Exit full screen" : "Full screen"}
-          </button>
         </div>
       </header>
 
