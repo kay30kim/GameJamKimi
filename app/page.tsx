@@ -61,6 +61,77 @@ function dedupeWords(words: string[]): string[] {
   return result;
 }
 
+function StoryStage({
+  loading = false,
+  hopping = false,
+  ending = false,
+}: {
+  loading?: boolean;
+  hopping?: boolean;
+  ending?: boolean;
+}) {
+  const kid = (
+    <div className={styles.kidBob}>
+      <svg
+        className={styles.kidSvg}
+        viewBox="0 0 120 140"
+        width="120"
+        height="140"
+        focusable="false"
+      >
+        <circle cx="30" cy="103" r="11" fill="#f2b58d" />
+        <circle cx="90" cy="103" r="11" fill="#f2b58d" />
+        <rect x="32" y="76" width="56" height="52" rx="26" fill="#6c4de6" />
+        <circle cx="45" cy="125" r="10" fill="#3e2d70" />
+        <circle cx="75" cy="125" r="10" fill="#3e2d70" />
+        <circle cx="60" cy="48" r="37" fill="#5a3b32" />
+        <circle cx="26" cy="53" r="8" fill="#f2b58d" />
+        <circle cx="94" cy="53" r="8" fill="#f2b58d" />
+        <circle cx="60" cy="52" r="31" fill="#f7c39d" />
+        <path
+          d="M31 43c3-20 15-30 30-30 17 0 29 11 31 30-10-2-18-8-23-16-9 10-22 15-38 16Z"
+          fill="#5a3b32"
+        />
+        <circle cx="49" cy="52" r="3" fill="#292341" />
+        <circle cx="71" cy="52" r="3" fill="#292341" />
+        <circle cx="42" cy="62" r="4" fill="#ef9a9a" opacity="0.65" />
+        <circle cx="78" cy="62" r="4" fill="#ef9a9a" opacity="0.65" />
+        <path
+          d="M51 63c5 7 13 7 18 0"
+          fill="none"
+          stroke="#9c4f55"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <path
+          d="M44 91c10 8 22 8 32 0"
+          fill="none"
+          stroke="#dcd2ff"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+      </svg>
+    </div>
+  );
+
+  return (
+    <div className={styles.stage} aria-hidden="true">
+      <div className={styles.ground} />
+      <div className={styles.kidEnter}>
+        {hopping ? <div className={styles.kidHop}>{kid}</div> : kid}
+      </div>
+      {loading && <div className={styles.thinkingBubble}>...</div>}
+      {ending && (
+        <div className={styles.confettiBurst}>
+          {Array.from({ length: 14 }, (_, index) => (
+            <span className={styles.confettiPiece} key={index} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const [phase, setPhase] = useState<Phase>("setup");
   const [selectedLesson, setSelectedLesson] = useState<string>(LESSONS[0]);
@@ -199,11 +270,10 @@ export default function Home() {
   function readSceneAloud() {
     if (!scene || !settings || listeningWord) return;
 
-    const storyLocale = speechLocale(settings.language);
     stopSpeaking();
-    speak(scene.narration, storyLocale);
+    speak(scene.narration, meaningLocale(settings.language));
     for (const { word, meaning } of scene.newWords) {
-      speak(word, storyLocale);
+      speak(word, speechLocale(settings.language));
       speak(meaning, meaningLocale(settings.language));
     }
   }
@@ -245,10 +315,9 @@ export default function Home() {
     stopSpeaking();
 
     if ((phase === "scene" || phase === "ending") && scene && settings) {
-      const storyLocale = speechLocale(settings.language);
-      speak(scene.narration, storyLocale);
+      speak(scene.narration, meaningLocale(settings.language));
       for (const { word, meaning } of scene.newWords) {
-        speak(word, storyLocale);
+        speak(word, speechLocale(settings.language));
         speak(meaning, meaningLocale(settings.language));
       }
     }
@@ -344,7 +413,7 @@ export default function Home() {
             </fieldset>
 
             <fieldset className={styles.fieldset}>
-              <legend className={styles.label}>Story language</legend>
+              <legend className={styles.label}>Learning</legend>
               <div className={styles.languageChoices}>
                 <button
                   type="button"
@@ -430,11 +499,14 @@ export default function Home() {
               </div>
             </>
           ) : (
-            <div className={styles.loadingContent} role="status">
-              <span className={styles.spinner} aria-hidden="true" />
-              <h1 className={styles.loadingTitle}>Making your story…</h1>
-              <p>A new adventure is on its way.</p>
-            </div>
+            <>
+              <StoryStage loading hopping={scene !== null} />
+              <div className={styles.loadingContent} role="status">
+                <span className={styles.spinner} aria-hidden="true" />
+                <h1 className={styles.loadingTitle}>Making your story…</h1>
+                <p>A new adventure is on its way.</p>
+              </div>
+            </>
           )}
         </section>
       )}
@@ -464,6 +536,8 @@ export default function Home() {
             </button>
           </div>
 
+          <StoryStage ending={phase === "ending"} />
+
           <p className={styles.narration} lang={speechLocale(settings.language)}>
             {scene.narration}
           </p>
@@ -482,6 +556,15 @@ export default function Home() {
                       className={styles.wordCard}
                       key={`${word}-${index}`}
                     >
+                      {status === "praise" && (
+                        <div className={styles.starBurst} aria-hidden="true">
+                          {Array.from({ length: 6 }, (_, starIndex) => (
+                            <span className={styles.star} key={starIndex}>
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       <button
                         type="button"
                         className={styles.wordButton}

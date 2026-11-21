@@ -404,6 +404,319 @@
   cursor: pointer;
 }
 
+.stage {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: clamp(9.5rem, 24vw, 13rem);
+  flex: 0 0 auto;
+  margin: 0 0 1.5rem;
+  overflow: hidden;
+  border: 2px solid #b7e3ef;
+  border-radius: 1.4rem;
+  background: linear-gradient(180deg, #8fddff 0%, #c9f1ff 58%, #fff2bd 100%);
+  pointer-events: none;
+}
+
+.ground {
+  position: absolute;
+  z-index: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 24%;
+  border-top: 3px solid #48a962;
+  background: linear-gradient(180deg, #83db79 0%, #52b869 100%);
+  box-shadow: inset 0 0.35rem 0 rgb(255 255 255 / 0.18);
+  pointer-events: none;
+}
+
+.kidEnter {
+  position: absolute;
+  z-index: 2;
+  bottom: 16%;
+  left: 50%;
+  width: clamp(5rem, 14vw, 7rem);
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  animation: kid-enter 600ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  pointer-events: none;
+}
+
+.kidHop {
+  transform-origin: 50% 100%;
+  animation: kid-hop 550ms cubic-bezier(0.25, 0.7, 0.35, 1) both;
+  pointer-events: none;
+}
+
+.kidBob {
+  transform-origin: 50% 100%;
+  animation: kid-bob 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.kidSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 0.25rem 0.15rem rgb(50 70 80 / 0.18));
+  pointer-events: none;
+}
+
+.thinkingBubble {
+  position: absolute;
+  z-index: 3;
+  top: 12%;
+  left: calc(50% + 2.5rem);
+  min-width: 3.75rem;
+  padding: 0.45rem 0.8rem;
+  border: 2px solid #d5c7fa;
+  border-radius: 999px;
+  color: #4d378f;
+  background: #fff;
+  box-shadow: 0 0.25rem 0.75rem rgb(76 55 135 / 0.14);
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  animation: thinking-bubble 1.25s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.thinkingBubble::after {
+  position: absolute;
+  bottom: -0.45rem;
+  left: 0.8rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-right: 2px solid #d5c7fa;
+  border-bottom: 2px solid #d5c7fa;
+  background: #fff;
+  content: "";
+  transform: rotate(45deg);
+}
+
+.confettiBurst {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confettiPiece {
+  --confetti-x: 0rem;
+  --confetti-y: 5rem;
+  --confetti-turn: 240deg;
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 0.5rem;
+  height: 0.8rem;
+  border-radius: 0.15rem;
+  background: #ff708d;
+  opacity: 0;
+  animation: confetti-burst 1s cubic-bezier(0.2, 0.65, 0.35, 1) both;
+  pointer-events: none;
+}
+
+.confettiPiece:nth-child(1) {
+  --confetti-x: -8rem;
+  --confetti-y: 4.25rem;
+  --confetti-turn: -260deg;
+}
+
+.confettiPiece:nth-child(2) {
+  --confetti-x: -6.75rem;
+  --confetti-y: 6rem;
+  --confetti-turn: -340deg;
+}
+
+.confettiPiece:nth-child(3) {
+  --confetti-x: -5.5rem;
+  --confetti-y: 3.25rem;
+  --confetti-turn: 300deg;
+}
+
+.confettiPiece:nth-child(4) {
+  --confetti-x: -4.25rem;
+  --confetti-y: 5.5rem;
+  --confetti-turn: -400deg;
+}
+
+.confettiPiece:nth-child(5) {
+  --confetti-x: -2.75rem;
+  --confetti-y: 6.5rem;
+  --confetti-turn: 320deg;
+}
+
+.confettiPiece:nth-child(6) {
+  --confetti-x: -1.25rem;
+  --confetti-y: 4rem;
+  --confetti-turn: 420deg;
+}
+
+.confettiPiece:nth-child(7) {
+  --confetti-x: 0rem;
+  --confetti-y: 6.75rem;
+  --confetti-turn: -360deg;
+}
+
+.confettiPiece:nth-child(8) {
+  --confetti-x: 1.25rem;
+  --confetti-y: 4.75rem;
+  --confetti-turn: 400deg;
+}
+
+.confettiPiece:nth-child(9) {
+  --confetti-x: 2.75rem;
+  --confetti-y: 6.25rem;
+  --confetti-turn: -320deg;
+}
+
+.confettiPiece:nth-child(10) {
+  --confetti-x: 4.25rem;
+  --confetti-y: 3.5rem;
+  --confetti-turn: 440deg;
+}
+
+.confettiPiece:nth-child(11) {
+  --confetti-x: 5.5rem;
+  --confetti-y: 5.75rem;
+  --confetti-turn: -380deg;
+}
+
+.confettiPiece:nth-child(12) {
+  --confetti-x: 6.75rem;
+  --confetti-y: 4.25rem;
+  --confetti-turn: 300deg;
+}
+
+.confettiPiece:nth-child(13) {
+  --confetti-x: 8rem;
+  --confetti-y: 6rem;
+  --confetti-turn: -420deg;
+}
+
+.confettiPiece:nth-child(14) {
+  --confetti-x: 0rem;
+  --confetti-y: 3rem;
+  --confetti-turn: -540deg;
+}
+
+.confettiPiece:nth-child(4n + 2) {
+  background: #ffca3a;
+}
+
+.confettiPiece:nth-child(4n + 3) {
+  background: #6c4de6;
+}
+
+.confettiPiece:nth-child(4n + 4) {
+  background: #20b8ad;
+}
+
+.confettiPiece:nth-child(3n + 2) {
+  animation-delay: 60ms;
+}
+
+.confettiPiece:nth-child(3n + 3) {
+  animation-delay: 120ms;
+}
+
+.confettiPiece:nth-child(even) {
+  border-radius: 50%;
+}
+
+@keyframes kid-enter {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-50% - 10rem));
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes kid-hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  35% {
+    transform: translateY(-1.25rem) scale(1.03);
+  }
+
+  75% {
+    transform: translateY(0) scale(1.04, 0.96);
+  }
+}
+
+@keyframes kid-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-0.3rem);
+  }
+}
+
+@keyframes thinking-bubble {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-0.25rem);
+  }
+}
+
+@keyframes confetti-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  55% {
+    opacity: 1;
+    transform: translate(
+        calc(-50% + var(--confetti-x)),
+        calc(-50% - 2rem)
+      )
+      scale(1)
+      rotate(var(--confetti-turn));
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--confetti-x)),
+        calc(-50% + var(--confetti-y))
+      )
+      scale(0.8)
+      rotate(var(--confetti-turn));
+  }
+}
+
 .narration {
   padding: clamp(1.1rem, 3vw, 1.65rem);
   border: 2px solid #ffe49a;
@@ -413,6 +726,17 @@
   font-size: clamp(1.25rem, 2.8vw, 1.55rem);
   line-height: 1.7;
   white-space: pre-wrap;
+  animation: narration-fade 450ms ease-out both;
+}
+
+@keyframes narration-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .wordSection,
@@ -452,6 +776,7 @@
 }
 
 .wordCard {
+  position: relative;
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -525,6 +850,105 @@
 .praise {
   color: #147044;
   font-weight: 800;
+}
+
+.starBurst {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+}
+
+.star {
+  --star-x: 0rem;
+  --star-y: -4rem;
+  --star-turn: 20deg;
+  position: absolute;
+  top: 28%;
+  left: 50%;
+  color: #ffbf3f;
+  font-size: 1.6rem;
+  line-height: 1;
+  text-shadow: 0 2px 0 #fff, 0 0 0.5rem rgb(255 191 63 / 0.45);
+  opacity: 0;
+  animation: star-pop 700ms ease-out both;
+  pointer-events: none;
+}
+
+.star:nth-child(1) {
+  --star-x: -5.5rem;
+  --star-y: -2.5rem;
+  --star-turn: -30deg;
+}
+
+.star:nth-child(2) {
+  --star-x: -3.4rem;
+  --star-y: -4.5rem;
+  --star-turn: 25deg;
+  animation-delay: 40ms;
+}
+
+.star:nth-child(3) {
+  --star-x: 0rem;
+  --star-y: -5.2rem;
+  --star-turn: -15deg;
+  animation-delay: 80ms;
+}
+
+.star:nth-child(4) {
+  --star-x: 3.4rem;
+  --star-y: -4.5rem;
+  --star-turn: 30deg;
+  animation-delay: 40ms;
+}
+
+.star:nth-child(5) {
+  --star-x: 5.5rem;
+  --star-y: -2.5rem;
+  --star-turn: -25deg;
+}
+
+.star:nth-child(6) {
+  --star-x: 0rem;
+  --star-y: -3rem;
+  --star-turn: 35deg;
+  animation-delay: 120ms;
+}
+
+.star:nth-child(even) {
+  color: #ff8fa3;
+  font-size: 1.3rem;
+}
+
+@keyframes star-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  65% {
+    opacity: 1;
+    transform: translate(
+        calc(-50% + var(--star-x)),
+        calc(-50% + var(--star-y))
+      )
+      scale(1.15)
+      rotate(var(--star-turn));
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--star-x)),
+        calc(-50% + var(--star-y))
+      )
+      scale(0.75)
+      rotate(var(--star-turn));
+  }
 }
 
 .gentleRetry {
@@ -716,8 +1140,20 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner {
+  .spinner,
+  .kidEnter,
+  .kidHop,
+  .kidBob,
+  .narration,
+  .thinkingBubble,
+  .star,
+  .confettiPiece {
     animation: none;
+  }
+
+  .starBurst,
+  .confettiBurst {
+    display: none;
   }
 
   .chip,
