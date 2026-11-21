@@ -22,7 +22,7 @@ test("walking to an actor stops beside them and faces them", () => {
   });
   assert.ok(sim.done && seconds < 10, `took ${seconds}s`);
   const hero = sim.actors.hero!, puppy = sim.actors.puppy!;
-  assert.ok(Math.abs(Math.hypot(hero.x - puppy.x, hero.z - puppy.z) - 0.9) < 0.1);
+  assert.ok(Math.abs(Math.hypot(hero.x - puppy.x, hero.z - puppy.z) - (0.38 + 0.45 + 0.35)) < 0.1);
   assert.equal(hero.pose, "idle");
 });
 
@@ -73,4 +73,33 @@ test("every action finishes, even when its target is missing from the cast", () 
   });
   assert.ok(sim.done && seconds < 20, `took ${seconds}s`);
   assert.equal(sim.props.ball!.holder, "hero");
+});
+
+test("characters steer around each other and never overlap, except while hugging", () => {
+  const radius = { hero: 0.38, friend: 0.42, puppy: 0.45, grownup: 0.5 } as const;
+  const sim = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "home" }, { actor: "friend", at: "path" }, { actor: "puppy", at: "bench" }, { actor: "grownup", at: "tree" }],
+    props: [],
+    beats: [
+      { actor: "hero", action: "run_to", target: "tree" },
+      { actor: "grownup", action: "walk_to", target: "home" },
+      { actor: "puppy", action: "run_to", target: "playground" },
+      { actor: "friend", action: "walk_to", target: "bench" },
+    ],
+  });
+  let t = 0;
+  while (!sim.done && t < 40) {
+    sim.step(1 / 60);
+    t += 1 / 60;
+    const list = Object.values(sim.actors);
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = list[i]!, b = list[j]!;
+        const d = Math.hypot(a.x - b.x, a.z - b.z);
+        assert.ok(d >= radius[a.id] + radius[b.id] - 0.01, `${a.id} and ${b.id} overlap at ${t.toFixed(2)}s`);
+      }
+    }
+  }
+  assert.ok(sim.done, `still running after ${t}s`);
 });

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { SceneLanguage, SceneRequest, SceneResponse } from "@/app/api/scene/contract";
 import { dedupeWords, fetchScene, nextSceneRequest, prefetch } from "@/lib/scene";
 import { meaningLocale, speak, speechLocale, stopSpeaking } from "@/lib/speech";
@@ -14,9 +14,16 @@ const MeadowStage = dynamic(() => import("./meadow-stage"), {
   loading: () => <div className={styles.stageLoading}>Opening the meadow…</div>,
 });
 
-const LESSONS = ["kindness", "empathy", "sharing", "honesty", "patience"] as const;
+const LESSONS = {
+  kindness: "Small acts that help others",
+  empathy: "Notice how a friend feels",
+  sharing: "Make room for everyone",
+  honesty: "Tell the truth gently",
+  patience: "Wait and try again",
+} as const;
+type Lesson = keyof typeof LESSONS;
 
-/** Shown before the story starts: everyone says hello. */
+/** Shown before the story starts: everyone comes to say hello. */
 const WELCOME_STAGE: Stage = {
   weather: "sunny",
   cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "playground" }, { actor: "puppy", at: "garden" }, { actor: "grownup", at: "home" }],
@@ -25,15 +32,28 @@ const WELCOME_STAGE: Stage = {
     { actor: "hero", action: "wave" },
     { actor: "puppy", action: "run_to", target: "hero" },
     { actor: "hero", action: "emote", emotion: "happy" },
+    { actor: "puppy", action: "jump" },
   ],
 };
 
 type Phase = "setup" | "loading" | "scene" | "ending";
 type Settings = Pick<SceneRequest, "lesson" | "language" | "age">;
 
+const subscribeFullscreen = (notify: () => void) => {
+  document.addEventListener("fullscreenchange", notify);
+  return () => document.removeEventListener("fullscreenchange", notify);
+};
+const isFullscreen = () => document.fullscreenElement !== null;
+const notFullscreen = () => false;
+
+function toggleFullscreen() {
+  if (document.fullscreenElement) void document.exitFullscreen();
+  else void document.documentElement.requestFullscreen?.().catch(() => {});
+}
+
 export default function HarbirStory() {
   const [phase, setPhase] = useState<Phase>("setup");
-  const [lesson, setLesson] = useState<string>(LESSONS[0]);
+  const [lesson, setLesson] = useState<Lesson>("kindness");
   const [language, setLanguage] = useState<SceneLanguage>("ko");
   const [age, setAge] = useState(5);
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -44,6 +64,7 @@ export default function HarbirStory() {
   const [replay, setReplay] = useState(0);
   const requestId = useRef(0);
   const lastRequest = useRef<SceneRequest | null>(null);
+  const fullscreen = useSyncExternalStore(subscribeFullscreen, isFullscreen, notFullscreen);
 
   async function run(request: SceneRequest) {
     const id = ++requestId.current;
@@ -83,6 +104,7 @@ export default function HarbirStory() {
   function restart() {
     requestId.current += 1;
     stopSpeaking();
+    setError(null);
     setPhase("setup");
     setScene(null);
     setSettings(null);
@@ -106,78 +128,90 @@ export default function HarbirStory() {
   }, [phase, scene, settings]);
 
   const stage = scene && phase !== "setup" ? scene.stage : WELCOME_STAGE;
-  const showStory = (phase === "scene" || phase === "ending") && scene && settings;
+  const story = (phase === "scene" || phase === "ending") && scene && settings ? { scene, settings } : null;
+  const otherLanguage = language === "ko" ? "English" : "Korean";
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.brand}>KimiTales</Link>
-        <span className={styles.badge}>Sunny Meadow · 3D</span>
+      <div className={styles.stage} aria-label="Story stage">
+        <MeadowStage stage={stage} replay={replay} />
+      </div>
+
+      <header className={styles.topBar}>
+        <Link href="/" className={styles.brand}><span aria-hidden="true">k.</span>KimiTales</Link>
+        <div className={styles.topActions}>
+          <span className={styles.badge}>Sunny Meadow</span>
+          {story && <button className={styles.pill} onClick={() => setReplay((n) => n + 1)}>Watch again</button>}
+          <button className={styles.pill} onClick={toggleFullscreen} aria-pressed={fullscreen}>
+            {fullscreen ? "Exit full screen" : "Full screen"}
+          </button>
+        </div>
       </header>
 
-      <section className={styles.stage} aria-label="Story stage">
-        <MeadowStage stage={stage} replay={replay} />
-        {phase === "loading" && <div className={styles.thinking}>Kimi is thinking…</div>}
-        {showStory && <button className={styles.replay} onClick={() => setReplay((n) => n + 1)}>Watch again</button>}
-      </section>
+      {phase === "setup" && (
+        <aside className={`${styles.card} ${styles.setup}`}>
+          <p className={styles.eyebrow}>For the grown-ups</p>
+          <h1 className={styles.title}>Make it their story</h1>
+          <label className={styles.field} htmlFor="harbir-age">Age <strong>{age} years</strong></label>
+          <input id="harbir-age" className={styles.slider} type="range" min={3} max={6} value={age} onChange={(event) => setAge(Number(event.target.value))} />
+          <div className={styles.marks}><span>3</span><span>4</span><span>5</span><span>6</span></div>
+          <label className={styles.field} htmlFor="harbir-language">Language to learn</label>
+          <select id="harbir-language" className={styles.select} value={language} onChange={(event) => setLanguage(event.target.value as SceneLanguage)}>
+            <option value="ko">Korean · 한국어</option>
+            <option value="en">English</option>
+          </select>
+          <p className={styles.hint}>Story told in {otherLanguage}. New words in {otherLanguage === "English" ? "Korean" : "English"}.</p>
+          <span className={styles.field}>A little lesson in…</span>
+          <div className={styles.lessons}>
+            {(Object.keys(LESSONS) as Lesson[]).map((option) => (
+              <button key={option} aria-pressed={lesson === option} onClick={() => setLesson(option)}>
+                <strong>{option[0].toUpperCase() + option.slice(1)}</strong>
+                <small>{LESSONS[option]}</small>
+              </button>
+            ))}
+          </div>
+          <button className={styles.primary} onClick={start}>Begin our adventure</button>
+        </aside>
+      )}
 
-      <section className={styles.panel}>
-        {phase === "setup" && (
-          <div className={styles.setup}>
-            <div className={styles.lessons} role="group" aria-label="Lesson">
-              {LESSONS.map((option) => (
-                <button key={option} aria-pressed={lesson === option} onClick={() => setLesson(option)}>{option}</button>
+      {phase === "loading" && !error && <div className={styles.thinking} role="status">Kimi is thinking…</div>}
+
+      {error && (
+        <div className={`${styles.card} ${styles.story}`} role="alert">
+          <p className={styles.narration}>{error}</p>
+          <button className={styles.primary} onClick={() => lastRequest.current && void run(lastRequest.current)}>Try again</button>
+        </div>
+      )}
+
+      {story && (
+        <section className={`${styles.card} ${styles.story}`} aria-live="polite">
+          <div className={styles.storyTop}>
+            <p className={styles.eyebrow}>{phase === "ending" ? "A happy ending" : "What will Kimi do?"}</p>
+            <button className={styles.link} onClick={() => speak(story.scene.narration, meaningLocale(story.settings.language))}>Hear again</button>
+          </div>
+          <p className={styles.narration} lang={meaningLocale(story.settings.language)}>{story.scene.narration}</p>
+          {story.scene.newWords.length > 0 && (
+            <div className={styles.words}>
+              {story.scene.newWords.map(({ word, meaning }) => (
+                <button key={word} onClick={() => speak(word, speechLocale(story.settings.language))}>
+                  <strong lang={speechLocale(story.settings.language)}>{word}</strong>
+                  <small>{meaning}</small>
+                </button>
               ))}
             </div>
-            <div className={styles.row}>
-              <label>Learning
-                <select value={language} onChange={(event) => setLanguage(event.target.value as SceneLanguage)}>
-                  <option value="ko">한국어</option>
-                  <option value="en">English</option>
-                </select>
-              </label>
-              <label>Age
-                <select value={age} onChange={(event) => setAge(Number(event.target.value))}>
-                  {[3, 4, 5, 6].map((value) => <option key={value} value={value}>{value}</option>)}
-                </select>
-              </label>
-              <button className={styles.primary} onClick={start}>Start the story</button>
+          )}
+          {phase === "scene" ? (
+            <div className={styles.choices}>
+              {story.scene.choices.map((choice) => <button key={choice} onClick={() => choose(choice)}>{choice}</button>)}
             </div>
-          </div>
-        )}
-
-        {error && (
-          <div className={styles.error} role="alert">
-            {error} <button onClick={() => lastRequest.current && void run(lastRequest.current)}>Try again</button>
-          </div>
-        )}
-
-        {showStory && (
-          <>
-            <p className={styles.narration} lang={meaningLocale(settings.language)}>{scene.narration}</p>
-            {scene.newWords.length > 0 && (
-              <div className={styles.words}>
-                {scene.newWords.map(({ word, meaning }) => (
-                  <button key={word} onClick={() => speak(word, speechLocale(settings.language))}>
-                    <strong lang={speechLocale(settings.language)}>{word}</strong>
-                    <small>{meaning}</small>
-                  </button>
-                ))}
-              </div>
-            )}
-            {phase === "scene" ? (
-              <div className={styles.choices}>
-                {scene.choices.map((choice) => <button key={choice} onClick={() => choose(choice)}>{choice}</button>)}
-              </div>
-            ) : (
-              <div className={styles.ending}>
-                <p>Words learned: {wordsLearned.join(" · ") || "none yet"}</p>
-                <button className={styles.primary} onClick={restart}>Another story</button>
-              </div>
-            )}
-          </>
-        )}
-      </section>
+          ) : (
+            <div className={styles.ending}>
+              <p>Your words: {wordsLearned.join(" · ") || "none yet"}</p>
+              <button className={styles.primary} onClick={restart}>Another little adventure</button>
+            </div>
+          )}
+        </section>
+      )}
     </main>
   );
 }
