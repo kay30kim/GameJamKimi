@@ -9,7 +9,7 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "GameJamKimi",
+  title: "KimiTales",
   description:
     "Interactive story adventures that teach little kids big lessons — in English and Korean.",
 };

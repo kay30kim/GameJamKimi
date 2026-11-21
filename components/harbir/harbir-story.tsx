@@ -111,7 +111,7 @@ export default function HarbirStory() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link href="/" className={styles.brand}>GameJamKimi</Link>
+        <Link href="/" className={styles.brand}>KimiTales</Link>
         <span className={styles.badge}>Sunny Meadow · 3D</span>
       </header>
 
