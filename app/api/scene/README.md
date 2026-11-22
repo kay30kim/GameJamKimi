@@ -4,8 +4,8 @@
 
 - `POST /api/scene` on the same origin as the Next.js app.
 - Local URL after starting the app: `http://localhost:3000/api/scene` (adjust port if needed).
-- Production URL: `https://gamejam-kimi.vercel.app/api/scene`.
-- Vercel project `gamejam-kimi` is connected to `kay30kim/GameJamKimi`; pushes to `main` trigger production deployments.
+- Production URL: `https://alicetales.vercel.app/api/scene`.
+- Vercel project `alicetales` is connected to `kay30kim/GameJamKimi`; pushes to `main` trigger production deployments.
 - This directory is a Next.js App Router route. No API key or extra package is required for this stub.
 - The Next.js app is already scaffolded. Run `npm ci` and `npm run dev`. Builder B owns the game client, layout, and styling; this API requires no frontend or package changes. If the app moves to `src/app`, move this entire directory to `src/app/api/scene` instead; do not keep both app trees.
 - Use relative `/api/scene` calls from the app. Cross-origin browser access is not enabled; a separately hosted client should proxy requests through its own server.
@@ -67,10 +67,10 @@ Every response has a `stage` for the scene. The world is fixed: every story happ
 }
 ```
 
-- `cast` gives each actor's starting spot and always includes `hero` (Kimi the bunny, the child's character).
+- `cast` gives each actor's starting spot and always includes `hero` (Alice the bunny, the child's character).
 - A prop's `at` is either a spot or the id of an actor holding it.
 - `beats` has one to four steps, played in order. The `Beat` type in `lib/world.ts` lists the exact fields for each action.
-- The server repairs the stage instead of rejecting the scene. It drops unknown names and malformed beats, adds anyone or anything a beat needs at its usual spot, and falls back to Kimi looking happy if no beats are left. The engine can play any stage it receives without checking names.
+- The server repairs the stage instead of rejecting the scene. It drops unknown names and malformed beats, adds anyone or anything a beat needs at its usual spot, and falls back to Alice looking happy if no beats are left. The engine can play any stage it receives without checking names.
 - The stub returns hand-written stages for its three scenes, so you can build the engine without a key.
 
 To grow the world, add an entry to `lib/world.ts`. The prompt picks it up automatically; the engine needs a model and animation for it.

@@ -13,14 +13,14 @@ test("Kay speech validates input before using the provider and keeps character v
   };
   const request = (body: unknown) => new Request("https://story.test/kay/api/tts", { method: "POST", body: JSON.stringify(body) });
   try {
-    for (const body of [null, { text: "Hi", language: "en", speaker: "https://untrusted.test" }, { text: "x".repeat(801), language: "en", speaker: "kimi" }, { text: "Hi", language: "invalid", speaker: "kimi" }, { text: "", language: "ko", speaker: "kimi" }]) {
+    for (const body of [null, { text: "Hi", language: "en", speaker: "https://untrusted.test" }, { text: "x".repeat(801), language: "en", speaker: "alice" }, { text: "Hi", language: "invalid", speaker: "alice" }, { text: "", language: "ko", speaker: "alice" }]) {
       assert.equal((await POST(request(body))).status, 400);
     }
     assert.equal(calls.length, 0);
-    for (const speaker of ["kimi", "momo", "bori"]) assert.equal((await POST(request({ text: "같이 놀자!", language: "ko", speaker }))).status, 200);
+    for (const speaker of ["alice", "momo", "bori"]) assert.equal((await POST(request({ text: "같이 놀자!", language: "ko", speaker }))).status, 200);
     assert.equal(new Set(calls).size, 3);
     globalThis.fetch = async () => new Response("provider payload", { status: 403 });
-    const failed = await POST(request({ text: "Hi", language: "en", speaker: "kimi" }));
+    const failed = await POST(request({ text: "Hi", language: "en", speaker: "alice" }));
     assert.equal(failed.status, 502);
     assert.ok(!(await failed.text()).includes("provider payload"));
   } finally {

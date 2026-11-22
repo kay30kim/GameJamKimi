@@ -56,7 +56,7 @@ function moment(id: string, ko: string, en: string, options: Option[]): GameMome
   return {
     id, question: { ko, en },
     choices: options.map(([labelKo, labelEn, responseKo, responseEn, action, to]) => ({
-      label: { ko: labelKo, en: labelEn }, response: { ko: responseKo, en: responseEn }, speaker: "kimi", action, to,
+      label: { ko: labelKo, en: labelEn }, response: { ko: responseKo, en: responseEn }, speaker: "alice", action, to,
     })),
   };
 }

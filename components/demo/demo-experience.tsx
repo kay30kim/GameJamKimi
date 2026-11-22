@@ -62,8 +62,8 @@ export default function DemoExperience({audioManifest}:{audioManifest:Record<str
  }
  function reset(){generation.current++;stopListening();stopAudio();setStarted(false);setNode('intro');setChoices([]);setFeedback('');setListening(false);}
  return <main className={styles.page}>
-  <header className={styles.header}><Link href="/" className={styles.brand}><span>k.</span>Kimi’s little woodland</Link><span className={styles.demoBadge}>AN INTERACTIVE 3D STORY</span></header>
-  <div className={styles.heading}><div><p className={styles.eyebrow}>LITTLE CHOICES. A KINDER WORLD.</p><h1>A little adventure,<br/><em>made together.</em></h1></div><p>Meet Kimi. Explore a story.<br/>See your words come to life.</p></div>
+  <header className={styles.header}><Link href="/" className={styles.brand}><span>a.</span>Alice’s little woodland</Link><span className={styles.demoBadge}>AN INTERACTIVE 3D STORY</span></header>
+  <div className={styles.heading}><div><p className={styles.eyebrow}>LITTLE CHOICES. A KINDER WORLD.</p><h1>A little adventure,<br/><em>made together.</em></h1></div><p>Meet Alice. Explore a story.<br/>See your words come to life.</p></div>
   <div className={styles.layout}>
    <aside className={styles.sidebar}>
     <p className={styles.eyebrow}>{started?'YOUR ADVENTURE':'FOR THE GROWN-UPS'}</p>
@@ -85,13 +85,13 @@ export default function DemoExperience({audioManifest}:{audioManifest:Record<str
    </aside>
    <section className={styles.experience} aria-label="Interactive woodland">
     <div className={styles.stage}>
-     <div className={styles.stageTop}><span>THE SUNNY CLEARING</span><span>{!started?'Meet Kimi':ended?'A happy ending':`${choices.length} / 3 little choices`}</span></div>
+     <div className={styles.stageTop}><span>THE SUNNY CLEARING</span><span>{!started?'Meet Alice':ended?'A happy ending':`${choices.length} / 3 little choices`}</span></div>
      <ForestStage motion={motion} paused={paused||reducedMotion} age={settings.age}/>
-     <div className={styles.stageBottom}><span className={styles.motionBadge}>{motion==='idle'?'Kimi is ready':motion==='celebrate'?'Well done, little explorer':`Kimi · ${motion}`}</span><button onClick={()=>setPaused(!paused)} disabled={reducedMotion} aria-pressed={paused||reducedMotion}>{reducedMotion?'Reduced motion':paused?'Play animation':'Pause animation'}</button></div>
+     <div className={styles.stageBottom}><span className={styles.motionBadge}>{motion==='idle'?'Alice is ready':motion==='celebrate'?'Well done, little explorer':`Alice · ${motion}`}</span><button onClick={()=>setPaused(!paused)} disabled={reducedMotion} aria-pressed={paused||reducedMotion}>{reducedMotion?'Reduced motion':paused?'Play animation':'Pause animation'}</button></div>
     </div>
     <div className={styles.story}>
-     <div className={styles.storyTop}><p className={styles.eyebrow}>{!started?'YOUR STORY AWAITS':ended?'A LITTLE THOUGHT TO TAKE HOME':'WHAT WILL KIMI DO?'}</p>{started&&<button className={styles.audioButton} onClick={()=>{if(muted)setMuted(false);else{stopAudio();setReplay(v=>v+1);}}}>Hear again</button>}</div>
-     <p className={styles.narration} lang={other}>{started?narration:'Choose an age, a learning language, and a little lesson. Then step into Kimi’s woodland.'}</p>
+     <div className={styles.storyTop}><p className={styles.eyebrow}>{!started?'YOUR STORY AWAITS':ended?'A LITTLE THOUGHT TO TAKE HOME':'WHAT WILL ALICE DO?'}</p>{started&&<button className={styles.audioButton} onClick={()=>{if(muted)setMuted(false);else{stopAudio();setReplay(v=>v+1);}}}>Hear again</button>}</div>
+     <p className={styles.narration} lang={other}>{started?narration:'Choose an age, a learning language, and a little lesson. Then step into Alice’s woodland.'}</p>
      {started&&!ended&&<>
       <div className={styles.choices}>{ACTIONS.map(action=><button key={action} disabled={choices.length>=3||listening} aria-pressed={node===action} onClick={()=>choose(action)}><span lang={settings.language}>{VOCABULARY[action][settings.language]}</span><small lang={other}>{choiceLabels[other][action]}</small></button>)}</div>
       {choices.length<3?<div className={styles.voiceRow}><button className={styles.secondary} disabled={!canListen||listening} onClick={()=>void voiceCommand()}>{listening?'Listening…':'Say an action'}</button><p>{canListen?`Try “${VOCABULARY.walk[settings.language]}”, “${VOCABULARY.run[settings.language]}”, or “${VOCABULARY.hide[settings.language]}”.`:'Use the buttons here. Voice commands need a supported browser such as Chrome.'}</p></div>:<button className={styles.primary} onClick={()=>{stopAudio();setNode('ending');}}>Finish our story</button>}

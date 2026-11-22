@@ -23,7 +23,7 @@ test("character speech waits for playback and cancels queued turns", async () =>
     const first = speakAsync("Apple", "en-US", () => { started = true; }).then(() => { finished = true; });
     await new Promise(resolve => setTimeout(resolve, 20));
     assert.equal(started, true);
-    assert.equal(finished, false, "listening must not start while Kimi is speaking");
+    assert.equal(finished, false, "listening must not start while Alice is speaking");
     players[0].onended?.();
     await first;
     assert.equal(finished, true);

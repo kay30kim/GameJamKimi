@@ -7,10 +7,10 @@ import { MathUtils } from "three";
 import { JUMP_SECONDS, ROLL_SECONDS } from "@/lib/harbir/sim";
 import type { ActorState, Pose, Sim } from "@/lib/harbir/sim";
 import { LIGHT, PALETTE } from "@/lib/harbir/style";
-import { Kimi } from "./three/characters";
+import { Alice } from "./three/characters";
 import { Blob } from "./three/primitives";
 
-/** What Kimi does on the landing page, on a loop: stand, wave, hop, roll over. */
+/** What Alice does on the landing page, on a loop: stand, wave, hop, roll over. */
 const LOOP: { pose: Pose; seconds: number }[] = [
   { pose: "idle", seconds: 2.2 },
   { pose: "wave", seconds: 1.8 },
@@ -22,15 +22,15 @@ const LOOP: { pose: Pose; seconds: number }[] = [
 /** The loop entry a tap jumps to. */
 const HOP = LOOP.findIndex(({ pose }) => pose === "jump");
 
-type LoopingKimi = Sim & {
+type LoopingAlice = Sim & {
   /** Jump right away, then carry on with the loop. */
   hop(): void;
   /** Turn a little toward the pointer; x runs from -1 (left edge) to 1 (right edge). */
   look(x: number, dt: number): void;
 };
 
-/** A one-actor sim that only cycles poses, so Kimi can stand alone without the meadow. */
-function createLoopingKimi(): LoopingKimi {
+/** A one-actor sim that only cycles poses, so Alice can stand alone without the meadow. */
+function createLoopingAlice(): LoopingAlice {
   const hero: ActorState = { id: "hero", x: 0, z: 0, heading: 0, pose: "idle", poseTime: 0, travelled: 0, sitting: false, emotionLeft: 0 };
   let step = 0;
   let left = LOOP[0].seconds;
@@ -60,8 +60,8 @@ function createLoopingKimi(): LoopingKimi {
   };
 }
 
-/** Aims the camera at Kimi, steps the loop, and turns Kimi a little toward the pointer. */
-function Driver({ sim }: { sim: LoopingKimi }) {
+/** Aims the camera at Alice, steps the loop, and turns Alice a little toward the pointer. */
+function Driver({ sim }: { sim: LoopingAlice }) {
   useFrame(({ camera, pointer }, delta) => {
     camera.lookAt(0, 0.7, 0);
     sim.step(Math.min(delta, 0.05));
@@ -70,7 +70,7 @@ function Driver({ sim }: { sim: LoopingKimi }) {
   return null;
 }
 
-/** A small round patch of grass with a few flowers, so Kimi has somewhere to stand. */
+/** A small round patch of grass with a few flowers, so Alice has somewhere to stand. */
 function Patch() {
   const flowers: [number, number, string][] = [[-0.85, 0.4, PALETTE.flowers[0]], [0.75, 0.6, PALETTE.flowers[2]], [0.95, -0.3, PALETTE.flowers[4]], [-0.55, -0.65, PALETTE.flowers[3]]];
   return (
@@ -100,7 +100,7 @@ class PreviewBoundary extends Component<{ children: ReactNode }, { failed: boole
 }
 
 export default function RabbitPreview() {
-  const sim = useMemo(() => createLoopingKimi(), []);
+  const sim = useMemo(() => createLoopingAlice(), []);
   return (
     <PreviewBoundary>
       <Canvas
@@ -109,7 +109,7 @@ export default function RabbitPreview() {
         gl={{ antialias: true, alpha: true }}
         camera={{ position: [0, 2, 6], fov: 28, near: 0.1, far: 40 }}
         onPointerDown={() => sim.hop()}
-        aria-label="Kimi the bunny. Click to make Kimi hop."
+        aria-label="Alice the bunny. Click to make Alice hop."
       >
         <ambientLight intensity={LIGHT.ambient} />
         <hemisphereLight args={[LIGHT.hemisphere.sky, LIGHT.hemisphere.ground, LIGHT.hemisphere.intensity]} />
@@ -123,7 +123,7 @@ export default function RabbitPreview() {
         />
         <Driver sim={sim} />
         <Patch />
-        <Suspense fallback={null}><Kimi sim={sim} /></Suspense>
+        <Suspense fallback={null}><Alice sim={sim} /></Suspense>
       </Canvas>
     </PreviewBoundary>
   );

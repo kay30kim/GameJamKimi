@@ -12,7 +12,7 @@ const circle = (x: number, z: number, r: number): Obstacle => ({ kind: "circle",
 const box = (x: number, z: number, hx: number, hz: number): Obstacle => ({ kind: "box", x, z, hx, hz });
 
 export const OBSTACLES: readonly Obstacle[] = [
-  box(-6, -5, 1.4, 1.15), // Kimi's house
+  box(-6, -5, 1.4, 1.15), // Alice's house
   circle(5, -5, 0.45), // the big tree's trunk
   box(0, -3, 0.95, 0.3), // the bench
   circle(-1.6, -3.5, 0.45), // bushes beside the bench

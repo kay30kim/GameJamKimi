@@ -14,7 +14,7 @@ test("demo voices stay isolated and choose an allowed speaker", async () => {
   };
   const request = (speaker: string) => new Request("http://localhost/demo/api/tts", {method:"POST",body:JSON.stringify({text:"우와, 사과다!", lang:"ko-KR",speaker})});
   try {
-    assert.equal((await POST(request("kimi"))).status, 200);
+    assert.equal((await POST(request("alice"))).status, 200);
     assert.equal((await POST(request("momo"))).status, 200);
     assert.ok(calls[0].url.endsWith(process.env.ELEVENLABS_DEMO_VOICE_ID?.trim() || "cgSgspJ2msm6clMCkdW9"));
     assert.ok(calls[1].url.endsWith(process.env.ELEVENLABS_DEMO_MOMO_VOICE_ID?.trim() || "TX3LPaxmHKxFdv7VOQHJ"));

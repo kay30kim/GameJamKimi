@@ -9,7 +9,7 @@ class NodeFileReader {
   async readAsDataURL(blob) { this.result = `data:${blob.type};base64,${Buffer.from(await blob.arrayBuffer()).toString('base64')}`; this.onloadend?.(); }
 }
 globalThis.FileReader = NodeFileReader;
-const root = new T.Group(); root.name = 'Kimi';
+const root = new T.Group(); root.name = 'Alice';
 const cream = new T.MeshStandardMaterial({color:'#ffefcf',roughness:0.85});
 const pink = new T.MeshStandardMaterial({color:'#efa6a1',roughness:0.8});
 const dark = new T.MeshStandardMaterial({color:'#4b3028'});
@@ -44,7 +44,7 @@ ball(root,'Mouth',0,1.27,.35,.035,.012,.018,dark);
 ball(root,'Tail',0,.67,-.31,.16,.16,.16,cream);
 function clip(name,duration,positions,swings,tilt=0) {
  const times=[0,duration/4,duration/2,duration*3/4,duration];
- const tracks=[new T.VectorKeyframeTrack('Kimi.position',times,positions.flat())];
+ const tracks=[new T.VectorKeyframeTrack('Alice.position',times,positions.flat())];
  for(const [joint,phase] of [['LeftLeg',1],['RightLeg',-1],['LeftArm',-1],['RightArm',1]]){
   const values=swings.flatMap(v=>new T.Quaternion().setFromEuler(new T.Euler(v*phase,0,joint.includes('Arm')?tilt*phase:0)).toArray());
   tracks.push(new T.QuaternionKeyframeTrack(`${joint}.quaternion`,times,values));
@@ -60,5 +60,5 @@ const clips=[
 ];
 const scene=new T.Scene();scene.add(root);
 const result=await new GLTFExporter().parseAsync(scene,{binary:true,animations:clips});
-await mkdir('public/demo',{recursive:true});await writeFile('public/demo/kimi.glb',Buffer.from(result));
-console.log(`Authored kimi.glb (${result.byteLength} bytes): ${clips.map(c=>c.name).join(', ')}`);
+await mkdir('public/demo',{recursive:true});await writeFile('public/demo/alice.glb',Buffer.from(result));
+console.log(`Authored alice.glb (${result.byteLength} bytes): ${clips.map(c=>c.name).join(', ')}`);

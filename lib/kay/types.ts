@@ -1,6 +1,6 @@
 export type Language = "ko" | "en";
 export type Localized = Record<Language, string>;
-export type Speaker = "kimi" | "momo" | "bori" | "owl" | "narrator";
+export type Speaker = "alice" | "momo" | "bori" | "owl" | "narrator";
 export type Mood = "happy" | "sad" | "curious" | "excited" | "surprised";
 export type Motion = "talk" | "wave" | "dance" | "walk" | "offer" | "think" | "cheer";
 export type Location = "meadow" | "garden" | "pond" | "cottage";
@@ -35,7 +35,7 @@ export interface KayStory {
   custom?: boolean;
 }
 export const SPEAKERS: Record<Speaker, { name: Localized; color: string }> = {
-  kimi: { name: { ko: "키미", en: "Kimi" }, color: "#d78068" },
+  alice: { name: { ko: "앨리스", en: "Alice" }, color: "#d78068" },
   momo: { name: { ko: "모모", en: "Momo" }, color: "#638eab" },
   bori: { name: { ko: "보리", en: "Bori" }, color: "#b69a43" },
   owl: { name: { ko: "부엉이 할머니", en: "Grandma Owl" }, color: "#9783ad" },

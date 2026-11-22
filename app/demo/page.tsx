@@ -200,9 +200,9 @@ export default function DemoPage() {
 
       <div className={styles.brand}>
         <span className={styles.brandMark} aria-hidden="true">
-          G
+          A
         </span>
-        <span>GameJamKimi</span>
+        <span>Alicetales</span>
       </div>
 
       {phase === "setup" && (

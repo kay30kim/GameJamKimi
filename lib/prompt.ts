@@ -2,9 +2,9 @@ import { MAX_SCENES } from "../app/api/scene/contract";
 import type { SceneRequest } from "../app/api/scene/contract";
 import { ACTIONS, ACTORS, EMOTIONS, MAX_BEATS, PROPS, SPOTS, WEATHERS } from "./world";
 
-/** From design/character-brief.md. The child plays Kimi. */
+/** From design/character-brief.md. The child plays Alice. */
 export const DEFAULT_CHARACTER_BRIEF =
-  "The child plays Kimi, a small cream-colored bunny with long ears and a peach scarf. Kimi is curious, kind, patient, and playful. Use a warm, playful voice without shaming or lecturing.";
+  "The child plays Alice, a small cream-colored bunny with long ears and a peach scarf. Alice is curious, kind, patient, and playful. Use a warm, playful voice without shaming or lecturing.";
 
 const list = (table: Record<string, { en: string; ko: string }>) =>
   Object.entries(table).map(([id, { en, ko }]) => `${id} (${en} / ${ko})`).join(", ");
@@ -25,7 +25,7 @@ const WORLD_RULES = [
 /** Per-age narration and choice length. Under 4, the client skips the choice and continues with choices[0]. */
 function ageRules(age: number): string {
   if (age <= 3) {
-    return "Narration: one very short sentence of at most 8 words, simple subject-verb-object, present tense, no clauses (for example: \"Kimi has a red apple.\"). Each choice is at most 4 words. Give exactly one newWord. The child does not pick a choice; the story continues with choices[0], so choices[0] must always be the kind, lesson-aligned action.";
+    return "Narration: one very short sentence of at most 8 words, simple subject-verb-object, present tense, no clauses (for example: \"Alice has a red apple.\"). Each choice is at most 4 words. Give exactly one newWord. The child does not pick a choice; the story continues with choices[0], so choices[0] must always be the kind, lesson-aligned action.";
   }
   if (age === 4) {
     return "Narration: one or two short sentences of at most 10 words each. Each choice is at most 6 words.";

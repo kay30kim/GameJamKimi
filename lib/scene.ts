@@ -18,12 +18,12 @@ const prefetched = new Map<string, Promise<SceneResponse>>();
 const keyOf = ({ lesson, language, age, wordsLearned, history }: SceneRequest) =>
   JSON.stringify([lesson, language, age, wordsLearned, history]);
 
-/** Thrown when Kimi failed and the server sent its generic closing instead of a real scene. */
+/** Thrown when Alice failed and the server sent its generic closing instead of a real scene. */
 class FallbackScene extends Error {}
 
 /**
  * Start generating a scene before the child asks for it. A later fetchScene with
- * the same request picks up this result instead of calling Kimi again.
+ * the same request picks up this result instead of calling Alice again.
  */
 export function prefetchScene(request: SceneRequest): Promise<SceneResponse> {
   const key = keyOf(request);
@@ -84,7 +84,7 @@ async function requestScene(
     );
   }
   if (rejectFallback && res.headers.get("X-Scene-Mode") === "fallback") {
-    throw new FallbackScene("Kimi didn't return a scene in time.");
+    throw new FallbackScene("Alice didn't return a scene in time.");
   }
   return data;
 }

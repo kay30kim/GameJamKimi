@@ -10,12 +10,12 @@ import type { Vec3 } from "./primitives";
 
 export type Actor = Exclude<Speaker, "narrator">;
 export const ACTOR_POSITIONS: Record<Actor, Vec3> = {
-  kimi: [-1.45, 0, 0.25], momo: [1.3, 0, 0], bori: [0.05, 0, -1.5], owl: [-2.7, 0, -2.3],
+  alice: [-1.45, 0, 0.25], momo: [1.3, 0, 0], bori: [0.05, 0, -1.5], owl: [-2.7, 0, -2.3],
 };
 export type LivePositions = Record<Actor, Vector3>;
-export const HEADS: Record<Actor, number> = { kimi: 1.68, momo: 1.52, bori: 1.12, owl: 1.55 };
+export const HEADS: Record<Actor, number> = { alice: 1.68, momo: 1.52, bori: 1.12, owl: 1.55 };
 const CHARACTER = {
-  kimi: { fur: "#fff0d5", light: "#fff8e8", accent: "#e6a18a", head: [0.52, 0.55, 0.47], body: [0.37, 0.54, 0.3], height: 1.68, bodyY: 0.83, eye: 0.195 },
+  alice: { fur: "#fff0d5", light: "#fff8e8", accent: "#e6a18a", head: [0.52, 0.55, 0.47], body: [0.37, 0.54, 0.3], height: 1.68, bodyY: 0.83, eye: 0.195 },
   momo: { fur: "#ba815b", light: "#f4d9b0", accent: "#80b8c8", head: [0.56, 0.53, 0.49], body: [0.43, 0.52, 0.33], height: 1.5, bodyY: 0.75, eye: 0.205 },
   bori: { fur: "#efd2a0", light: "#fff0d2", accent: "#dfb250", head: [0.48, 0.43, 0.45], body: [0.34, 0.39, 0.29], height: 1.15, bodyY: 0.58, eye: 0.175 },
   owl: { fur: "#9c8574", light: "#eddbc3", accent: "#b3a4ca", head: [0.57, 0.49, 0.4], body: [0.47, 0.58, 0.34], height: 1.48, bodyY: 0.78, eye: 0.23 },
@@ -61,7 +61,7 @@ export function Character({ id, line, playing, acting = playing, reducedMotion =
       localTime.current = 0; previousLine.current = line?.id ?? "";
       if (isCurrentSpeaker && motion === "walk") {
         walkStart.current.copy(anchor.current);
-        const dx = other ? other.x - anchor.current.x : id === "kimi" ? 1 : -1;
+        const dx = other ? other.x - anchor.current.x : id === "alice" ? 1 : -1;
         const dz = other ? other.z - anchor.current.z : 0.12;
         const distance = Math.hypot(dx, dz);
         const travel = other ? Math.min(1.1, Math.max(0, distance - 1.25)) : 0.8;
@@ -95,7 +95,7 @@ export function Character({ id, line, playing, acting = playing, reducedMotion =
     const squash = dancing ? Math.sin(beat * 2) * 0.035 * amount : performing ? Math.sin(time * 3.4) * 0.012 * amount : 0;
     root.current.scale.set(1 - squash * 0.45, 1 + squash, 1 - squash * 0.45);
     const gazeTarget = isCurrentSpeaker ? other : source;
-    let yaw = id === "kimi" ? 0.2 : id === "momo" ? -0.28 : 0.05;
+    let yaw = id === "alice" ? 0.2 : id === "momo" ? -0.28 : 0.05;
     if (gazeTarget) yaw = MathUtils.clamp((gazeTarget.x - root.current.position.x) * 0.2, -0.6, 0.6);
     const turn = dancing ? Math.sin(beat * 0.6) * 0.42 * amount : walking ? Math.sin(time * 9) * 0.035 : 0;
     root.current.rotation.y = MathUtils.damp(root.current.rotation.y, yaw + turn, 6, delta);
@@ -160,7 +160,7 @@ export function Character({ id, line, playing, acting = playing, reducedMotion =
     <E position={[0, c.bodyY - 0.04, c.body[2] * 0.7]} scale={[c.body[0] * 0.7, c.body[1] * 0.69, 0.12]} color={c.light} />
     {[-1, 1].map(side => <group key={side} ref={side < 0 ? leftLeg : rightLeg} position={[side * (id === "owl" ? 0.2 : 0.19), 0.34, 0]}>
       <E position={[0, -0.11, 0.07]} scale={id === "owl" ? [0.16, 0.12, 0.23] : [0.16, 0.21, 0.22]} color={id === "owl" ? "#d7a45b" : c.fur} />
-      <E position={[0, -0.16, 0.2]} scale={[0.11, 0.045, 0.055]} color={id === "kimi" ? "#eac6b4" : c.light} />
+      <E position={[0, -0.16, 0.2]} scale={[0.11, 0.045, 0.055]} color={id === "alice" ? "#eac6b4" : c.light} />
     </group>)}
     {[-1, 1].map(side => <group key={side} ref={side < 0 ? leftArm : rightArm} position={[side * c.body[0] * 0.88, c.bodyY + 0.2, 0]}>
       <E position={[side * 0.07, -0.22, 0]} scale={id === "owl" ? [0.2, 0.35, 0.12] : [0.125, 0.3, 0.14]} rotation={[0, 0, side * 0.12]} color={c.fur} />
@@ -168,7 +168,7 @@ export function Character({ id, line, playing, acting = playing, reducedMotion =
       {id === "owl" && [-0.1, 0, 0.1].map((x, i) => <E key={i} position={[x, -0.36, 0.02]} scale={[0.06, 0.16, 0.09]} color={i % 2 ? "#8c776c" : "#b59b7f"} />)}
     </group>)}
     {id !== "owl" && <group ref={tail} position={[0, c.bodyY - 0.13, -c.body[2]]}>
-      <E position={id === "bori" ? [0.12, 0.1, -0.1] : [0, 0, -0.04]} scale={id === "bori" ? [0.1, 0.26, 0.1] : [0.15, 0.16, 0.15]} rotation={id === "bori" ? [-0.65, 0, -0.3] : undefined} color={id === "kimi" ? c.light : c.fur} />
+      <E position={id === "bori" ? [0.12, 0.1, -0.1] : [0, 0, -0.04]} scale={id === "bori" ? [0.1, 0.26, 0.1] : [0.15, 0.16, 0.15]} rotation={id === "bori" ? [-0.65, 0, -0.3] : undefined} color={id === "alice" ? c.light : c.fur} />
     </group>}
     {/* A real wrapped scarf, knot and softly hanging ends. */}
     <group position={[0, c.height - c.head[1] * 0.72, 0]}>
@@ -181,7 +181,7 @@ export function Character({ id, line, playing, acting = playing, reducedMotion =
     <group ref={head} position={[0, c.height, 0]}>
       <E scale={[...c.head]} color={c.fur} />
       <group ref={ears}>
-        {id === "kimi" && [-1, 1].map(side => <group key={side} position={[side * 0.245, 0.43, -0.035]} rotation={[0.03, 0, side * -0.13]}>
+        {id === "alice" && [-1, 1].map(side => <group key={side} position={[side * 0.245, 0.43, -0.035]} rotation={[0.03, 0, side * -0.13]}>
           <E position={[0, 0.43, 0]} scale={[0.165, 0.63, 0.13]} color={c.fur} />
           <E position={[0, 0.46, 0.09]} scale={[0.088, 0.48, 0.045]} color="#edb7aa" />
         </group>)}
@@ -204,10 +204,10 @@ export function Character({ id, line, playing, acting = playing, reducedMotion =
         </group>)}
       </group>
       {[-1, 1].map(side => <group key={side} ref={side < 0 ? browL : browR} position={[side * c.eye, 0.225, faceZ - 0.03]}>
-        <E scale={[0.075, 0.018, 0.018]} rotation={[0, 0, side * -0.08]} color={id === "kimi" ? "#cbb08f" : "#7a5541"} shadow={false} />
+        <E scale={[0.075, 0.018, 0.018]} rotation={[0, 0, side * -0.08]} color={id === "alice" ? "#cbb08f" : "#7a5541"} shadow={false} />
       </group>)}
       {[-1, 1].map(side => <E key={side} position={[side * (c.eye + 0.12), -0.135, faceZ - 0.025]} scale={[0.095, 0.055, 0.022]} color={id === "momo" ? "#d59a83" : "#edb0a3"} shadow={false} />)}
-      {id === "owl" ? <E position={[0, -0.12, faceZ + 0.12]} scale={[0.083, 0.12, 0.12]} color="#dba552" /> : <E position={[0, -0.12, faceZ + (id === "kimi" ? 0.04 : 0.1)]} scale={[id === "bori" ? 0.1 : 0.065, 0.047, 0.055]} color={id === "kimi" ? "#d89890" : "#604232"} roughness={0.4} />}
+      {id === "owl" ? <E position={[0, -0.12, faceZ + 0.12]} scale={[0.083, 0.12, 0.12]} color="#dba552" /> : <E position={[0, -0.12, faceZ + (id === "alice" ? 0.04 : 0.1)]} scale={[id === "bori" ? 0.1 : 0.065, 0.047, 0.055]} color={id === "alice" ? "#d89890" : "#604232"} roughness={0.4} />}
       <mesh ref={mouth} position={[0, -0.245, faceZ + (id === "momo" || id === "bori" ? 0.085 : -0.002)]} geometry={sphere} material={material("#784b40", 0.6)} scale={[0.055, 0.016, 0.018]} />
       {id === "owl" && [-1, 1].map(side => <group key={side} position={[side * c.eye, 0.04, faceZ + 0.08]}>
         <mesh material={material("#b28c54", 0.38, 0.35)}><torusGeometry args={[0.145, 0.013, 8, 28]} /></mesh>

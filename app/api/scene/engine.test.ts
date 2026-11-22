@@ -26,10 +26,10 @@ test("without a key both languages keep the three-scene integration flow", async
       assert.doesNotThrow(() => parseScene(JSON.stringify(result.scene)));
       if (language === "ko") {
         assert.doesNotMatch(result.scene.narration, /[가-힣]/);
-        assert.match(result.scene.narration, /Kimi/);
+        assert.match(result.scene.narration, /Alice/);
         result.scene.choices.forEach((choice) => assert.doesNotMatch(choice, /[가-힣]/));
       } else {
-        assert.match(result.scene.narration, /키미/);
+        assert.match(result.scene.narration, /앨리스/);
         result.scene.choices.forEach((choice) => assert.match(choice, /[가-힣]/));
       }
       if (i < 2) {

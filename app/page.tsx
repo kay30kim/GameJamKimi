@@ -336,9 +336,9 @@ export default function Home() {
 
       <div className={styles.brand}>
         <span className={styles.brandMark} aria-hidden="true">
-          K
+          A
         </span>
-        <span>KimiTales</span>
+        <span>Alicetales</span>
       </div>
 
       {phase === "setup" && (

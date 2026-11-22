@@ -17,7 +17,7 @@ Every story happens in one place, Sunny Meadow. These rules keep everything in i
 
 ## Building shapes
 
-Build everything from a few primitives, the same way Kimi's model is made in `scripts/build-demo-model.mjs`:
+Build everything from a few primitives, the same way Alice's model is made in `scripts/build-demo-model.mjs`:
 
 - **Blob:** a sphere scaled into an ellipsoid. Bodies, heads, ears, paws, muzzles, bushes, and tree crowns are blobs.
 - **Capsule or cylinder:** legs, trunks, posts, and handles.
@@ -27,7 +27,7 @@ Use the `Blob` and `Mat` helpers in `components/harbir/three/primitives.tsx`.
 
 ## Faces
 
-Every character uses the same face recipe (`Face` in `primitives.tsx`), copied from Kimi's model:
+Every character uses the same face recipe (`Face` in `primitives.tsx`), copied from Alice's model:
 
 - Two dark brown oval eyes (`PALETTE.eye`), each with a small white sparkle up and to the left.
 - Two pink oval cheeks (`PALETTE.cheek`) below and outside the eyes.
@@ -42,7 +42,7 @@ Each character wears one accessory in a distinct color, so children can tell the
 
 | Character | Body | Accessory |
 | --- | --- | --- |
-| Kimi the bunny | Cream fur, long ears | Peach scarf |
+| Alice the bunny | Cream fur, long ears | Peach scarf |
 | Momo the bear cub | Warm brown, round ears, light muzzle | Blue scarf |
 | Bori the puppy | Honey fur, floppy darker ears | Pink collar |
 | Grandma Owl | Soft brown feathers, light belly, ear tufts | Lilac shawl and gold glasses |
@@ -53,7 +53,7 @@ Characters have named arm and leg groups, so the engine can swing them when walk
 
 - A warm sun from the upper right with soft shadows, plus sky light. Rain dims the sun and turns the sky gray-blue.
 - Fog fades the far meadow into the sky color, so the world has no visible edge.
-- The camera looks down from above and behind Kimi and follows Kimi smoothly (`CAMERA`). Keep the view high: children should see where Kimi is in the meadow.
+- The camera looks down from above and behind Alice and follows Alice smoothly (`CAMERA`). Keep the view high: children should see where Alice is in the meadow.
 
 ## Adding something new
 

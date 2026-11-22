@@ -22,7 +22,7 @@ test("saved dialogue waits for audible playback; cancellation never advances a p
     pause() { this.paused = true; }
   }
   const text = "같이 춤출래?";
-  const key = createHash("sha256").update(speechIdentity(text, "ko", "kimi")).digest("hex");
+  const key = createHash("sha256").update(speechIdentity(text, "ko", "alice")).digest("hex");
   Object.defineProperty(globalThis, "window", { value: {}, configurable: true });
   Object.defineProperty(globalThis, "Audio", { value: FakeAudio, configurable: true });
   Object.defineProperty(globalThis, "location", { value: { origin: "https://story.test" }, configurable: true });
@@ -36,7 +36,7 @@ test("saved dialogue waits for audible playback; cancellation never advances a p
   };
   try {
     let started = 0, ended = 0, resolved = false;
-    const first = playKaySpeech({ text, language: "ko", speaker: "kimi", onStart: () => started++, onEnd: () => ended++ }).then(() => { resolved = true; });
+    const first = playKaySpeech({ text, language: "ko", speaker: "alice", onStart: () => started++, onEnd: () => ended++ }).then(() => { resolved = true; });
     await new Promise((resolve) => setTimeout(resolve, 30));
     assert.equal(started, 0, "a downloaded clip is not yet audible");
     assert.equal(resolved, false);
@@ -67,7 +67,7 @@ test("saved dialogue waits for audible playback; cancellation never advances a p
     Object.defineProperty(globalThis, "window", { value: { speechSynthesis: { cancel() {}, getVoices: () => [], speak: (value: typeof utterances[number]) => utterances.push(value) } }, configurable: true });
     players[0].play = () => { players[0].onerror?.(); return Promise.reject(new Error("Autoplay blocked")); };
     let fallbacks = 0;
-    const fallback = playKaySpeech({ text, language: "ko", speaker: "kimi", onFallback: () => fallbacks++ });
+    const fallback = playKaySpeech({ text, language: "ko", speaker: "alice", onFallback: () => fallbacks++ });
     await new Promise((resolve) => setTimeout(resolve, 30));
     assert.equal(fallbacks, 1, "media error and rejected play promise must not double-speak");
     assert.equal(utterances.length, 1);

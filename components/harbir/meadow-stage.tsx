@@ -9,23 +9,23 @@ import { createSim } from "@/lib/harbir/sim";
 import type { Sim } from "@/lib/harbir/sim";
 import { CAMERA, LIGHT, PALETTE } from "@/lib/harbir/style";
 import type { ActorId, PropId, Stage } from "@/lib/world";
-import { Character, Kimi } from "./three/characters";
+import { Character, Alice } from "./three/characters";
 import { EmotionBubble, Rain, useEmotionTextures } from "./three/effects";
 import { Meadow } from "./three/landmarks";
 import { PropItem } from "./three/props";
 
 /**
- * Follows Kimi from above and behind, and keeps the sun's shadow box centered on Kimi,
+ * Follows Alice from above and behind, and keeps the sun's shadow box centered on Alice,
  * so shadows stay crisp anywhere in the open meadow.
  */
 function FollowCamera({ sim, sun }: { sim: Sim; sun: React.RefObject<DirectionalLight | null> }) {
   const focus = useRef(new Vector3(0, CAMERA.lookHeight, 0));
   useFrame(({ camera }, delta) => {
-    const kimi = sim.actors.hero;
-    if (!kimi) return;
+    const alice = sim.actors.hero;
+    if (!alice) return;
     const k = 1 - Math.exp(-delta * CAMERA.follow);
     const target = focus.current;
-    target.set(MathUtils.lerp(target.x, kimi.x, k), CAMERA.lookHeight, MathUtils.lerp(target.z, kimi.z, k));
+    target.set(MathUtils.lerp(target.x, alice.x, k), CAMERA.lookHeight, MathUtils.lerp(target.z, alice.z, k));
     camera.position.set(target.x, CAMERA.height, target.z + CAMERA.distance);
     camera.lookAt(target);
     const light = sun.current;
@@ -75,7 +75,7 @@ function World({ stage, paused, replay }: { stage: Stage; paused: boolean; repla
       {rainy && <Rain sim={sim} />}
       <Director sim={sim} paused={paused} />
       <FollowCamera sim={sim} sun={sun} />
-      {sim.actors.hero && <Suspense fallback={null}><Kimi sim={sim} /></Suspense>}
+      {sim.actors.hero && <Suspense fallback={null}><Alice sim={sim} /></Suspense>}
       {(["friend", "puppy", "grownup"] as const).filter((id) => sim.actors[id]).map((id) => <Character key={id} id={id} sim={sim} />)}
       {(Object.keys(sim.props) as PropId[]).map((id) => <PropItem key={id} id={id} sim={sim} />)}
       {(Object.keys(sim.actors) as ActorId[]).map((id) => <EmotionBubble key={id} id={id} sim={sim} textures={textures} />)}
@@ -101,7 +101,7 @@ export default function MeadowStage({ stage, paused = false, replay = 0 }: { sta
         dpr={[1, 2]}
         gl={{ antialias: true }}
         camera={{ position: [0, CAMERA.height, CAMERA.distance], fov: CAMERA.fov, near: 0.1, far: 120 }}
-        aria-label="Kimi's meadow"
+        aria-label="Alice's meadow"
       >
         <World stage={stage} paused={paused} replay={replay} />
       </Canvas>

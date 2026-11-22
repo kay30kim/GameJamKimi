@@ -1,4 +1,6 @@
-# KimiTales
+# Alicetales
+
+Play at [alicetales.vercel.app](https://alicetales.vercel.app) with Alice (앨리스), the bunny who guides each little adventure.
 
 An interactive educational game for kids under elementary-school age. A parent picks a life lesson, a language, and the child's age. The child plays through a story that teaches the lesson and new words in that language, and speaks to the game to practice those words.
 

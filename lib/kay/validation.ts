@@ -1,6 +1,6 @@
 import type { DialogueLine, KayStory, Language, Localized, Location, Mood, Motion, Speaker, StoryChoice, StoryScene } from "./types";
 
-const SPEAKERS: Speaker[] = ["kimi", "momo", "bori", "owl", "narrator"];
+const SPEAKERS: Speaker[] = ["alice", "momo", "bori", "owl", "narrator"];
 const MOODS: Mood[] = ["happy", "sad", "curious", "excited", "surprised"];
 const MOTIONS: Motion[] = ["talk", "wave", "dance", "walk", "offer", "think", "cheer"];
 const LOCATIONS: Location[] = ["meadow", "garden", "pond", "cottage"];
@@ -20,7 +20,14 @@ function id(value: unknown): string {
 }
 function localized(value: unknown, max: number): Localized {
   const object = record(value, "translated text");
-  return { ko: text(object.ko, max, "Korean text"), en: text(object.en, max, "English text") };
+  return { ko: renameLegacyCharacter(text(object.ko, max, "Korean text")), en: renameLegacyCharacter(text(object.en, max, "English text")) };
+}
+/** Keep existing saved books playable with the renamed cast and spoken dialogue. */
+function renameLegacyCharacter(value: string): string {
+  return value.replace(/\bKimi\b/gi, "Alice").replace(/키미/g, "앨리스");
+}
+function speaker(value: unknown, allowNarrator = true): Speaker {
+  return member(value === "kimi" ? "alice" : value, allowNarrator ? SPEAKERS : SPEAKERS.slice(0, 4), "speaker");
 }
 function member<T extends string>(value: unknown, allowed: readonly T[], name: string): T {
   if (typeof value !== "string" || !allowed.includes(value as T)) return fail(name);
@@ -47,12 +54,12 @@ export function parseKayStory(value: unknown): KayStory {
       const lineId = id(rawLine.id);
       if (lineIds.has(lineId)) fail("duplicate dialogue id");
       lineIds.add(lineId);
-      const speaker = member(rawLine.speaker, SPEAKERS, "speaker");
+      const actor = speaker(rawLine.speaker);
       totalLines++;
-      if (speaker === "narrator") narratorLines++;
+      if (actor === "narrator") narratorLines++;
       return {
-        id: lineId, speaker, text: localized(rawLine.text, 320),
-        ...(rawLine.to !== undefined ? { to: member(rawLine.to, SPEAKERS.slice(0, 4), "listener") } : {}),
+        id: lineId, speaker: actor, text: localized(rawLine.text, 320),
+        ...(rawLine.to !== undefined ? { to: speaker(rawLine.to, false) } : {}),
         ...(rawLine.emotion !== undefined ? { emotion: member(rawLine.emotion, MOODS, "emotion") } : {}),
         ...(rawLine.action !== undefined ? { action: member(rawLine.action, MOTIONS, "action") } : {}),
         ...(rawLine.learn !== undefined ? { learn: localized(rawLine.learn, 80) } : {}),
@@ -63,7 +70,7 @@ export function parseKayStory(value: unknown): KayStory {
       const rawChoice = record(value, "choice");
       return {
         label: localized(rawChoice.label, 130), next: id(rawChoice.next),
-        ...(rawChoice.actor !== undefined ? { actor: member(rawChoice.actor, SPEAKERS.slice(0, 4), "choice actor") } : {}),
+        ...(rawChoice.actor !== undefined ? { actor: speaker(rawChoice.actor, false) } : {}),
       };
     });
     if (choices.length && rawScene.next !== undefined) fail("scene has both choices and next");
@@ -99,7 +106,7 @@ export function parseKayStory(value: unknown): KayStory {
   if (!completedPaths || reachable.size !== entries.length) fail("unreachable scenes");
   return {
     version: 1, id: id(raw.id), title: localized(raw.title, 100), description: localized(raw.description, 240),
-    lesson: text(raw.lesson, 600, "lesson"), start, scenes,
+    lesson: renameLegacyCharacter(text(raw.lesson, 600, "lesson")), start, scenes,
     ...(raw.custom === true ? { custom: true } : {}),
   };
 }

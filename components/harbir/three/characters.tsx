@@ -20,7 +20,7 @@ interface Rig {
   rightArm?: Object3D | null;
   leftLeg?: Object3D | null;
   rightLeg?: Object3D | null;
-  /** Only Kimi's model has a separate head, ears, and tail. */
+  /** Only Alice's model has a separate head, ears, and tail. */
   head?: Object3D | null;
   leftEar?: Object3D | null;
   rightEar?: Object3D | null;
@@ -155,10 +155,10 @@ function Puppet({ id, sim, rig, children }: { id: ActorId; sim: Sim; rig: RefObj
 }
 
 /**
- * Regroup Kimi's model so its head moves as one piece and each ear swings from its base.
+ * Regroup Alice's model so its head moves as one piece and each ear swings from its base.
  * The model ships as loose parts under one root; attach keeps every part where it was.
  */
-function rigKimi(model: Object3D): Rig {
+function rigAlice(model: Object3D): Rig {
   model.updateMatrixWorld(true);
   const part = (name: string) => model.getObjectByName(name);
   const root = part("Head")?.parent;
@@ -198,14 +198,14 @@ function rigKimi(model: Object3D): Rig {
   };
 }
 
-/** Kimi, from Kay's model, posed by the same motion as everyone else. */
-export function Kimi({ sim }: { sim: Sim }) {
-  const gltf = useLoader(GLTFLoader, "/demo/kimi.glb");
+/** Alice, from Kay's model, posed by the same motion as everyone else. */
+export function Alice({ sim }: { sim: Sim }) {
+  const gltf = useLoader(GLTFLoader, "/demo/alice.glb");
   const [model, rig] = useMemo(() => {
     const copy = gltf.scene.clone(true);
     copy.traverse((object) => { object.castShadow = true; });
     copy.scale.setScalar(0.72);
-    return [copy, { current: rigKimi(copy) }] as const;
+    return [copy, { current: rigAlice(copy) }] as const;
   }, [gltf]);
   return <Puppet id="hero" sim={sim} rig={rig}><primitive object={model} dispose={null} /></Puppet>;
 }
@@ -315,7 +315,7 @@ function GrandmaOwl({ rig }: { rig: SetLimb }) {
 }
 
 const BODIES = { friend: Momo, puppy: Bori, grownup: GrandmaOwl } as const;
-/** Kimi stays the biggest child; Grandma Owl is the tallest. */
+/** Alice stays the biggest child; Grandma Owl is the tallest. */
 const BODY_SCALE = { friend: 0.88, puppy: 0.9, grownup: 1 } as const;
 
 export function Character({ id, sim }: { id: keyof typeof BODIES; sim: Sim }) {

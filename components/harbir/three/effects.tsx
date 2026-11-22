@@ -77,8 +77,8 @@ export function Rain({ sim }: { sim: Sim }) {
       if (drops[i] < 0) drops[i] += 14;
     }
     attribute.needsUpdate = true;
-    const kimi = sim.actors.hero;
-    if (kimi) points.position.set(kimi.x, 0, kimi.z);
+    const alice = sim.actors.hero;
+    if (alice) points.position.set(alice.x, 0, alice.z);
   });
   return (
     <points ref={ref}>

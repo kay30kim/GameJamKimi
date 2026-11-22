@@ -143,13 +143,13 @@ test("harmless model formatting and animation synonyms cannot discard a complete
   const compact = compactFixture();
   compact.title = { ko: "작은 친절", en: "A little kindness" };
   const notice = compact.scenes[1][3] as unknown[][];
-  notice[0][0] = "Kimi";
+  notice[0][0] = "Alice";
   notice[0][3] = "clap";
   notice[0][4] = "everyone";
   notice[0][5] = "worried";
   notice.pop(); // 34 lines on every full path still satisfy the episode length contract.
   const story = expandCompactStory(compact);
-  assert.equal(story.scenes.notice.lines[0].speaker, "kimi");
+  assert.equal(story.scenes.notice.lines[0].speaker, "alice");
   assert.equal(story.scenes.notice.lines[0].action, "cheer");
   assert.equal(story.scenes.notice.lines[0].emotion, "sad");
   assert.equal(story.scenes.notice.lines[0].to, undefined);

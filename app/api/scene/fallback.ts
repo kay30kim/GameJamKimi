@@ -46,8 +46,8 @@ export function createStubScene(request: SceneRequest): SceneResponse {
   if (complete) {
     return {
       narration: narrateInKorean
-        ? "키미와 강아지가 함께 집에 도착했어요. 서로 도우니 마음이 따뜻해졌어요."
-        : "Kimi and the puppy arrive home together. Helping each other feels good.",
+        ? "앨리스와 강아지가 함께 집에 도착했어요. 서로 도우니 마음이 따뜻해졌어요."
+        : "Alice and the puppy arrive home together. Helping each other feels good.",
       newWords: [],
       choices: [],
       lessonComplete: true,
@@ -61,11 +61,11 @@ export function createStubScene(request: SceneRequest): SceneResponse {
   return {
     narration: narrateInKorean
       ? first
-        ? "키미가 빗속에 있는 강아지를 만났어요. 어떻게 도와줄까요?"
-        : "키미와 강아지가 비를 피했어요. 새 친구와 무엇을 할까요?"
+        ? "앨리스가 빗속에 있는 강아지를 만났어요. 어떻게 도와줄까요?"
+        : "앨리스와 강아지가 비를 피했어요. 새 친구와 무엇을 할까요?"
       : first
-        ? "Kimi sees a puppy in the rain. How can Kimi help?"
-        : "Kimi and the puppy are out of the rain. What can Kimi do with a new friend?",
+        ? "Alice sees a puppy in the rain. How can Alice help?"
+        : "Alice and the puppy are out of the rain. What can Alice do with a new friend?",
     newWords: request.wordsLearned.includes(word.word) ? [] : [word],
     choices: narrateInKorean
       ? first ? ["우산을 함께 써요", "어른에게 도움을 청해요"] : ["함께 걸어요", "친구에게 웃어 줘요"]

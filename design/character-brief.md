@@ -1,9 +1,9 @@
 
-# Kimi the Bunny — Character Brief
+# Alice the Bunny — Character Brief
 
 ## Character Overview
-Kimi is the friendly mascot and storytelling companion
-of KimiTales. Kimi guides young children through
+Alice is the friendly mascot and storytelling companion
+of Alicetales. Alice guides young children through
 interactive stories that teach positive life lessons.
 
 ## Appearance

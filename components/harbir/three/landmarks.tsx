@@ -37,7 +37,7 @@ export function Tree({ position, scale = 1, apples = false }: { position: Vec3; 
 }
 
 /**
- * A scenery tree that fades out while it stands between the camera and Kimi,
+ * A scenery tree that fades out while it stands between the camera and Alice,
  * so the high camera never loses sight of the story.
  */
 function SceneryTree({ position, scale }: { position: Vec3; scale: number }) {

@@ -7,8 +7,8 @@ import { AnimationMixer, Group, MathUtils } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Motion } from "@/lib/demo/story";
 
-function Kimi({ motion, paused, pace, talking = false }: { motion: Motion; paused: boolean; pace: number; talking?: boolean }) {
-  const gltf = useLoader(GLTFLoader, "/demo/kimi.glb");
+function Alice({ motion, paused, pace, talking = false }: { motion: Motion; paused: boolean; pace: number; talking?: boolean }) {
+  const gltf = useLoader(GLTFLoader, "/demo/alice.glb");
   const model = useMemo(() => {
     const copy = gltf.scene.clone(true);
     copy.traverse((object) => { object.castShadow = true; object.receiveShadow = true; });
@@ -67,7 +67,7 @@ function World({ motion, paused, age, talking, word }: StageProps) {
         <mesh position={[0,.23,0]} rotation={[0,0,-.2]}><cylinderGeometry args={[.025,.03,.15,8]}/><meshStandardMaterial color="#79553d"/></mesh>
         <mesh position={[.09,.27,0]} rotation={[0,0,-.5]} scale={[1,.45,.3]}><sphereGeometry args={[.12,12,8]}/><meshStandardMaterial color="#70a76b"/></mesh>
       </group>}
-      <Suspense fallback={null}><Kimi motion={motion} paused={paused} pace={age<=4?.78:1} talking={talking} /></Suspense>
+      <Suspense fallback={null}><Alice motion={motion} paused={paused} pace={age<=4?.78:1} talking={talking} /></Suspense>
     </group>
   </>;
 }
@@ -78,5 +78,5 @@ class StageBoundary extends Component<{children:ReactNode},{failed:boolean}> {
 }
 interface StageProps { motion: Motion; paused: boolean; age: number; talking?: boolean; word?: string; immersive?: boolean }
 export default function ForestStage(props: StageProps) {
-  return <StageBoundary><Canvas shadows dpr={[1,1.5]} camera={{position:props.immersive ? [0,2.6,5.8] : [0,3.5,7.2],fov:40}} onCreated={({camera})=>camera.lookAt(0,.8,0)} fallback={<p>3D needs WebGL. Please try a browser with hardware acceleration enabled.</p>} aria-label={`Kimi the bunny is ${props.motion}`}><World {...props}/></Canvas></StageBoundary>;
+  return <StageBoundary><Canvas shadows dpr={[1,1.5]} camera={{position:props.immersive ? [0,2.6,5.8] : [0,3.5,7.2],fov:40}} onCreated={({camera})=>camera.lookAt(0,.8,0)} fallback={<p>3D needs WebGL. Please try a browser with hardware acceleration enabled.</p>} aria-label={`Alice the bunny is ${props.motion}`}><World {...props}/></Canvas></StageBoundary>;
 }

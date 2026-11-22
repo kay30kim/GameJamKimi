@@ -13,7 +13,7 @@ test("every bundled story path has five spoken, acted decisions", () => {
         assert.equal(moment.choices.length, 2);
         assert.ok(moment.question.en && moment.question.ko);
         for (const choice of moment.choices) {
-          assert.equal(choice.speaker, "kimi");
+          assert.equal(choice.speaker, "alice");
           assert.ok(choice.label.en && choice.label.ko && choice.response.en && choice.response.ko);
           assert.notEqual(choice.action, "talk", "a choice must cause a visible action");
           assert.notEqual(choice.to, "narrator");

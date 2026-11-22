@@ -33,7 +33,7 @@ export default function SetupFlow({ age, language, lesson, onAge, onLanguage, on
   return (
     <main className={styles.page}>
       <header className={styles.bar}>
-        <span className={styles.wordmark}>KimiTales</span>
+        <span className={styles.wordmark}>Alicetales</span>
         <span className={styles.progress}>Step {step + 1} of {STEPS.length}</span>
       </header>
 

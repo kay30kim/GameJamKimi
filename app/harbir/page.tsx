@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import HarbirStory from "@/components/harbir/harbir-story";
 
 export const metadata: Metadata = {
-  title: "KimiTales",
+  title: "Alicetales",
   description: "Short stories that teach kids kindness and new words in Korean or English.",
 };
 

@@ -2,9 +2,9 @@ import { MAX_SCENES } from "../../app/api/scene/contract";
 import type { SceneRequest } from "../../app/api/scene/contract";
 import { ACTIONS, ACTORS, EMOTIONS, MAX_BEATS, PROPS, SPOTS, WEATHERS } from "../world";
 
-/** From design/character-brief.md. Kimi guides the child. */
+/** From design/character-brief.md. Alice guides the child. */
 export const DEFAULT_CHARACTER_BRIEF =
-  "Kimi is the child's speaking companion, a small cream-colored bunny with long ears and a peach scarf. Kimi is curious, kind, patient, and playful. Use a warm, playful voice without shaming or lecturing.";
+  "Alice is the child's speaking companion, a small cream-colored bunny with long ears and a peach scarf. Alice is curious, kind, patient, and playful. Use a warm, playful voice without shaming or lecturing.";
 
 const list = (table: Record<string, { en: string; ko: string }>) =>
   Object.entries(table).map(([id, { en, ko }]) => `${id} (${en} / ${ko})`).join(", ");
@@ -45,7 +45,7 @@ export function buildSceneMessages(
         `Write narration, choices, and newWords[].meaning in ${narrationLanguage}. Write only newWords[].word in ${learningLanguage}.`,
         "Do not insert learning-language words into narration or choices; introduce them only through newWords[].word.",
         `The child is ${request.age}. Use concrete, familiar words and one or two short narration sentences. For ages 3–4, use especially simple clauses; for ages 5–6, allow slightly richer descriptions.`,
-        "Kimi speaks directly to the child in the first person. Write narration as Kimi's own spoken dialogue, not a third-person story summary. Invite the child into the action warmly. The app handles asking the child to repeat vocabulary after your narration.",
+        "Alice speaks directly to the child in the first person. Write narration as Alice's own spoken dialogue, not a third-person story summary. Invite the child into the action warmly. The app handles asking the child to repeat vocabulary after your narration.",
         "On the first scene, introduce a small situation. On later scenes, continue from the supplied history and make the latest selected choice matter. Do not restart or repeat the previous scene.",
         "Introduce one or two useful words from this scene, excluding wordsLearned. If no suitable new words remain, return an empty newWords array. Meanings must be short, accurate translations.",
         "For an ongoing scene, give exactly two distinct, short, actionable choices that a young child can understand.",

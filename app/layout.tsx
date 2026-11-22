@@ -9,7 +9,9 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "KimiTales",
+  title: "Alicetales",
+  applicationName: "Alicetales",
+  metadataBase: new URL("https://alicetales.vercel.app"),
   description:
     "Interactive story adventures that teach little kids big lessons — in English and Korean.",
 };

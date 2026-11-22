@@ -15,7 +15,7 @@ export interface KaySpeechPlayback extends KaySpeech {
   onFallback?: () => void;
 }
 interface AudioManifest { clips: Record<string, { src: string; duration?: number }> }
-const CACHE_NAME = "kimi-kay-voices-v1";
+const CACHE_NAME = "alicetales-kay-voices-v1";
 const memory = new Map<string, Promise<Blob>>();
 let manifest: Promise<AudioManifest> | undefined;
 let player: HTMLAudioElement | undefined;
@@ -190,7 +190,7 @@ export function playKaySpeech(options: KaySpeechPlayback): Promise<void> {
       const utterance = new SpeechSynthesisUtterance(options.text);
       utterance.lang = options.language === "ko" ? "ko-KR" : "en-US";
       const voices = synthesis.getVoices().filter((voice) => voice.lang.toLowerCase().startsWith(options.language));
-      const voiceIndex = { kimi: 0, momo: 1, bori: 2, owl: 3, narrator: 0 }[options.speaker];
+      const voiceIndex = { alice: 0, momo: 1, bori: 2, owl: 3, narrator: 0 }[options.speaker];
       if (voices.length) utterance.voice = voices[voiceIndex % voices.length];
       utterance.pitch = KAY_VOICES[options.speaker].pitch;
       utterance.rate = KAY_VOICES[options.speaker].speed;

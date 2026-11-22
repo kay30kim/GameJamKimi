@@ -1,23 +1,23 @@
 {
   "empathy": {
-    "intro": { "en": "Kimi sees a friend who feels shy. How could Kimi help them feel welcome?", "ko": "키미이 수줍어하는 친구를 만났어요. 친구가 편안해지도록 어떻게 도울까요?" },
-    "walk": { "en": "Kimi walks slowly to the friend. A gentle hello helps the friend feel welcome.", "ko": "키미이 친구에게 천천히 걸어가요. 다정하게 인사하니 친구가 편안해졌어요." },
-    "run": { "en": "Kimi runs to find a flower, then slows down near the friend. A little gift says, I care.", "ko": "키미이 꽃을 찾으러 달려가요. 친구 가까이에서는 천천히 가요. 작은 선물로 마음을 전해요." },
-    "hide": { "en": "Kimi peeks from a cozy bush. Feeling shy is okay. Kimi gives the friend time to join.", "ko": "키미이 아늑한 덤불에서 빼꼼 나와요. 수줍어도 괜찮아요. 친구가 다가올 때까지 기다려요." },
+    "intro": { "en": "Alice sees a friend who feels shy. How could Alice help them feel welcome?", "ko": "앨리스가 수줍어하는 친구를 만났어요. 친구가 편안해지도록 어떻게 도울까요?" },
+    "walk": { "en": "Alice walks slowly to the friend. A gentle hello helps the friend feel welcome.", "ko": "앨리스가 친구에게 천천히 걸어가요. 다정하게 인사하니 친구가 편안해졌어요." },
+    "run": { "en": "Alice runs to find a flower, then slows down near the friend. A little gift says, I care.", "ko": "앨리스가 꽃을 찾으러 달려가요. 친구 가까이에서는 천천히 가요. 작은 선물로 마음을 전해요." },
+    "hide": { "en": "Alice peeks from a cozy bush. Feeling shy is okay. Alice gives the friend time to join.", "ko": "앨리스가 아늑한 덤불에서 빼꼼 나와요. 수줍어도 괜찮아요. 친구가 다가올 때까지 기다려요." },
     "ending": { "en": "Everyone has different feelings. Listening and being gentle can help a friend.", "ko": "누구나 마음이 달라요. 친구 이야기를 듣고 다정하게 대하면 도움이 돼요." }
   },
   "sharing": {
-    "intro": { "en": "Kimi and a friend have one picnic basket. How can they enjoy it together?", "ko": "키미과 친구에게 소풍 바구니가 하나 있어요. 어떻게 함께 즐길까요?" },
-    "walk": { "en": "Kimi walks over with the basket. There is a little snack for each friend.", "ko": "키미이 바구니를 들고 걸어가요. 친구들이 하나씩 먹을 간식이 있어요." },
-    "run": { "en": "Kimi runs to bring a picnic blanket. Helping set up is sharing the work, too.", "ko": "키미이 소풍 담요를 가져오러 달려가요. 함께 준비하면 할 일도 나눌 수 있어요." },
-    "hide": { "en": "Kimi hides the basket for a little game. Then Kimi invites the friend to find and share it.", "ko": "키미이 놀이를 하려고 바구니를 숨겨요. 친구와 함께 찾아서 간식을 나눠요." },
+    "intro": { "en": "Alice and a friend have one picnic basket. How can they enjoy it together?", "ko": "앨리스와 친구에게 소풍 바구니가 하나 있어요. 어떻게 함께 즐길까요?" },
+    "walk": { "en": "Alice walks over with the basket. There is a little snack for each friend.", "ko": "앨리스가 바구니를 들고 걸어가요. 친구들이 하나씩 먹을 간식이 있어요." },
+    "run": { "en": "Alice runs to bring a picnic blanket. Helping set up is sharing the work, too.", "ko": "앨리스가 소풍 담요를 가져오러 달려가요. 함께 준비하면 할 일도 나눌 수 있어요." },
+    "hide": { "en": "Alice hides the basket for a little game. Then Alice invites the friend to find and share it.", "ko": "앨리스가 놀이를 하려고 바구니를 숨겨요. 친구와 함께 찾아서 간식을 나눠요." },
     "ending": { "en": "A picnic is more fun together. We can share snacks, games, and little jobs.", "ko": "함께하면 소풍이 더 즐거워요. 간식도 놀이도 작은 일도 나눌 수 있어요." }
   },
   "sacrifice": {
-    "intro": { "en": "Kimi has a turn on the sunny picnic spot. A tired friend would like a rest. What could Kimi do?", "ko": "키미이 햇살 좋은 소풍 자리에 앉을 차례예요. 피곤한 친구가 쉬고 싶대요. 어떻게 할까요?" },
-    "walk": { "en": "Kimi walks to another soft spot so the friend can rest. Kimi finds a comfy place, too.", "ko": "키미이 다른 푹신한 자리로 걸어가요. 친구도 쉬고 키미도 편안한 자리를 찾아요." },
-    "run": { "en": "Kimi runs to fetch an extra cushion. A little effort can make both friends comfortable.", "ko": "키미이 방석을 하나 더 가져오러 달려가요. 조금 도우니 둘 다 편안해졌어요." },
-    "hide": { "en": "Kimi rests in a shady nook while the friend takes a turn. Kimi can ask for a turn again, too.", "ko": "친구가 자리를 쓰는 동안 키미은 그늘에서 쉬어요. 키미도 다시 차례를 부탁할 수 있어요." },
+    "intro": { "en": "Alice has a turn on the sunny picnic spot. A tired friend would like a rest. What could Alice do?", "ko": "앨리스가 햇살 좋은 소풍 자리에 앉을 차례예요. 피곤한 친구가 쉬고 싶대요. 어떻게 할까요?" },
+    "walk": { "en": "Alice walks to another soft spot so the friend can rest. Alice finds a comfy place, too.", "ko": "앨리스가 다른 푹신한 자리로 걸어가요. 친구도 쉬고 앨리스도 편안한 자리를 찾아요." },
+    "run": { "en": "Alice runs to fetch an extra cushion. A little effort can make both friends comfortable.", "ko": "앨리스가 방석을 하나 더 가져오러 달려가요. 조금 도우니 둘 다 편안해졌어요." },
+    "hide": { "en": "Alice rests in a shady nook while the friend takes a turn. Alice can ask for a turn again, too.", "ko": "친구가 자리를 쓰는 동안 앨리스는 그늘에서 쉬어요. 앨리스도 다시 차례를 부탁할 수 있어요." },
     "ending": { "en": "We can choose a small kindness and still care for ourselves. Both friends matter.", "ko": "작은 친절을 베풀면서 나 자신도 돌볼 수 있어요. 두 친구 모두 소중해요." }
   }
 }

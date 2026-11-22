@@ -58,10 +58,10 @@ function CameraDirector({ line, location, overview, reducedMotion, positions }: 
       const base = positions[actor];
       // Close-ups retain ears and hands; the lower frame is intentionally available for subtitles.
       const x = center[0] + base.x, z = center[2] + base.z;
-      const side = actor === "kimi" || actor === "owl" ? -1 : 1;
+      const side = actor === "alice" || actor === "owl" ? -1 : 1;
       const height = HEADS[actor];
       aim.set(x + side * 0.08, height - 0.15, z);
-      pos.set(x + side * 0.65, height + 0.45, z + (actor === "kimi" ? 6.4 : 5.7));
+      pos.set(x + side * 0.65, height + 0.45, z + (actor === "alice" ? 6.4 : 5.7));
       fov = portrait ? 44 : 34;
     }
     if (!initialized.current || reducedMotion) {
@@ -88,7 +88,7 @@ function Cast(props: CinemaStageProps & { positions: LivePositions }) {
     group.current.position.z = MathUtils.lerp(group.current.position.z, center[2], k);
   });
   return <group ref={group} position={[...center]}>
-    {(["kimi", "momo", "bori", "owl"] as const).map(id => <Character key={id} id={id} line={props.line} playing={props.playing} acting={props.acting} reducedMotion={props.reducedMotion} positions={props.positions} locationKey={props.location} />)}
+    {(["alice", "momo", "bori", "owl"] as const).map(id => <Character key={id} id={id} line={props.line} playing={props.playing} acting={props.acting} reducedMotion={props.reducedMotion} positions={props.positions} locationKey={props.location} />)}
   </group>;
 }
 
@@ -134,7 +134,7 @@ export default function CinemaStage(props: CinemaStageProps) {
     gl={{ antialias: true, alpha: false, powerPreference: "high-performance", toneMapping: ACESFilmicToneMapping, toneMappingExposure: 1.0 }}
     onCreated={({ gl }) => { gl.shadowMap.type = PCFShadowMap; }}
     camera={{ fov: 40, position: [5.6, 5.5, 12.5], near: 0.1, far: 130 }}
-    aria-label="Kimi and friends talking and playing in their sunny woodland village"
+    aria-label="Alice and friends talking and playing in their sunny woodland village"
     fallback={<div role="status" style={{ background: "#b6c49a", height: "100%", padding: 32 }}>This device does not support 3D. You can still enjoy the story and character voices.</div>}
   ><World {...props} /></Canvas></SceneBoundary>;
 }

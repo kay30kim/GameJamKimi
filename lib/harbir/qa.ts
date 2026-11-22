@@ -6,7 +6,7 @@ import type { Stage } from "../world";
 export const SCENARIOS: { name: string; about: string; stage: Stage }[] = [
   {
     name: "Pick up the ball by a friend",
-    about: "Kimi walks up to the ball while Momo stands right next to it.",
+    about: "Alice walks up to the ball while Momo stands right next to it.",
     stage: {
       weather: "sunny",
       cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "playground" }],
@@ -16,7 +16,7 @@ export const SCENARIOS: { name: string; about: string; stage: Stage }[] = [
   },
   {
     name: "Run through the ball",
-    about: "Kimi runs from the bench to the big tree, straight over the ball; the ball should roll away.",
+    about: "Alice runs from the bench to the big tree, straight over the ball; the ball should roll away.",
     stage: {
       weather: "sunny",
       cast: [{ actor: "hero", at: "bench" }, { actor: "friend", at: "tree" }],
@@ -26,7 +26,7 @@ export const SCENARIOS: { name: string; about: string; stage: Stage }[] = [
   },
   {
     name: "Walk around the house",
-    about: "Kimi walks from the garden to the big tree, past the house.",
+    about: "Alice walks from the garden to the big tree, past the house.",
     stage: {
       weather: "sunny",
       cast: [{ actor: "hero", at: "garden" }],
@@ -46,7 +46,7 @@ export const SCENARIOS: { name: string; about: string; stage: Stage }[] = [
   },
   {
     name: "Across the playground",
-    about: "Kimi runs from the garden to the pond, past the swings and the slide.",
+    about: "Alice runs from the garden to the pond, past the swings and the slide.",
     stage: {
       weather: "sunny",
       cast: [{ actor: "hero", at: "garden" }, { actor: "friend", at: "playground" }],
@@ -71,7 +71,7 @@ export const SCENARIOS: { name: string; about: string; stage: Stage }[] = [
   },
   {
     name: "Roll into a friend",
-    about: "Kimi turns to Momo, rolls straight into Momo, then hugs.",
+    about: "Alice turns to Momo, rolls straight into Momo, then hugs.",
     stage: {
       weather: "sunny",
       cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "path" }],
@@ -81,7 +81,7 @@ export const SCENARIOS: { name: string; about: string; stage: Stage }[] = [
   },
   {
     name: "Share the umbrella",
-    about: "Kimi carries the umbrella to Bori by the pond and hands it over.",
+    about: "Alice carries the umbrella to Bori by the pond and hands it over.",
     stage: {
       weather: "rainy",
       cast: [{ actor: "hero", at: "home" }, { actor: "puppy", at: "pond" }],

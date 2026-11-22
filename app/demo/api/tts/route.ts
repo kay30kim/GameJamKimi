@@ -36,12 +36,12 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError(400, "INVALID_REQUEST", "Expected text and lang strings.");
   }
 
-  const { text, lang, speaker = "kimi" } = body as Record<string, unknown>;
+  const { text, lang, speaker = "alice" } = body as Record<string, unknown>;
   if (typeof text !== "string" || typeof lang !== "string") {
     return jsonError(400, "INVALID_REQUEST", "Expected text and lang strings.");
   }
 
-  if (speaker !== "kimi" && speaker !== "momo") return jsonError(400, "INVALID_SPEAKER", "Expected kimi or momo.");
+  if (speaker !== "alice" && speaker !== "momo") return jsonError(400, "INVALID_SPEAKER", "Expected alice or momo.");
 
   const content = text.trim();
   const language = languageCode(lang);

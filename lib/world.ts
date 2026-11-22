@@ -7,7 +7,7 @@
 
 export const SPOTS = {
   path: { en: "the meadow path", ko: "풀밭 길", position: [0, 0] },
-  home: { en: "Kimi's house", ko: "키미의 집", position: [-6, -5] },
+  home: { en: "Alice's house", ko: "앨리스의 집", position: [-6, -5] },
   tree: { en: "the big tree", ko: "큰 나무", position: [5, -5] },
   bench: { en: "the bench", ko: "벤치", position: [0, -3] },
   pond: { en: "the pond", ko: "연못", position: [6, 4] },
@@ -16,7 +16,7 @@ export const SPOTS = {
 } as const satisfies Record<string, { en: string; ko: string; position: readonly [number, number] }>;
 
 export const ACTORS = {
-  hero: { en: "Kimi the bunny", ko: "토끼 키미", home: "path" },
+  hero: { en: "Alice the bunny", ko: "토끼 앨리스", home: "path" },
   friend: { en: "Momo the bear cub", ko: "아기곰 모모", home: "playground" },
   puppy: { en: "Bori the puppy", ko: "강아지 보리", home: "garden" },
   grownup: { en: "Grandma Owl", ko: "부엉이 할머니", home: "home" },

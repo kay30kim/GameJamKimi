@@ -3,8 +3,10 @@
 import type { KayStory } from "./types";
 import { parseKayStory } from "./validation";
 
-const KEY = "kimi-kay-library-v1";
-const CHANGED = "kimi-kay-library-changed";
+const KEY = "alicetales-kay-library-v1";
+// Read books saved before the rename on this origin; all new saves use Alicetales.
+const LEGACY_KEY = "kimi-kay-library-v1";
+const CHANGED = "alicetales-kay-library-changed";
 const EMPTY: KayStory[] = [];
 let serialized: string | null | undefined;
 let snapshot: KayStory[] = EMPTY;
@@ -17,7 +19,7 @@ export function getKayLibrary(): KayStory[] {
   if (typeof window === "undefined") return EMPTY;
   if (volatile) return snapshot;
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
     if (raw === serialized) return snapshot;
     serialized = raw;
     const data: unknown = JSON.parse(raw ?? "[]");
@@ -33,7 +35,7 @@ export function getKayLibrary(): KayStory[] {
 }
 
 export function subscribeKayLibrary(notify: () => void) {
-  const fromOtherTab = (event: StorageEvent) => { if (event.key === KEY || event.key === null) { volatile = false; notify(); } };
+  const fromOtherTab = (event: StorageEvent) => { if (event.key === KEY || event.key === LEGACY_KEY || event.key === null) { volatile = false; notify(); } };
   window.addEventListener("storage", fromOtherTab);
   window.addEventListener(CHANGED, notify);
   return () => { window.removeEventListener("storage", fromOtherTab); window.removeEventListener(CHANGED, notify); };

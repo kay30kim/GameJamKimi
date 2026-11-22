@@ -40,7 +40,7 @@ export function Blob({
 }
 
 /**
- * The shared face from Kimi's model: sparkly dark eyes, pink cheeks, a small nose and mouth.
+ * The shared face from Alice's model: sparkly dark eyes, pink cheeks, a small nose and mouth.
  * Placed on the front of a head centered at `center` with radius `size`.
  */
 export function Face({ center, size, nose = PALETTE.cheek, spread = 1 }: { center: Vec3; size: number; nose?: string; spread?: number }) {

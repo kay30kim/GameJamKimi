@@ -48,7 +48,7 @@ export default function AnimatedStory({ scene, language, age, firstScene, onChoo
       if (id !== generation.current) return;
       setTurn("speaking");
       if (wordIndex === 0 && replay === 0) {
-        // Play Kimi's movement beats while the narrator tells the scene.
+        // Play Alice's movement beats while the narrator tells the scene.
         scene.stage.beats.filter(beat => beat.actor === "hero").forEach((beat, i) => {
           timers.push(setTimeout(() => {
             if (id !== generation.current) return;
@@ -109,11 +109,11 @@ export default function AnimatedStory({ scene, language, age, firstScene, onChoo
     } finally { busy.current = false; }
   }
 
-  return <section className={styles.game} aria-label="Kimi's animated story">
+  return <section className={styles.game} aria-label="Alice's animated story">
     <div className={styles.world}><Forest motion={motion} paused={false} age={age} talking={talking} word={word?.word} immersive/></div>
-    <div className={styles.top}><span>Kimi</span><button onClick={onExit} aria-label="Exit story">✕</button></div>
+    <div className={styles.top}><span>Alice</span><button onClick={onExit} aria-label="Exit story">✕</button></div>
     <div className={styles.dialogue}>
-      <p className={styles.caption} role="status" lang={meaningLocale(language)}>{caption || (koreanGuide ? "키미를 만나러 가요…" : "Here comes Kimi…")}</p>
+      <p className={styles.caption} role="status" lang={meaningLocale(language)}>{caption || (koreanGuide ? "앨리스를 만나러 가요…" : "Here comes Alice…")}</p>
       {word && turn !== "choices" && <p className={styles.word} lang={speechLocale(language)}>{word.word}</p>}
       {turn === "ready" && <div className={styles.controls}>
         {canListen ? <button className={styles.mic} onClick={() => void listen()}>{koreanGuide ? "🎙 눌러서 말하기" : "🎙 Tap to speak"}</button> : <span>{koreanGuide ? "이 브라우저에서는 마이크를 사용할 수 없어요. 소리 내어 따라 해 보세요." : "Voice recognition is unavailable here. Say the word aloud."}</span>}

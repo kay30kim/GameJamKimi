@@ -155,13 +155,13 @@ export default function HarbirStory() {
       </div>
 
       <header className={styles.topBar}>
-        <Link href="/" className={styles.brand}><span aria-hidden="true">k.</span>KimiTales</Link>
+        <Link href="/" className={styles.brand}><span aria-hidden="true">a.</span>Alicetales</Link>
         <div className={styles.topActions}>
           {story && <button className={styles.pill} onClick={() => setReplay((n) => n + 1)}>Watch again</button>}
         </div>
       </header>
 
-      {phase === "loading" && !error && <div className={styles.thinking} role="status">Kimi is thinking…</div>}
+      {phase === "loading" && !error && <div className={styles.thinking} role="status">Alice is thinking…</div>}
 
       {error && (
         <div className={`${styles.card} ${styles.story}`} role="alert">
@@ -173,7 +173,7 @@ export default function HarbirStory() {
       {story && (
         <section className={`${styles.card} ${styles.story}`} aria-live="polite">
           <div className={styles.storyTop}>
-            <p className={styles.eyebrow}>{phase === "ending" ? "A happy ending" : "What will Kimi do?"}</p>
+            <p className={styles.eyebrow}>{phase === "ending" ? "A happy ending" : "What will Alice do?"}</p>
             <button className={styles.link} onClick={() => speak(story.scene.narration, meaningLocale(story.settings.language))}>Hear again</button>
           </div>
           <p className={styles.narration} lang={meaningLocale(story.settings.language)}>{story.scene.narration}</p>

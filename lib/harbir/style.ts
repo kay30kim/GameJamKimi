@@ -38,13 +38,13 @@ export const PALETTE = {
   playYellow: "#e7b458",
   playOrange: "#f2a65a",
 
-  /** Faces: shared by every character, matching Kimi's model. */
+  /** Faces: shared by every character, matching Alice's model. */
   eye: "#4b3028",
   sparkle: "#fffaf0",
   cheek: "#efa6a1",
 
-  kimiFur: "#ffefcf",
-  kimiScarf: "#f2b49b",
+  aliceFur: "#ffefcf",
+  aliceScarf: "#f2b49b",
   bearFur: "#b98560",
   bearMuzzle: "#efd7b8",
   bearScarf: "#8fb8de",
@@ -73,7 +73,7 @@ export const LIGHT = {
 } as const;
 
 /**
- * The camera looks down at Kimi from above and behind, so the child sees the meadow
- * around Kimi, not just Kimi.
+ * The camera looks down at Alice from above and behind, so the child sees the meadow
+ * around Alice, not just Alice.
  */
 export const CAMERA = { height: 9.5, distance: 9, fov: 38, lookHeight: 0.8, follow: 2 } as const;

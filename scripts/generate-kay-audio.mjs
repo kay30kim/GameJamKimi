@@ -19,7 +19,7 @@ const maxCharacters = Number(process.env.KAY_AUDIO_MAX_CHARACTERS || 60000);
 const model = process.env.KAY_TTS_MODEL?.trim() || "eleven_multilingual_v2";
 const directory = "public/kay/audio";
 const manifestPath = `${directory}/manifest.json`;
-const working = join(tmpdir(), "kimi-kay-audio-authoring");
+const working = join(tmpdir(), "alice-kay-audio-authoring");
 await mkdir(directory, { recursive: true });
 await mkdir(working, { recursive: true });
 let manifest = { version: 1, voiceVersion: KAY_AUDIO_VERSION, clips: {} };
@@ -41,19 +41,19 @@ for (const story of STORIES) {
         if (line.learn) add(line.learn[language], language, line.speaker);
       }
     }
-    if (scene.practice) for (const language of ["ko", "en"]) add(scene.practice[language], language, "kimi");
+    if (scene.practice) for (const language of ["ko", "en"]) add(scene.practice[language], language, "alice");
     for (const language of ["ko", "en"]) {
       const target = language === "ko" ? "en" : "ko";
       const word = practiceFor(story, scene);
-      add(word[language], language, "kimi");
-      add(practicePrompt(word, language, target), language, "kimi");
-      for (const choice of scene.choices) add(choice.label[language], language, "kimi");
+      add(word[language], language, "alice");
+      add(practicePrompt(word, language, target), language, "alice");
+      for (const choice of scene.choices) add(choice.label[language], language, "alice");
     }
     const moment = getGameMoment(story, scene);
     if (moment) for (const language of ["ko", "en"]) {
-      add(moment.question[language], language, "kimi");
+      add(moment.question[language], language, "alice");
       for (const choice of moment.choices) {
-        add(choice.label[language], language, "kimi");
+        add(choice.label[language], language, "alice");
         add(choice.response[language], language, choice.speaker);
       }
     }
@@ -64,16 +64,16 @@ const customExample = { ...STORIES[0], id: "custom-example", custom: true };
 for (const scene of Object.values(customExample.scenes)) {
   const moment = getGameMoment(customExample, scene);
   if (moment) for (const language of ["ko", "en"]) {
-    add(moment.question[language], language, "kimi");
+    add(moment.question[language], language, "alice");
     for (const choice of moment.choices) {
-      add(choice.label[language], language, "kimi");
+      add(choice.label[language], language, "alice");
       add(choice.response[language], language, choice.speaker);
     }
   }
 }
 for (const language of ["ko", "en"]) {
-  for (const text of [choicePrompt, successPrompt, retryPrompt]) add(text[language], language, "kimi");
-  add(practicePrompt(defaultPractice, language, language === "ko" ? "en" : "ko"), language, "kimi");
+  for (const text of [choicePrompt, successPrompt, retryPrompt]) add(text[language], language, "alice");
+  add(practicePrompt(defaultPractice, language, language === "ko" ? "en" : "ko"), language, "alice");
 }
 const pending = [];
 for (const clip of unique.values()) {

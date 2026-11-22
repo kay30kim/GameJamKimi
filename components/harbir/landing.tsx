@@ -4,19 +4,19 @@ import styles from "./landing.module.css";
 
 const RabbitPreview = dynamic(() => import("./rabbit-preview"), { ssr: false });
 
-/** The page parents see first: what KimiTales teaches, then a button into setup. */
+/** The page parents see first: what Alicetales teaches, then a button into setup. */
 export default function Landing({ onBegin }: { onBegin: () => void }) {
-  // Start fetching Kimi's model with the page, instead of after the 3D code loads.
+  // Start fetching Alice's model with the page, instead of after the 3D code loads.
   // crossOrigin matches three's fetch, so the browser reuses this download.
-  preload("/demo/kimi.glb", { as: "fetch", crossOrigin: "anonymous" });
+  preload("/demo/alice.glb", { as: "fetch", crossOrigin: "anonymous" });
   return (
     <main className={styles.page}>
       <header className={styles.bar}>
-        <span className={styles.wordmark}>KimiTales</span>
+        <span className={styles.wordmark}>Alicetales</span>
       </header>
 
       <section className={styles.hero}>
-        <div className={styles.kimi}><RabbitPreview /></div>
+        <div className={styles.alice}><RabbitPreview /></div>
         <h1>Stories that teach kindness, and a new language.</h1>
         <p>For kids 3 to 6, in Korean or English.</p>
         <button className={styles.cta} onClick={onBegin}>Set up a story</button>
