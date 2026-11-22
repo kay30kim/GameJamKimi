@@ -1,3 +1,5 @@
+import { isVoice, VOICES } from "../../../lib/voices";
+
 const MAX_TEXT_LENGTH = 4000;
 
 export const maxDuration = 60;
@@ -36,24 +38,25 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError(400, "INVALID_REQUEST", "Expected text and lang strings.");
   }
 
-  const { text, lang } = body as Record<string, unknown>;
+  const { text, lang, voice = "narrator" } = body as Record<string, unknown>;
   if (typeof text !== "string" || typeof lang !== "string") {
     return jsonError(400, "INVALID_REQUEST", "Expected text and lang strings.");
   }
 
   const content = text.trim();
   const language = languageCode(lang);
-  if (!content || content.length > MAX_TEXT_LENGTH || !language) {
+  if (!content || content.length > MAX_TEXT_LENGTH || !language || !isVoice(voice)) {
     return jsonError(
       400,
       "INVALID_REQUEST",
-      "Expected trimmed text (1–4000 characters) and lang (en-US or ko-KR).",
+      "Expected trimmed text (1–4000 characters), lang (en-US or ko-KR), and an optional voice (narrator or an actor id).",
     );
   }
 
   const apiKey = process.env.ELEVENLABS_API_KEY?.trim();
-  const voiceId = process.env.ELEVENLABS_VOICE_ID?.trim();
-  if (!apiKey || !voiceId) {
+  // ELEVENLABS_VOICE_ID still picks the storyteller; characters always use their own voices.
+  const voiceId = (voice === "narrator" && process.env.ELEVENLABS_VOICE_ID?.trim()) || VOICES[voice].id;
+  if (!apiKey) {
     return jsonError(
       503,
       "TTS_NOT_CONFIGURED",
@@ -74,6 +77,7 @@ export async function POST(request: Request): Promise<Response> {
           text: content,
           model_id: "eleven_multilingual_v2",
           language_code: language,
+          voice_settings: { stability: 0.42, similarity_boost: 0.8, style: 0.28, speed: VOICES[voice].speed, use_speaker_boost: true },
         }),
         cache: "no-store",
       },

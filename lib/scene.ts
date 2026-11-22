@@ -15,8 +15,8 @@ const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_SCENE === "1";
 
 const MAX_PREFETCHED = 12;
 const prefetched = new Map<string, Promise<SceneResponse>>();
-const keyOf = ({ lesson, language, age, wordsLearned, history }: SceneRequest) =>
-  JSON.stringify([lesson, language, age, wordsLearned, history]);
+const keyOf = ({ lesson, language, age, wordsLearned, history, opening }: SceneRequest) =>
+  JSON.stringify([lesson, language, age, wordsLearned, history, opening]);
 
 /** Thrown when Alice failed and the server sent its generic closing instead of a real scene. */
 class FallbackScene extends Error {}
@@ -91,7 +91,7 @@ async function requestScene(
 
 /** The request choose() sends. Prefetching builds the same one, so the cached scene matches. */
 export function nextSceneRequest(
-  settings: Pick<SceneRequest, "lesson" | "language" | "age">,
+  settings: Pick<SceneRequest, "lesson" | "language" | "age" | "opening">,
   history: SceneRequest["history"],
   wordsLearned: string[],
   scene: SceneResponse,
@@ -107,6 +107,7 @@ export function nextSceneRequest(
 /** Warm the scene's narration and word audio so it plays as soon as the scene shows. */
 function preloadSceneSpeech(scene: SceneResponse, language: SceneLanguage) {
   preloadSpeech(scene.narration, meaningLocale(language));
+  for (const line of scene.lines) preloadSpeech(line.text, meaningLocale(language), line.speaker);
   for (const { word, meaning } of scene.newWords) {
     preloadSpeech(word, speechLocale(language));
     preloadSpeech(meaning, meaningLocale(language));

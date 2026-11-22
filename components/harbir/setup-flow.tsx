@@ -2,8 +2,11 @@ import { useState } from "react";
 import type { SceneLanguage } from "@/app/api/scene/contract";
 import styles from "./landing.module.css";
 
-export const LESSONS = ["kindness", "empathy", "sharing", "honesty", "patience"] as const;
-export type Lesson = (typeof LESSONS)[number];
+export const LESSONS = ["kindness", "empathy", "sharing", "honesty", "patience", "bravery", "gratitude", "teamwork"] as const;
+type PresetLesson = (typeof LESSONS)[number];
+export const isPresetLesson = (lesson: string): lesson is PresetLesson => (LESSONS as readonly string[]).includes(lesson);
+/** Longest lesson a parent can type in. The server accepts up to 500 characters. */
+const MAX_OWN_LESSON = 200;
 
 const AGES = [3, 4, 5, 6];
 
@@ -17,10 +20,11 @@ const STEPS = ["How old is your child?", "Which language are they learning?", "W
 interface Props {
   age: number;
   language: SceneLanguage;
-  lesson: Lesson;
+  /** One of LESSONS, or whatever the parent typed in. */
+  lesson: string;
   onAge: (age: number) => void;
   onLanguage: (language: SceneLanguage) => void;
-  onLesson: (lesson: Lesson) => void;
+  onLesson: (lesson: string) => void;
   onStart: () => void;
   onExit: () => void;
 }
@@ -28,7 +32,10 @@ interface Props {
 /** Three short questions, one per screen, then the story starts. */
 export default function SetupFlow({ age, language, lesson, onAge, onLanguage, onLesson, onStart, onExit }: Props) {
   const [step, setStep] = useState(0);
+  const [own, setOwn] = useState(!isPresetLesson(lesson));
+  const [ownText, setOwnText] = useState(isPresetLesson(lesson) ? "" : lesson);
   const last = step === STEPS.length - 1;
+  const blocked = last && own && ownText.trim().length === 0;
 
   return (
     <main className={styles.page}>
@@ -41,6 +48,7 @@ export default function SetupFlow({ age, language, lesson, onAge, onLanguage, on
         className={styles.setup}
         onSubmit={(event) => {
           event.preventDefault();
+          if (blocked) return;
           if (last) onStart();
           else setStep(step + 1);
         }}
@@ -62,17 +70,38 @@ export default function SetupFlow({ age, language, lesson, onAge, onLanguage, on
             </label>
           ))}
 
-          {step === 2 && LESSONS.map((option) => (
-            <label key={option} className={styles.option}>
-              <input type="radio" name="lesson" checked={lesson === option} onChange={() => onLesson(option)} />
-              {option[0].toUpperCase() + option.slice(1)}
-            </label>
-          ))}
+          {step === 2 && (
+            <>
+              <div className={styles.lessonGrid}>
+                {LESSONS.map((option) => (
+                  <label key={option} className={styles.option}>
+                    <input type="radio" name="lesson" checked={!own && lesson === option} onChange={() => { setOwn(false); onLesson(option); }} />
+                    {option[0].toUpperCase() + option.slice(1)}
+                  </label>
+                ))}
+              </div>
+              <label className={styles.option}>
+                <input type="radio" name="lesson" checked={own} onChange={() => { setOwn(true); onLesson(ownText.trim()); }} />
+                Something else
+              </label>
+              {own && (
+                <textarea
+                  className={styles.ownLesson}
+                  autoFocus
+                  rows={3}
+                  maxLength={MAX_OWN_LESSON}
+                  value={ownText}
+                  placeholder="For example: saying sorry after a fight with a little brother, or trying a new food"
+                  onChange={(event) => { setOwnText(event.target.value); onLesson(event.target.value.trim()); }}
+                />
+              )}
+            </>
+          )}
         </fieldset>
 
         <div className={styles.nav}>
           <button type="button" className={styles.back} onClick={() => (step === 0 ? onExit() : setStep(step - 1))}>Back</button>
-          <button type="submit" className={styles.cta}>{last ? "Start the story" : "Continue"}</button>
+          <button type="submit" className={styles.cta} disabled={blocked}>{last ? "Start the story" : "Continue"}</button>
         </div>
       </form>
     </main>

@@ -1,4 +1,5 @@
 import type { SceneLanguage } from "@/app/api/scene/contract";
+import type { Voice } from "@/lib/voices";
 
 const NO_SPEECH_MESSAGE = "I didn't hear anything. Please try again.";
 const MICROPHONE_BLOCKED_MESSAGE =
@@ -68,6 +69,15 @@ interface QueuedSpeech {
   locale: string;
   generation: number;
   audio: Promise<Blob>;
+  onStart?: () => void;
+  /** Settles speak()'s promise once this clip has played, failed, or been skipped. */
+  done: () => void;
+}
+
+export interface SpeakOptions {
+  voice?: Voice;
+  /** Called just before the clip starts playing, so the stage can show who is talking. */
+  onStart?: () => void;
 }
 
 interface ActiveAudio {
@@ -87,11 +97,33 @@ let processingQueue = false;
 let activeAudio: ActiveAudio | undefined;
 let activeBrowserSpeech: ActiveBrowserSpeech | undefined;
 
-async function fetchAudio(content: string, locale: string): Promise<Blob> {
+/** ElevenLabs rejects bursts, and prefetching both branches can ask for a dozen clips at once. */
+const MAX_TTS_REQUESTS = 3;
+let ttsInFlight = 0;
+const ttsWaiting: (() => void)[] = [];
+
+async function withTtsSlot<T>(task: () => Promise<T>): Promise<T> {
+  // A finished request hands its slot straight to the next waiter, so the count never overshoots.
+  if (ttsInFlight >= MAX_TTS_REQUESTS) await new Promise<void>((resolve) => ttsWaiting.push(resolve));
+  else ttsInFlight += 1;
+  try {
+    return await task();
+  } finally {
+    const next = ttsWaiting.shift();
+    if (next) next();
+    else ttsInFlight -= 1;
+  }
+}
+
+function fetchAudio(content: string, locale: string, voice: Voice): Promise<Blob> {
+  return withTtsSlot(() => requestAudio(content, locale, voice));
+}
+
+async function requestAudio(content: string, locale: string, voice: Voice): Promise<Blob> {
   const response = await fetch("/api/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: content, lang: locale }),
+    body: JSON.stringify({ text: content, lang: locale, voice }),
   });
   const contentType = response.headers.get("content-type");
   if (
@@ -106,12 +138,12 @@ async function fetchAudio(content: string, locale: string): Promise<Blob> {
   return audio;
 }
 
-function getAudio(content: string, locale: string): Promise<Blob> {
-  const key = JSON.stringify([content, normalizeLocale(locale)]);
+function getAudio(content: string, locale: string, voice: Voice): Promise<Blob> {
+  const key = JSON.stringify([content, normalizeLocale(locale), voice]);
   const cached = audioCache.get(key);
   if (cached) return cached;
 
-  const request = fetchAudio(content, locale);
+  const request = fetchAudio(content, locale, voice);
   audioCache.set(key, request);
   void request.catch(() => {
     if (audioCache.get(key) === request) audioCache.delete(key);
@@ -249,15 +281,21 @@ async function processSpeechQueue(): Promise<void> {
   try {
     while (speechQueue.length > 0) {
       const item = speechQueue.shift();
-      if (!item || item.generation !== playbackGeneration) continue;
-
+      if (!item) continue;
       try {
-        const audioBlob = await item.audio;
         if (item.generation !== playbackGeneration) continue;
-        await playAudio(audioBlob);
-      } catch {
-        if (item.generation !== playbackGeneration) continue;
-        await speakWithBrowser(item.content, item.locale);
+        try {
+          const audioBlob = await item.audio;
+          if (item.generation !== playbackGeneration) continue;
+          item.onStart?.();
+          await playAudio(audioBlob);
+        } catch {
+          if (item.generation !== playbackGeneration) continue;
+          item.onStart?.();
+          await speakWithBrowser(item.content, item.locale);
+        }
+      } finally {
+        item.done();
       }
     }
   } finally {
@@ -267,28 +305,33 @@ async function processSpeechQueue(): Promise<void> {
 
 /** Queue speech, preferring server audio with browser speech as a fallback. */
 /** Fetch speech audio ahead of time so speak() can play it without waiting. */
-export function preloadSpeech(text: string, locale: string): void {
+export function preloadSpeech(text: string, locale: string, voice: Voice = "narrator"): void {
   const content = text.trim();
   if (!content || typeof window === "undefined") return;
-  void getAudio(content, locale.trim()).catch(() => {});
+  void getAudio(content, locale.trim(), voice).catch(() => {});
 }
 
-export function speak(text: string, locale: string): void {
+/** Resolves when this clip finishes, fails, or is cancelled by stopSpeaking(). Never rejects. */
+export function speak(text: string, locale: string, { voice = "narrator", onStart }: SpeakOptions = {}): Promise<void> {
   const content = text.trim();
-  if (!content || typeof window === "undefined") return;
+  if (!content || typeof window === "undefined") return Promise.resolve();
 
-  speechQueue.push({
-    content,
-    locale: locale.trim(),
-    generation: playbackGeneration,
-    audio: getAudio(content, locale.trim()),
+  return new Promise((done) => {
+    speechQueue.push({
+      content,
+      locale: locale.trim(),
+      generation: playbackGeneration,
+      audio: getAudio(content, locale.trim(), voice),
+      onStart,
+      done,
+    });
+    void processSpeechQueue().catch(() => undefined);
   });
-  void processSpeechQueue().catch(() => undefined);
 }
 
 export function stopSpeaking(): void {
   playbackGeneration += 1;
-  speechQueue.length = 0;
+  for (const item of speechQueue.splice(0)) item.done();
   activeAudio?.cancel();
   activeBrowserSpeech?.cancel();
 

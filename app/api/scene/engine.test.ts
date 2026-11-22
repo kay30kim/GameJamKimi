@@ -1,14 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { generateScene } from "./engine";
-import { parseScene } from "./validation";
+import { parseLines, parseScene } from "./validation";
 import { defaultStage, parseStage } from "./stage";
 import { ACTIONS, ACTORS, PROPS, SPOTS } from "../../../lib/world";
 import { buildSceneMessages } from "../../../lib/prompt";
+import { LESSON_GUIDES } from "../../../lib/lesson-guides";
+import { isOpening, randomOpening } from "../../../lib/openings";
 import type { SceneRequest, SceneResponse } from "./contract";
 
 const input: SceneRequest = { lesson: "kindness", language: "en", age: 5, wordsLearned: [], history: [] };
-const scene: SceneResponse = { narration: "미나가 친구를 만났어요.", newWords: [{ word: "friend", meaning: "친구" }], choices: ["인사해요", "손을 흔들어요"], lessonComplete: false, stage: {
+const scene: SceneResponse = { narration: "미나가 친구를 만났어요.", lines: [{ speaker: "friend", text: "안녕!", to: "hero", emotion: "happy" }], newWords: [{ word: "friend", meaning: "친구" }], choices: ["인사해요", "손을 흔들어요"], lessonComplete: false, stage: {
   weather: "sunny",
   cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "playground" }],
   props: [{ prop: "ball", at: "friend" }],
@@ -115,12 +117,26 @@ test("eighth scene closes without a model call, even if previous scenes never en
   }
 });
 
-test("truncated completion is rejected and safe early endings are accepted", async () => {
+test("truncated completion is rejected and endings from scene 3 are accepted", async () => {
   const truncated = await generateScene(input, { apiKey: "test", fetcher: async () => Response.json({ choices: [{ finish_reason: "length", message: { content: JSON.stringify(scene) } }] }) });
   assert.equal(truncated.mode, "fallback");
   const ending = { ...scene, choices: [], lessonComplete: true };
-  const result = await generateScene(input, { apiKey: "test", fetcher: async () => completion(ending) });
+  const third = { ...input, history: [{ narration: "a", choice: "b" }, { narration: "c", choice: "d" }] };
+  let calls = 0;
+  const result = await generateScene(third, { apiKey: "test", fetcher: async () => { calls++; return completion(ending); } });
   assert.deepEqual(result.scene, ending);
+  assert.equal(calls, 1);
+});
+
+test("an ending before scene 3 is retried with a note, and the continued scene is used", async () => {
+  const bodies: string[] = [];
+  const replies = [{ ...scene, choices: [], lessonComplete: true }, scene];
+  const result = await generateScene(input, { apiKey: "test", fetcher: async (_url, init) => { bodies.push(String(init?.body)); return completion(replies[bodies.length - 1]); } });
+  assert.equal(bodies.length, 2);
+  assert.match(bodies[1], /Too early to end/);
+  assert.equal(result.scene.lessonComplete, false);
+  const [first] = buildSceneMessages(input);
+  assert.match(first.content, /Do not end the story yet/);
 });
 
 test("prompt keeps story data separate and carries age, language, history, and ending rules", () => {
@@ -133,12 +149,12 @@ test("prompt keeps story data separate and carries age, language, history, and e
   assert.match(messages[0].content, /in Korean/);
 });
 
-test("prompt scales sentence length with age and makes choices[0] the kind choice under 4", () => {
+test("prompt scales sentence length with age and makes the story follow choices[0] under 4", () => {
   const system = (age: number) => buildSceneMessages({ ...input, age })[0].content;
   assert.match(system(3), /at most 8 words/);
-  assert.match(system(3), /choices\[0\] must always be the kind, lesson-aligned action/);
+  assert.match(system(3), /continues with choices\[0\], so the story always follows the lesson choice/);
   assert.match(system(3), /exactly one newWord/);
-  assert.doesNotMatch(system(4), /choices\[0\] must/);
+  assert.doesNotMatch(system(4), /continues with choices\[0\]/);
   assert.match(system(4), /at most 10 words each/);
   assert.match(system(6), /at most about 35 words/);
 });
@@ -209,4 +225,82 @@ test("prompt offers every world name and nothing else is needed to grow the worl
     assert.ok(system.includes(id), `prompt is missing ${id}`);
   }
   assert.match(system, /"stage":\{/);
+});
+
+test("an opening id reaches the prompt as its situation, and the new world entries are offered", () => {
+  const messages = buildSceneMessages({ ...input, opening: "duck_bank" });
+  assert.match(JSON.parse(messages[1].content).opening, /can't climb out of the pond/);
+  for (const name of ["kitten", "duck", "balloon", "watering_can", "dance", "nap", "look_around", "sunset"]) {
+    assert.match(messages[0].content, new RegExp(name));
+  }
+});
+
+test("dialogue keeps only cast members and drops malformed lines", () => {
+  const stage = parseStage(scene.stage);
+  const lines = parseLines([
+    { speaker: "hero", text: " Hi, Momo! ", to: "friend", emotion: "excited" },
+    { speaker: "duck", text: "Not on stage." },
+    { speaker: "friend", text: "Hello!", to: "duck", emotion: "grumpy" },
+    { speaker: "friend", text: "" },
+    { speaker: "hero", text: "Talking to myself.", to: "hero" },
+    "nonsense",
+  ], stage);
+  assert.deepEqual(lines, [
+    { speaker: "hero", text: "Hi, Momo!", to: "friend", emotion: "excited" },
+    { speaker: "friend", text: "Hello!" },
+    { speaker: "hero", text: "Talking to myself." },
+  ]);
+  assert.equal(parseLines(Array(9).fill({ speaker: "hero", text: "Again!" }), stage).length, 4);
+  assert.deepEqual(parseLines(undefined, stage), []);
+});
+
+test("a scene without dialogue still parses", () => {
+  const withoutLines: Partial<SceneResponse> = { ...scene };
+  delete withoutLines.lines;
+  assert.deepEqual(parseScene(JSON.stringify(withoutLines)).lines, []);
+});
+
+test("stub scenes only give lines to actors on stage", async () => {
+  for (const language of ["en", "ko"] as const) {
+    const state: SceneRequest = { ...input, language, history: [] };
+    for (let i = 0; i < 3; i++) {
+      const { scene: stub } = await generateScene(state, { apiKey: "" });
+      const cast = new Set(stub.stage.cast.map(({ actor }) => actor));
+      assert.ok(stub.lines.length > 0);
+      for (const line of stub.lines) assert.ok(cast.has(line.speaker) && (!line.to || cast.has(line.to)));
+      state.history.push({ narration: stub.narration, choice: stub.choices[0] ?? "" });
+    }
+  }
+});
+
+test("the prompt asks for dialogue from the cast", () => {
+  const system = buildSceneMessages(input)[0].content;
+  assert.match(system, /Dialogue:/);
+  assert.match(system, /"lines":\[/);
+});
+
+test("a preset lesson leads the prompt with its guide and the choice contract", () => {
+  const [system] = buildSceneMessages({ ...input, lesson: "patience" });
+  assert.match(system.content, /The whole story teaches patience/);
+  assert.match(system.content, new RegExp(LESSON_GUIDES.patience.temptation));
+  assert.match(system.content, /choices\[0\] is Alice practicing the lesson/);
+  const [custom] = buildSceneMessages({ ...input, lesson: "Brush teeth before bed" });
+  assert.match(custom.content, /First work out/);
+  assert.doesNotMatch(custom.content, /Brush teeth/);
+});
+
+test("every lesson's openings exist, and the picker stays within them", () => {
+  for (const [lesson, guide] of Object.entries(LESSON_GUIDES)) {
+    assert.ok(guide.openings.length >= 3, lesson);
+    guide.openings.forEach((id) => assert.ok(isOpening(id), id));
+    for (let i = 0; i < 20; i++) assert.ok(guide.openings.includes(randomOpening(lesson)));
+  }
+  assert.ok(isOpening(randomOpening("my own lesson")));
+});
+
+test("a rate-limited call waits, then retries", async () => {
+  let calls = 0;
+  const result = await generateScene(input, { apiKey: "k", retryDelayMs: 1, fetcher: async () => (++calls === 1 ? new Response("", { status: 429 }) : completion()) });
+  assert.equal(calls, 2);
+  assert.equal(result.mode, "kimi");
 });

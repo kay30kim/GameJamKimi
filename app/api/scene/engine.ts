@@ -1,5 +1,5 @@
 import { buildSceneMessages } from "../../../lib/prompt";
-import { MAX_SCENES } from "./contract";
+import { MAX_SCENES, MIN_SCENES } from "./contract";
 import type { SceneRequest, SceneResponse } from "./contract";
 import { createClosingScene, createStubScene } from "./fallback";
 import { parseCompletion } from "./validation";
@@ -9,6 +9,8 @@ interface EngineOptions {
   model?: string;
   fetcher?: typeof fetch;
   timeoutMs?: number;
+  /** Wait before retrying a rate-limited (429) request; an immediate retry is rate-limited too. */
+  retryDelayMs?: number;
 }
 
 interface SceneResult {
@@ -30,6 +32,8 @@ export async function generateScene(
   const model = options.model ?? (process.env.KIMI_MODEL?.trim() || "kimi-k3.1-pro-highspeed");
   const fetcher = options.fetcher ?? fetch;
   const messages = buildSceneMessages(request);
+  const tooEarlyToEnd = request.history.length + 1 < MIN_SCENES;
+  let retryNote = "The previous attempt failed validation. Return a complete JSON scene matching the schema, with two distinct choices or an ending with no choices.";
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const response = await fetcher("https://api.moonshot.ai/v1/chat/completions", {
@@ -41,7 +45,7 @@ export async function generateScene(
           model,
           messages: attempt === 0 ? messages : [...messages, {
             role: "user",
-            content: "The previous attempt failed validation. Return a complete JSON scene matching the schema, with two distinct choices or an ending with no choices.",
+            content: retryNote,
           }],
           response_format: { type: "json_object" },
           reasoning_effort: "low",
@@ -52,9 +56,17 @@ export async function generateScene(
       if (!response.ok) {
         // Retrying a rejected credential or unsupported parameter cannot repair it.
         if (response.status !== 429 && response.status < 500) break;
+        if (response.status === 429 && attempt === 0) {
+          await new Promise((resolve) => setTimeout(resolve, options.retryDelayMs ?? 1500));
+        }
         throw new Error("Temporary provider error");
       }
       const scene = parseCompletion(await response.json());
+      // An ending this early cuts the lesson short. Ask once more; a second early ending is still a valid story.
+      if (scene.lessonComplete && tooEarlyToEnd && attempt === 0) {
+        retryNote = `Too early to end: the story needs at least ${MIN_SCENES} scenes. Continue the story with lessonComplete false and two distinct choices.`;
+        continue;
+      }
       const learned = new Set(request.wordsLearned.map((word) => word.trim().normalize("NFC").toLocaleLowerCase()));
       scene.newWords = scene.newWords.filter(({ word }) => !learned.has(word.normalize("NFC").toLocaleLowerCase()));
       return { scene, mode: "kimi" };

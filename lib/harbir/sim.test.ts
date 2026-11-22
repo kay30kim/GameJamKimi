@@ -78,7 +78,7 @@ test("every action finishes, even when its target is missing from the cast", () 
 });
 
 test("characters steer around each other and never overlap, except while hugging", () => {
-  const radius = { hero: 0.38, friend: 0.42, puppy: 0.45, grownup: 0.5 } as const;
+  const radius = RADIUS;
   const sim = createSim({
     weather: "sunny",
     cast: [{ actor: "hero", at: "home" }, { actor: "friend", at: "path" }, { actor: "puppy", at: "bench" }, { actor: "grownup", at: "tree" }],

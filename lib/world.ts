@@ -20,6 +20,8 @@ export const ACTORS = {
   friend: { en: "Momo the bear cub", ko: "아기곰 모모", home: "playground" },
   puppy: { en: "Bori the puppy", ko: "강아지 보리", home: "garden" },
   grownup: { en: "Grandma Owl", ko: "부엉이 할머니", home: "home" },
+  kitten: { en: "Nabi the kitten", ko: "고양이 나비", home: "bench" },
+  duck: { en: "Dodo the duckling", ko: "아기오리 도도", home: "pond" },
 } as const satisfies Record<string, { en: string; ko: string; home: keyof typeof SPOTS }>;
 
 export const PROPS = {
@@ -29,9 +31,12 @@ export const PROPS = {
   apple: { en: "an apple", ko: "사과", home: "tree" },
   book: { en: "a book", ko: "책", home: "bench" },
   kite: { en: "a kite", ko: "연", home: "playground" },
+  balloon: { en: "a balloon", ko: "풍선", home: "playground" },
+  cookies: { en: "a plate of cookies", ko: "쿠키", home: "home" },
+  watering_can: { en: "a watering can", ko: "물뿌리개", home: "garden" },
 } as const satisfies Record<string, { en: string; ko: string; home: keyof typeof SPOTS }>;
 
-export const WEATHERS = ["sunny", "rainy"] as const;
+export const WEATHERS = ["sunny", "rainy", "sunset"] as const;
 
 /** Matches the designer's expression sheet in design/character-brief.md. */
 export const EMOTIONS = ["happy", "sad", "surprised", "curious", "excited"] as const;
@@ -49,7 +54,7 @@ export type Beat =
   | { actor: ActorId; action: "give"; prop: PropId; target: ActorId }
   | { actor: ActorId; action: "hug" | "help"; target: ActorId }
   | { actor: ActorId; action: "wave"; target?: ActorId }
-  | { actor: ActorId; action: "jump" | "roll" | "sit" | "celebrate" }
+  | { actor: ActorId; action: "jump" | "roll" | "sit" | "celebrate" | "dance" | "clap" | "nap" | "look_around" }
   | { actor: ActorId; action: "emote"; emotion: Emotion };
 
 export type Action = Beat["action"];
@@ -79,6 +84,10 @@ export const ACTIONS = {
   jump: { args: "none", meaning: "jump for joy" },
   roll: { args: "none", meaning: "tuck into a ball and roll forward, for fun or to show off" },
   sit: { args: "none", meaning: "sit down where they are" },
-  celebrate: { args: "none", meaning: "dance and celebrate" },
+  celebrate: { args: "none", meaning: "hop and spin to celebrate" },
+  dance: { args: "none", meaning: "dance happily on the spot" },
+  clap: { args: "none", meaning: "clap to cheer someone on" },
+  nap: { args: "none", meaning: "lie down for a short nap, then wake up" },
+  look_around: { args: "none", meaning: "look around, searching for something or someone" },
   emote: { args: "emotion", meaning: "show a feeling on their face" },
 } as const satisfies Record<Action, { args: string; meaning: string }>;

@@ -8,7 +8,9 @@ import { dedupeWords, fetchScene, nextSceneRequest, prefetch } from "@/lib/scene
 import { isListeningSupported, listenOnce, matchesWord, meaningLocale, speak, speechLocale, stopListening, stopSpeaking } from "@/lib/speech";
 import styles from "./harbir.module.css";
 import Landing from "./landing";
-import SetupFlow, { type Lesson } from "./setup-flow";
+import SetupFlow, { isPresetLesson } from "./setup-flow";
+import { randomOpening } from "@/lib/openings";
+import type { OpeningId } from "@/lib/openings";
 
 const MeadowStage = dynamic(() => import("./meadow-stage"), {
   ssr: false,
@@ -19,14 +21,16 @@ type Phase = "landing" | "setup" | "loading" | "scene" | "ending";
 /** Children under this age say the new words instead of picking a choice. */
 const SAY_WORDS_UNDER_AGE = 4;
 type SayState = "idle" | "listening" | "yay" | "retry";
-type Settings = Pick<SceneRequest, "lesson" | "language" | "age">;
+type Settings = Pick<SceneRequest, "lesson" | "language" | "age" | "opening">;
 
 const subscribeNothing = () => () => {};
 const notSupported = () => false;
 
 export default function HarbirStory() {
   const [phase, setPhase] = useState<Phase>("landing");
-  const [lesson, setLesson] = useState<Lesson>("kindness");
+  const [lesson, setLesson] = useState("kindness");
+  // Picked when the parent starts setup (an event, not render), so each story opens differently.
+  const [opening, setOpening] = useState<OpeningId>("balloon");
   const [language, setLanguage] = useState<SceneLanguage>("ko");
   const [age, setAge] = useState(5);
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -62,7 +66,7 @@ export default function HarbirStory() {
   }
 
   function start() {
-    const next = { lesson, language, age };
+    const next = { lesson, language, age, opening };
     setSettings(next);
     setHistory([]);
     setWordsLearned([]);
@@ -104,6 +108,7 @@ export default function HarbirStory() {
     stopListening();
     stopSpeaking();
     setError(null);
+    setOpening(randomOpening());
     setPhase("setup");
     setScene(null);
     setSettings(null);
@@ -112,10 +117,11 @@ export default function HarbirStory() {
   useEffect(() => () => stopListening(), []);
 
   useEffect(() => {
-    if (phase !== "setup") return;
-    const timer = setTimeout(() => prefetch({ lesson, language, age, history: [], wordsLearned: [] }), 600);
+    // Only warm up preset lessons; a lesson being typed changes on every key.
+    if (phase !== "setup" || !isPresetLesson(lesson)) return;
+    const timer = setTimeout(() => prefetch({ lesson, language, age, opening, history: [], wordsLearned: [] }), 600);
     return () => clearTimeout(timer);
-  }, [phase, lesson, language, age]);
+  }, [phase, lesson, language, age, opening]);
 
   useEffect(() => {
     if (phase !== "scene" || !scene || !settings) return;
@@ -132,7 +138,9 @@ export default function HarbirStory() {
   const sayWords = story !== null && story.settings.age < SAY_WORDS_UNDER_AGE;
   const canSay = sayWords && story.scene.newWords.length > 0 && canListen;
 
-  if (phase === "landing") return <Landing onBegin={() => setPhase("setup")} />;
+  if (phase === "landing") {
+    return <Landing onBegin={() => { setOpening(randomOpening()); setPhase("setup"); }} />;
+  }
   if (phase === "setup") {
     return (
       <SetupFlow

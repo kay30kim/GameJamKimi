@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { motionOf } from "./motion";
-import { createSim, JUMP_SECONDS, ROLL_SECONDS } from "./sim";
+import { createSim, JUMP_SECONDS, NAP_SECONDS, ROLL_SECONDS } from "./sim";
 import type { ActorState, Pose } from "./sim";
 
 const actor = (pose: Pose, poseTime: number, travelled = 0): ActorState => ({
@@ -71,4 +71,28 @@ test("walking records the distance covered", () => {
   for (let t = 0; t < 10 && !sim.done; t += 1 / 60) sim.step(1 / 60);
   const moved = Math.hypot(hero.x - x0, hero.z - z0);
   assert.ok(moved > 1 && Math.abs(hero.travelled - moved) < 0.05, `travelled ${hero.travelled}, moved ${moved}`);
+});
+
+test("a nap lies down and gets back up", () => {
+  assert.ok(Math.abs(motionOf(actor("nap", 0), 0).sway) < 1e-6);
+  assert.ok(motionOf(actor("nap", NAP_SECONDS / 2), 0).sway > 1.2, "should be lying down mid-nap");
+  assert.ok(Math.abs(motionOf(actor("nap", NAP_SECONDS), 0).sway) < 1e-3, "should be upright again");
+});
+
+test("the new actions all finish and return to idle", () => {
+  const sim = createSim({
+    weather: "sunset",
+    cast: [{ actor: "kitten", at: "bench" }, { actor: "duck", at: "pond" }],
+    props: [],
+    beats: [
+      { actor: "kitten", action: "dance" },
+      { actor: "duck", action: "clap" },
+      { actor: "kitten", action: "nap" },
+      { actor: "duck", action: "look_around" },
+    ],
+  });
+  for (let t = 0; t < 20 && !sim.done; t += 1 / 60) sim.step(1 / 60);
+  assert.ok(sim.done);
+  assert.equal(sim.actors.kitten!.pose, "idle");
+  assert.equal(sim.actors.duck!.pose, "idle");
 });
