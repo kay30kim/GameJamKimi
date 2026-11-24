@@ -93,7 +93,7 @@ function CameraDirector({ sim, talk, sun, sunOffset, reducedMotion, overview }: 
 }
 
 function Director({ sim, paused }: { sim: Sim; paused: boolean }) {
-  useFrame((_state, delta) => { if (!paused) sim.step(Math.min(delta, 0.1)); });
+  useFrame((_state, delta) => { if (!paused) sim.step(Math.min(delta, 0.1)); }, -2);
   return null;
 }
 

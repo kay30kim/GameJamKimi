@@ -27,6 +27,25 @@
   color: #5b665e;
 }
 
+.renderer {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.renderer select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid #e4ded1;
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  font-size: 13px;
+}
+
 .list button {
   display: grid;
   gap: 2px;
@@ -74,6 +93,8 @@
 
 .stage {
   position: relative;
+  min-width: 0;
+  min-height: 0;
 }
 
 .caption {
@@ -99,4 +120,24 @@
   background: #2f4a36;
   color: #fff;
   font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .page { grid-template-columns: 280px 1fr; }
+  .caption { flex-direction: column; align-items: stretch; }
+}
+
+@media (max-width: 620px) {
+  .page { grid-template-columns: 1fr; grid-template-rows: 220px minmax(0, 1fr); }
+  .list { border-right: 0; border-bottom: 1px solid #e4ded1; }
+  .caption { left: 8px; right: 8px; bottom: 8px; padding: 10px; font-size: 12px; }
+  .caption button { padding: 0 12px; font-size: 12px; }
 }

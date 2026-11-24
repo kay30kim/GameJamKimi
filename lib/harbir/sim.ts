@@ -71,6 +71,9 @@ const KICK_SPEED = 1.6;
 const ROLL_FRICTION = 1.4;
 /** Gap between two bodies when one walks up to talk to or give something to the other. */
 const CHAT_GAP = 0.35;
+/** Contact may finish a fraction of a step short, but never across scenery. */
+const CONTACT_TOLERANCE = 0.08;
+const CONTACT_RADIUS = 0.04;
 /** How far ahead a walker starts steering around someone in the way. */
 const AVOID_RANGE = 0.9;
 const EMOTION_SECONDS = 2.4;
@@ -103,11 +106,13 @@ export function createSim(stage: Stage): Sim {
 
   const props: Sim["props"] = {};
   stage.props.forEach(({ prop, at }, index) => {
-    if (at in ACTORS && actors[at as ActorId]) {
-      const holder = actors[at as ActorId]!;
+    const holder = at in ACTORS ? actors[at as ActorId] : undefined;
+    const occupied = holder && Object.values(props).some((item) => item.holder === holder.id && item.id !== prop);
+    if (holder && !occupied) {
       props[prop] = { id: prop, holder: holder.id, x: holder.x, z: holder.z, vx: 0, vz: 0 };
     } else {
-      const [x, z] = SPOTS[(at in SPOTS ? at : PROPS[prop].home) as Spot].position;
+      // Extra props remain nearby on the ground instead of occupying the same hand.
+      const [x, z] = holder ? [holder.x, holder.z] : SPOTS[(at in SPOTS ? at : PROPS[prop].home) as Spot].position;
       const [px, pz] = pushOut(x + 0.7 + index * 0.5, z + 0.9, PROP_RADIUS[prop]);
       props[prop] = { id: prop, x: px, z: pz, vx: 0, vz: 0 };
     }
@@ -117,6 +122,9 @@ export function createSim(stage: Stage): Sim {
   const actor = (id: ActorId) => actors[id];
   const at = (a: ActorState): Point => [a.x, a.z];
   const touching = (a: ActorState, b: ActorState) => RADIUS[a.id] + RADIUS[b.id];
+  const hasRoom = (a: ActorState, id: PropId) => !Object.values(props).some((prop) => prop.holder === a.id && prop.id !== id);
+  const canTouch = (a: ActorState, point: Point, reach: number) =>
+    distance(at(a), point) <= reach + CONTACT_TOLERANCE && clearLine(at(a), point, CONTACT_RADIUS);
   /** Pairs allowed to be closer than touching distance, such as two characters hugging. */
   const close = new Set<string>();
   const pairKey = (a: ActorId, b: ActorId) => (a < b ? `${a}|${b}` : `${b}|${a}`);
@@ -138,12 +146,13 @@ export function createSim(stage: Stage): Sim {
    * (except `ignore`, the one being approached). Replans if the destination moves, and gives
    * up if blocked for a second, so a crowded spot never stalls the story.
    */
-  function* moveTo(a: ActorState, dest: () => Point, speed: number, stopShort = 0, ignore?: ActorId) {
+  function* moveTo(a: ActorState, dest: () => Point, speed: number, stopShort = 0, ignore?: ActorId): Generator<undefined, boolean> {
     setPose(a, speed > WALK_SPEED ? "run" : "walk");
     const radius = RADIUS[a.id];
     let goal = dest();
     let route = plan(at(a), pushOut(...goal, radius), radius);
     let best = Infinity, stuckFor = 0;
+    let arrived = false;
     for (;;) {
       const live = dest();
       if (distance(live, goal) > 0.8) {
@@ -154,9 +163,16 @@ export function createSim(stage: Stage): Sim {
       while (route.length > 1 && (distance(at(a), route[0]) < 0.25 || clearLine(at(a), route[1], radius))) route.shift();
       const last = route.length === 1;
       const aim = last ? pushOut(...live, radius) : route[0];
-      let left = distance(at(a), aim) - (last ? stopShort : 0);
+      let left = distance(at(a), aim);
       for (let i = 1; i < route.length; i++) left += distance(route[i - 1], route[i]);
-      if (last && left <= 0.02) break;
+      // A pushed-out navigation endpoint is not the object itself. Test the actual
+      // contact distance before ending an approach, especially beside the pond.
+      if (last && (stopShort > 0
+        ? distance(at(a), live) <= stopShort + 0.02 && clearLine(at(a), live, CONTACT_RADIUS)
+        : left <= 0.02)) {
+        arrived = true;
+        break;
+      }
       if (left < best - 0.03) { best = left; stuckFor = 0; } else if ((stuckFor += dt) > 1) break;
 
       const toAim = Math.max(distance(at(a), aim), 1e-6);
@@ -179,31 +195,46 @@ export function createSim(stage: Stage): Sim {
       yield;
     }
     setPose(a, "idle");
+    return arrived;
   }
 
-  function* approach(a: ActorState, other: ActorState, speed = WALK_SPEED, gap = CHAT_GAP) {
+  function* approach(a: ActorState, other: ActorState, speed = WALK_SPEED, gap = CHAT_GAP): Generator<undefined, boolean> {
     const stop = touching(a, other) + gap;
-    if (distance(at(a), at(other)) > stop + 0.1) {
-      yield* moveTo(a, () => at(other), speed, stop, other.id);
+    if (!canTouch(a, at(other), stop)) {
+      if (!(yield* moveTo(a, () => at(other), speed, stop, other.id))) return false;
     }
+    if (!canTouch(a, at(other), stop)) return false;
     a.heading = headingTo(at(a), at(other));
     other.heading = headingTo(at(other), at(a));
+    return true;
   }
 
-  function* takeProp(a: ActorState, id: PropId) {
+  function* takeProp(a: ActorState, id: PropId): Generator<undefined, boolean> {
     const prop = props[id];
-    if (!prop || prop.holder === a.id) return;
-    if (prop.holder) {
-      const holder = actor(prop.holder);
-      if (holder) yield* approach(a, holder);
-    } else {
-      a.reaching = id;
-      yield* moveTo(a, () => [prop.x, prop.z], WALK_SPEED, RADIUS[a.id] + 0.15);
+    if (!prop || !hasRoom(a, id)) return false;
+    if (prop.holder === a.id) return true;
+    const previousHolder = prop.holder;
+    const holder = previousHolder ? actor(previousHolder) : undefined;
+    const reach = holder ? touching(a, holder) + CHAT_GAP : RADIUS[a.id] + 0.15;
+    const point = (): Point => holder ? at(holder) : [prop.x, prop.z];
+    a.reaching = id;
+    try {
+      const arrived = holder
+        ? yield* approach(a, holder)
+        : yield* moveTo(a, point, WALK_SPEED, reach);
+      if (!arrived || !canTouch(a, point(), reach)) return false;
+      a.heading = headingTo(at(a), point());
+      if (holder) setPose(holder, "reach");
+      yield* hold(a, "reach", 0.5);
+      if (prop.holder !== previousHolder || !hasRoom(a, id) || !canTouch(a, point(), reach)) return false;
+      prop.holder = a.id;
+      prop.vx = prop.vz = 0;
+      if (holder) yield* hold(a, "reach", 0.25);
+      return true;
+    } finally {
       a.reaching = undefined;
+      if (holder?.pose === "reach") setPose(holder, "idle");
     }
-    prop.holder = a.id;
-    prop.vx = prop.vz = 0;
-    yield* hold(a, "reach", 0.5);
   }
 
   const BEATS: { [K in Beat["action"]]: (beat: Beat & { action: K }, a: ActorState) => Generator } = {
@@ -218,12 +249,18 @@ export function createSim(stage: Stage): Sim {
     },
     *give(beat, a) {
       const other = actor(beat.target);
-      if (!other) return;
-      yield* takeProp(a, beat.prop);
-      yield* approach(a, other);
-      yield* hold(a, "reach", 0.5);
       const prop = props[beat.prop];
-      if (prop) prop.holder = other.id;
+      if (!other || !prop || prop.holder === other.id || !hasRoom(other, beat.prop)) return;
+      if (!(yield* takeProp(a, beat.prop))) return;
+      if (!(yield* approach(a, other))) return;
+      setPose(other, "reach");
+      yield* hold(a, "reach", 0.5);
+      if (prop.holder !== a.id || !hasRoom(other, beat.prop) || !canTouch(a, at(other), touching(a, other) + CHAT_GAP)) {
+        setPose(other, "idle");
+        return;
+      }
+      prop.holder = other.id;
+      yield* hold(other, "reach", 0.25);
       other.emotion = "happy";
       other.emotionLeft = EMOTION_SECONDS;
       yield* hold(other, "jump", JUMP_SECONDS);
@@ -233,7 +270,10 @@ export function createSim(stage: Stage): Sim {
       if (!other) return;
       const pair = pairKey(a.id, other.id);
       close.add(pair);
-      yield* approach(a, other, WALK_SPEED, -0.15);
+      if (!(yield* approach(a, other, WALK_SPEED, -0.15))) {
+        close.delete(pair);
+        return;
+      }
       a.facing = other.id;
       other.facing = a.id;
       setPose(other, "hug");
@@ -245,7 +285,7 @@ export function createSim(stage: Stage): Sim {
     *help(beat, a) {
       const other = actor(beat.target);
       if (!other) return;
-      yield* approach(a, other);
+      if (!(yield* approach(a, other))) return;
       a.facing = other.id;
       yield* hold(a, "help", 0.7);
       a.facing = undefined;
@@ -261,6 +301,11 @@ export function createSim(stage: Stage): Sim {
       for (let left = 0.2; left > 0; left -= dt) yield;
     },
     *roll(_beat, a) {
+      // Keep the carried object upright and above the ground instead of rolling over it.
+      if (Object.values(props).some((prop) => prop.holder === a.id)) {
+        yield* hold(a, "jump", JUMP_SECONDS);
+        return;
+      }
       setPose(a, "roll");
       // The body only travels while it is tucked and turning over, between 20% and 80% of the roll.
       const start = ROLL_SECONDS * 0.2, end = ROLL_SECONDS * 0.8;

@@ -5,6 +5,38 @@ import type { Stage } from "../world";
 /** Scenes built to stress collisions. /harbir/qa replays them, and the tests audit them. */
 export const SCENARIOS: { name: string; about: string; stage: Stage }[] = [
   {
+    name: "Balloon grip and handoff",
+    about: "Alice carries one balloon on a short walk, looks around, jumps, waves, then gives it to Momo. Inspect the string in each paw and its clearance from both faces.",
+    stage: {
+      weather: "sunny",
+      cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "path" }],
+      props: [{ prop: "balloon", at: "hero" }],
+      // QA sequences may exceed the generated-scene beat limit to keep the same prop throughout.
+      beats: [
+        { actor: "hero", action: "walk_to", target: "bench" },
+        { actor: "hero", action: "look_around" },
+        { actor: "hero", action: "jump" },
+        { actor: "hero", action: "wave", target: "friend" },
+        { actor: "hero", action: "give", prop: "balloon", target: "friend" },
+      ],
+    },
+  },
+  {
+    name: "Held ball grip and handoff",
+    about: "Alice walks, jumps, and waves with one ball before handing it to Momo. Check that it stays against the paw without entering either body or changing size.",
+    stage: {
+      weather: "sunny",
+      cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "path" }],
+      props: [{ prop: "ball", at: "hero" }],
+      beats: [
+        { actor: "hero", action: "walk_to", target: "bench" },
+        { actor: "hero", action: "jump" },
+        { actor: "hero", action: "wave", target: "friend" },
+        { actor: "hero", action: "give", prop: "ball", target: "friend" },
+      ],
+    },
+  },
+  {
     name: "Pick up the ball by a friend",
     about: "Alice walks up to the ball while Momo stands right next to it.",
     stage: {
@@ -144,7 +176,7 @@ export interface Audit {
   sceneryOverlap: number;
   /** Deepest a prop on the ground ever sat inside a body, in meters. */
   propInBody: number;
-  /** Deepest a prop ever sat inside scenery, in meters. */
+  /** Deepest a prop on the ground ever sat inside scenery, in meters. */
   propInScenery: number;
   /** Farthest any prop got pushed or rolled along the ground, in meters. */
   propMoved: number;
@@ -153,7 +185,7 @@ export interface Audit {
 /** How much overlap still counts as touching rather than passing through, in meters. */
 export const TOLERANCE = 0.05;
 
-/** Plays a stage headless at 60 frames a second and records the worst collisions. */
+/** Records body and ground-prop collisions at 60 fps; rendered grips need visual inspection. */
 export function audit(stage: Stage, maxSeconds = 40): Audit {
   const sim = createSim(stage);
   const result: Audit = { seconds: Infinity, bodyOverlap: 0, sceneryOverlap: 0, propInBody: 0, propInScenery: 0, propMoved: 0 };

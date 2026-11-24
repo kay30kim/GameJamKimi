@@ -20,6 +20,7 @@ const WORLD_RULES = [
   `Weather: ${WEATHERS.join(" or ")}. Emotions: ${EMOTIONS.join(", ")}.`,
   `Actions, each with exactly these fields: ${Object.entries(ACTIONS).map(([id, { args, meaning }]) => `${id} [${args}]: ${meaning}`).join("; ")}.`,
   `Return a stage that acts out this scene's narration: the weather, the cast with each actor's starting spot (always include hero), the props in the scene (at a spot, or held by an actor id), and 1 to ${MAX_BEATS} beats played in order.`,
+  "Each actor can carry only one prop at a time. Keep other props at a spot. Before pick_up or give, make sure the receiving actor has an empty hand; keep both actors and the prop reachable on the same side of scenery. Use a jump, not a roll, while carrying something.",
   "Make the beats show what the narration describes and what the child's latest choice did. Use ids exactly as written, never translated.",
 ].join("\n");
 

@@ -1,10 +1,10 @@
 "use client";
 
 import { useFrame, useLoader } from "@react-three/fiber";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { RefObject } from "react";
 import type { ReactNode } from "react";
-import { Group, MathUtils } from "three";
+import { Group, MathUtils, Vector3 } from "three";
 import type { Object3D } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { motionOf } from "@/lib/harbir/motion";
@@ -13,6 +13,8 @@ import type { Sim } from "@/lib/harbir/sim";
 import { PALETTE } from "@/lib/harbir/style";
 import type { ActorId } from "@/lib/world";
 import { Blob, Face } from "./primitives";
+import { clearGripFloor, PALM, registerGrip, removeGrip } from "./grips";
+import type { GripPoint } from "./grips";
 
 /** The parts the engine moves. Limb groups have their origin at the shoulder or hip. */
 export interface Rig {
@@ -38,6 +40,8 @@ export interface Build {
   middle?: number;
   /** Stands on two legs, so arm raises apply even to the puppy and kitten. */
   upright?: boolean;
+  /** Palm contact point in this model's right-arm coordinates. */
+  grip?: GripPoint;
 }
 
 /** Somersaults turn around the middle of the body, about half its height. */
@@ -114,8 +118,11 @@ function pose(id: ActorId, sim: Sim, frame: Frame, rig: Rig, follow: Follow, del
   };
   // Four-legged friends use their arms as front legs: they swing but never lift out to the side.
   const raise = !build.upright && (id === "puppy" || id === "kitten") ? 0 : 1;
-  limb(rig.leftArm, m.armLeft, -m.raiseLeft * raise);
-  limb(rig.rightArm, m.armRight, m.raiseRight * raise);
+  const carrying = Object.values(sim.props).some((prop) => prop.holder === id);
+  // The carrying hand stays out in front, clear of the face. Wave with the free hand.
+  const waveWithLeft = carrying && actor.pose === "wave";
+  limb(rig.leftArm, waveWithLeft ? m.armRight : m.armLeft, -(waveWithLeft ? m.raiseRight : m.raiseLeft) * raise);
+  limb(rig.rightArm, carrying ? -1.05 : m.armRight, carrying ? 0.3 : m.raiseRight * raise);
   limb(rig.leftLeg, m.legLeft, 0);
   limb(rig.rightLeg, m.legRight, 0);
   limb(rig.head, m.nod, m.tilt);
@@ -141,12 +148,26 @@ export function Puppet({ id, sim, rig, build = {}, children }: { id: ActorId; si
   const flip = useRef<Group>(null);
   const center = useRef<Group>(null);
   const follow = useRef<Follow | null>(null);
+  const palm = useMemo(() => new Group(), []);
+  const gripPoint = useMemo(() => new Vector3(), []);
+  useEffect(() => () => {
+    removeGrip(sim, id, palm);
+    palm.removeFromParent();
+  }, [sim, id, palm]);
   useFrame(({ clock }, delta) => {
     if (!place.current || !lift.current || !squash.current || !lean.current || !flip.current || !center.current) return;
     follow.current ??= newFollow(sim.actors[id]?.heading ?? 0);
     const frame = { place: place.current, lift: lift.current, squash: squash.current, lean: lean.current, flip: flip.current, center: center.current };
     pose(id, sim, frame, rig.current, follow.current, delta, clock.elapsedTime, build);
-  });
+    const arm = rig.current.rightArm;
+    if (arm) {
+      if (palm.parent !== arm) arm.add(palm);
+      palm.position.fromArray(build.grip ?? PALM[id]);
+      const carried = Object.values(sim.props).find((prop) => prop.holder === id);
+      if (carried) clearGripFloor(palm, arm, carried.id, gripPoint);
+      registerGrip(sim, id, palm, frame.place);
+    }
+  }, -1);
   return (
     <group ref={place}>
       <group ref={lift}>

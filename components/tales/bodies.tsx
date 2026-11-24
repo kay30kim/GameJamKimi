@@ -176,7 +176,7 @@ function KayCharacter({ id, sim, talk }: { id: KayActor; sim: Sim; talk: Talk })
   const rig = useRef<Rig>({});
   const setLimb = useCallback<SetLimb>((name, limb) => { rig.current[name] = limb; }, []);
   const look = LOOKS[id];
-  const build: Build = { middle: look.middle, upright: true };
+  const build: Build = { middle: look.middle, upright: true, grip: [0.07, look.kind === "owl" ? -0.43 : -0.42, 0.025] };
   return <Puppet id={id} sim={sim} rig={rig} build={build}><KayBody id={id} build={look} sim={sim} talk={talk} rig={setLimb} /></Puppet>;
 }
 

@@ -1,17 +1,20 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import { Vector3 } from "three";
+import { useMemo, useRef } from "react";
+import type { RefObject } from "react";
+import { Quaternion, Vector3 } from "three";
 import type { Group } from "three";
-import { motionOf } from "@/lib/harbir/motion";
 import type { Sim } from "@/lib/harbir/sim";
 import { PALETTE, ROUGHNESS } from "@/lib/harbir/style";
-import type { PropId } from "@/lib/world";
-import { HEAD_HEIGHT } from "./characters";
+import type { ActorId, PropId } from "@/lib/world";
+import { createGripTransform, getGrip, gripTransform } from "./grips";
 import { Blob, Mat } from "./primitives";
 
-function PropBody({ id }: { id: PropId }) {
+// Enough clearance for Alice's ears even at the stretched part of a jump.
+const BALLOON_STRING_LENGTH = 1.7;
+
+function PropBody({ id, balloonWeight }: { id: PropId; balloonWeight: RefObject<Group | null> }) {
   switch (id) {
     case "ball": return (
       <group position={[0, 0.22, 0]}>
@@ -61,10 +64,10 @@ function PropBody({ id }: { id: PropId }) {
     case "balloon": return (
       // Floats on its string above a small weight, so it reads the same held or tied down.
       <group>
-        <Blob position={[0, 0.05, 0]} scale={[0.06, 0.05, 0.06]} color={PALETTE.stone} />
-        <mesh position={[0, 0.65, 0]}><cylinderGeometry args={[0.006, 0.006, 1.2, 4]} /><Mat color={PALETTE.sparkle} /></mesh>
-        <Blob position={[0, 1.42, 0]} scale={[0.26, 0.31, 0.26]} color={PALETTE.flowers[2]} rough={ROUGHNESS.satin} />
-        <Blob position={[0, 1.1, 0]} scale={[0.04, 0.04, 0.04]} color={PALETTE.flowers[2]} rough={ROUGHNESS.satin} shadow={false} />
+        <group ref={balloonWeight}><Blob position={[0, 0.05, 0]} scale={[0.06, 0.05, 0.06]} color={PALETTE.stone} /></group>
+        <mesh position={[0, 0.05 + BALLOON_STRING_LENGTH / 2, 0]}><cylinderGeometry args={[0.006, 0.006, BALLOON_STRING_LENGTH, 4]} /><Mat color={PALETTE.sparkle} /></mesh>
+        <Blob position={[0, BALLOON_STRING_LENGTH + 0.22, 0]} scale={[0.26, 0.31, 0.26]} color={PALETTE.flowers[2]} rough={ROUGHNESS.satin} />
+        <Blob position={[0, BALLOON_STRING_LENGTH - 0.1, 0]} scale={[0.04, 0.04, 0.04]} color={PALETTE.flowers[2]} rough={ROUGHNESS.satin} shadow={false} />
       </group>
     );
     case "cookies": return (
@@ -89,37 +92,56 @@ function PropBody({ id }: { id: PropId }) {
   }
 }
 
-/** A prop on the ground, or carried in front of whoever holds it. */
+/** Props keep their world size and attach at the animated palm, never the actor's center. */
 export function PropItem({ id, sim }: { id: PropId; sim: Sim }) {
   const ref = useRef<Group>(null);
   const spin = useRef<Group>(null);
+  const balloonWeight = useRef<Group>(null);
   const last = useRef<[number, number] | null>(null);
-  useFrame(({ clock }) => {
+  const previous = useRef<{ sim: Sim; holder?: ActorId } | null>(null);
+  const blend = useRef(1);
+  const target = useMemo(() => createGripTransform(), []);
+  const from = useMemo(() => new Vector3(), []);
+  const fromRotation = useMemo(() => new Quaternion(), []);
+  const rollAxis = useMemo(() => new Vector3(), []);
+  useFrame((_state, delta) => {
     const prop = sim.props[id];
     const group = ref.current;
     if (!prop || !group) return;
     const holder = prop.holder ? sim.actors[prop.holder] : undefined;
+    if (balloonWeight.current) balloonWeight.current.visible = !holder;
     if (holder) {
-      const reach = id === "umbrella" ? 0.2 : 0.42;
-      // Umbrellas sit overhead, kites fly high, balloons hang from the paw on their string.
-      const lift = id === "umbrella" ? Math.max(0.55, HEAD_HEIGHT[holder.id] - 1) : id === "kite" ? 1.3 : id === "balloon" ? 0.45 : 0.55;
-      // Carried things rise and fall with the body, so they stay in hand through a hop.
-      const hop = motionOf(holder, clock.elapsedTime).lift;
-      group.position.set(holder.x + Math.sin(holder.heading) * reach, lift + hop, holder.z + Math.cos(holder.heading) * reach);
-      group.rotation.y = holder.heading;
+      const grip = getGrip(sim, holder.id);
+      group.visible = !!grip;
+      if (!grip) return;
+      gripTransform(grip, id, target);
+      if (previous.current?.sim === sim && previous.current.holder !== holder.id) {
+        from.copy(group.position);
+        fromRotation.copy(group.quaternion);
+        blend.current = 0;
+      } else if (previous.current?.sim !== sim) blend.current = 1;
+      // A short handover arc replaces the old ownership teleport, then locks onto the palm.
+      blend.current = Math.min(1, blend.current + Math.min(delta, 0.1) / 0.22);
+      const u = blend.current;
+      const eased = u * u * (3 - 2 * u);
+      group.position.lerpVectors(from, target.position, eased);
+      group.position.y += Math.sin(Math.PI * u) * 0.06;
+      group.quaternion.slerpQuaternions(fromRotation, target.rotation, eased);
     } else {
+      group.visible = true;
       group.position.set(prop.x, 0, prop.z);
-      group.rotation.y = 0;
+      group.rotation.set(0, 0, 0);
       // A rolling ball turns by the distance it covers, around the axis across its path.
       const ball = spin.current;
       const before = last.current;
       if (id === "ball" && ball && before) {
         const dx = prop.x - before[0], dz = prop.z - before[1];
         const moved = Math.hypot(dx, dz);
-        if (moved > 1e-4) ball.rotateOnWorldAxis(new Vector3(dz / moved, 0, -dx / moved), moved / 0.22);
+        if (moved > 1e-4) ball.rotateOnWorldAxis(rollAxis.set(dz / moved, 0, -dx / moved), moved / 0.22);
       }
     }
+    previous.current = { sim, holder: prop.holder };
     last.current = [prop.x, prop.z];
   });
-  return <group ref={ref}><group ref={spin} position={[0, id === "ball" ? 0.22 : 0, 0]}><group position={[0, id === "ball" ? -0.22 : 0, 0]}><PropBody id={id} /></group></group></group>;
+  return <group ref={ref}><group ref={spin} position={[0, id === "ball" ? 0.22 : 0, 0]}><group position={[0, id === "ball" ? -0.22 : 0, 0]}><PropBody id={id} balloonWeight={balloonWeight} /></group></group></group>;
 }

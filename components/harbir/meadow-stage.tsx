@@ -40,7 +40,7 @@ function FollowCamera({ sim, sun, offset }: { sim: Sim; sun: React.RefObject<Dir
 }
 
 function Director({ sim, paused }: { sim: Sim; paused: boolean }) {
-  useFrame((_state, delta) => { if (!paused) sim.step(delta); });
+  useFrame((_state, delta) => { if (!paused) sim.step(delta); }, -2);
   return null;
 }
 
