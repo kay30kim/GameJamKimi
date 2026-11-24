@@ -267,3 +267,141 @@ test("a character carrying a prop jumps instead of rolling over it", () => {
   assert.ok(sim.done && jumped);
   assert.equal(sim.actors.hero!.pose, "idle");
 });
+
+test("a zero beat limit waits for dialogue while idle motion and prop physics continue", () => {
+  const sim = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "path" }],
+    props: [{ prop: "ball", at: "path" }],
+    beats: [{ actor: "hero", action: "walk_to", target: "tree" }],
+  });
+  const hero = sim.actors.hero!, ball = sim.props.ball!;
+  const start = [hero.x, hero.z], ballX = ball.x;
+  ball.vx = 1;
+  for (let i = 0; i < 300; i++) sim.step(1 / 60, 0);
+  assert.deepEqual([hero.x, hero.z], start);
+  assert.equal(hero.pose, "idle");
+  assert.ok(hero.poseTime > 4, "idle breathing must keep advancing while a cue is pending");
+  assert.ok(ball.x > ballX, "ordinary physics must keep running while actions are gated");
+  assert.equal(sim.completedBeats, 0);
+  assert.equal(sim.done, false);
+});
+
+test("raising the beat limit resumes the same ownership and positions without overrunning a cue", () => {
+  const sim = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "path" }],
+    props: [{ prop: "balloon", at: "path" }],
+    beats: [
+      { actor: "hero", action: "pick_up", prop: "balloon" },
+      { actor: "hero", action: "give", prop: "balloon", target: "friend" },
+      { actor: "friend", action: "walk_to", target: "tree" },
+    ],
+  });
+  for (let i = 0; i < 1200 && sim.completedBeats < 1; i++) sim.step(1 / 60, 1);
+  assert.equal(sim.completedBeats, 1);
+  assert.equal(sim.props.balloon!.holder, "hero");
+  const hero = sim.actors.hero!, friend = sim.actors.friend!;
+  const afterPickup = [hero.x, hero.z, friend.x, friend.z];
+  for (let i = 0; i < 180; i++) sim.step(1 / 60, 1);
+  assert.deepEqual([hero.x, hero.z, friend.x, friend.z], afterPickup);
+  assert.equal(sim.props.balloon!.holder, "hero");
+  assert.equal(sim.completedBeats, 1);
+  assert.equal(sim.done, false);
+
+  for (let i = 0; i < 1200 && sim.completedBeats < 2; i++) sim.step(1 / 60, 2);
+  assert.equal(sim.completedBeats, 2);
+  assert.equal(sim.props.balloon!.holder, "friend");
+  const afterHandoff = [friend.x, friend.z];
+  for (let i = 0; i < 180; i++) sim.step(1 / 60, 2);
+  assert.deepEqual([friend.x, friend.z], afterHandoff, "the third beat must not begin yet");
+  assert.equal(sim.completedBeats, 2);
+  assert.equal(sim.done, false);
+
+  for (let i = 0; i < 1200 && !sim.done; i++) sim.step(1 / 60, 3);
+  assert.equal(sim.completedBeats, 3);
+  assert.equal(sim.done, true);
+  assert.equal(sim.props.balloon!.holder, "friend");
+  assert.ok(Math.hypot(friend.x - afterHandoff[0], friend.z - afterHandoff[1]) > 2);
+});
+
+test("a beat is counted on completion and lowering its limit never interrupts it", () => {
+  const sim = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "path" }],
+    props: [],
+    beats: [{ actor: "hero", action: "wave" }, { actor: "hero", action: "walk_to", target: "tree" }],
+  });
+  for (let i = 0; i < 120 && sim.actors.hero!.pose !== "wave"; i++) sim.step(1 / 60, 1);
+  assert.equal(sim.actors.hero!.pose, "wave");
+  assert.equal(sim.completedBeats, 0, "starting a pose is not completing a beat");
+  for (let i = 0; i < 240; i++) sim.step(1 / 60, 0);
+  assert.equal(sim.actors.hero!.pose, "idle");
+  assert.deepEqual([sim.actors.hero!.x, sim.actors.hero!.z], [0, 0]);
+  assert.equal(sim.completedBeats, 1);
+  assert.equal(sim.done, false);
+});
+
+test("empty stages finish immediately and missing actors still consume only permitted beat slots", () => {
+  const empty = createSim({ weather: "sunny", cast: [], props: [], beats: [] });
+  assert.equal(empty.completedBeats, 0);
+  assert.equal(empty.done, true);
+  assert.equal(empty.finish(), true);
+
+  const sim = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "path" }],
+    props: [],
+    beats: [{ actor: "friend", action: "jump" }, { actor: "duck", action: "wave" }],
+  });
+  for (let i = 0; i < 120; i++) sim.step(1 / 60, 0);
+  assert.equal(sim.completedBeats, 0);
+  sim.step(1 / 60, 1);
+  assert.equal(sim.completedBeats, 1);
+  assert.equal(sim.done, false);
+  sim.step(1 / 60, 2);
+  assert.equal(sim.completedBeats, 2);
+  assert.equal(sim.done, true);
+});
+
+test("finish skips from the current timeline using the same final ownership and movement rules", () => {
+  const stage: Stage = {
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "path" }],
+    props: [{ prop: "balloon", at: "path" }],
+    beats: [
+      { actor: "hero", action: "pick_up", prop: "balloon" },
+      { actor: "hero", action: "give", prop: "balloon", target: "friend" },
+      { actor: "friend", action: "walk_to", target: "tree" },
+    ],
+  };
+  const skipped = createSim(stage), played = createSim(stage);
+  for (let i = 0; i < 1200 && skipped.completedBeats < 1; i++) {
+    skipped.step(1 / 30, 1);
+    played.step(1 / 30, 1);
+  }
+  assert.equal(skipped.props.balloon!.holder, "hero");
+  assert.equal(skipped.finish(), true);
+  for (let i = 0; i < 3600 && !played.done; i++) played.step(1 / 30);
+  assert.ok(played.done && skipped.done);
+  assert.equal(skipped.completedBeats, stage.beats.length);
+  assert.deepEqual(skipped.actors, played.actors);
+  assert.deepEqual(skipped.props, played.props);
+  assert.equal(skipped.props.balloon!.holder, "friend");
+  const end = JSON.stringify({ actors: skipped.actors, props: skipped.props });
+  assert.equal(skipped.finish(), true);
+  assert.equal(JSON.stringify({ actors: skipped.actors, props: skipped.props }), end, "finishing twice must not replay actions");
+});
+
+test("finish preserves a failed interaction instead of forcing a remote transfer", () => {
+  const sim = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "home" }, { actor: "puppy", at: "pond" }, { actor: "grownup", at: "pond" }],
+    props: [{ prop: "balloon", at: "hero" }],
+    beats: [{ actor: "hero", action: "give", prop: "balloon", target: "grownup" }],
+  });
+  sim.step(1 / 60, 0);
+  assert.equal(sim.finish(), true);
+  assert.equal(sim.completedBeats, 1);
+  assert.equal(sim.props.balloon!.holder, "hero");
+});

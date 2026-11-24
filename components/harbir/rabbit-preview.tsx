@@ -38,6 +38,8 @@ function createLoopingAlice(): LoopingAlice {
     actors: { hero },
     props: {},
     done: false,
+    completedBeats: 0,
+    finish: () => false,
     together: () => false,
     step(dt) {
       hero.poseTime += dt;

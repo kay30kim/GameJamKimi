@@ -18,9 +18,12 @@ const WORLD_RULES = [
   `Actors: ${list(ACTORS)}. Call them by these names, in the narration language.`,
   `Props: ${list(PROPS)}.`,
   `Weather: ${WEATHERS.join(" or ")}. Emotions: ${EMOTIONS.join(", ")}.`,
-  `Actions, each with exactly these fields: ${Object.entries(ACTIONS).map(([id, { args, meaning }]) => `${id} [${args}]: ${meaning}`).join("; ")}.`,
+  `Actions, with these fields in addition to actor, action, and cue: ${Object.entries(ACTIONS).map(([id, { args, meaning }]) => `${id} [${args}]: ${meaning}`).join("; ")}.`,
   `Return a stage that acts out this scene's narration: the weather, the cast with each actor's starting spot (always include hero), the props in the scene (at a spot, or held by an actor id), and 1 to ${MAX_BEATS} beats played in order.`,
   "Each actor can carry only one prop at a time. Keep other props at a spot. Before pick_up or give, make sure the receiving actor has an empty hand; keep both actors and the prop reachable on the same side of scenery. Use a jump, not a roll, while carrying something.",
+  "Speech timing: every beat includes an integer cue. cue 0 = narration, cue 1 = lines[0], cue 2 = lines[1], and so on, up to lines.length. A cue is a speech segment index, not a time in seconds. Cues must be nondecreasing in beat order; multiple beats may share a cue. With no dialogue, use cue 0 for every beat.",
+  "Match each action to the speech that describes or performs it. Use narration to set up the situation and any approach or pickup. Do not describe a handoff as already complete in narration if the giver will offer it in a later line.",
+  "For a spoken handoff, schedule pick_up (if needed) and walk_to before give, using an earlier cue. Assign give to the giver's line, such as 'Here, take this!'. Put the receiver's thanks or happy reaction in the next line with its later cue, after the handoff. Do not put the give on the receiver's line or play every action during narration when dialogue describes those actions.",
   "Make the beats show what the narration describes and what the child's latest choice did. Use ids exactly as written, never translated.",
 ].join("\n");
 
@@ -103,7 +106,7 @@ export function buildSceneMessages(
         WORLD_RULES,
         `Dialogue: after the narration, the characters on stage talk to each other in 1 to ${MAX_LINES} short lines, in the narration language. Each line has a speaker from the stage cast, optionally who they talk "to" (also in the cast), and an emotion. Write natural childlike direct speech that listens and answers; never narrate ("Alice says"). Keep each line within the narration length rules for this age. Do not repeat the narration, and do not use learning-language words.`,
         "Return ONLY one valid JSON object, without markdown, commentary, or extra fields, using this schema:",
-        '{"narration":"string","lines":[{"speaker":"puppy","text":"string","emotion":"sad"},{"speaker":"hero","to":"puppy","text":"string","emotion":"curious"}],"newWords":[{"word":"string","meaning":"string"}],"choices":["string","string"],"lessonComplete":false,"stage":{"weather":"sunny","cast":[{"actor":"hero","at":"path"},{"actor":"puppy","at":"tree"}],"props":[{"prop":"umbrella","at":"hero"}],"beats":[{"actor":"hero","action":"walk_to","target":"puppy"},{"actor":"hero","action":"give","prop":"umbrella","target":"puppy"},{"actor":"puppy","action":"emote","emotion":"happy"}]}}',
+        '{"narration":"string","lines":[{"speaker":"puppy","text":"string","emotion":"sad"},{"speaker":"hero","to":"puppy","text":"string","emotion":"happy"},{"speaker":"puppy","to":"hero","text":"string","emotion":"happy"}],"newWords":[{"word":"string","meaning":"string"}],"choices":["first action","second action"],"lessonComplete":false,"stage":{"weather":"sunny","cast":[{"actor":"hero","at":"path"},{"actor":"puppy","at":"tree"}],"props":[{"prop":"umbrella","at":"hero"}],"beats":[{"actor":"hero","action":"walk_to","target":"puppy","cue":0},{"actor":"hero","action":"give","prop":"umbrella","target":"puppy","cue":2},{"actor":"puppy","action":"emote","emotion":"happy","cue":3}]}}',
         "An ending uses the same schema with choices: [] and lessonComplete: true, and a stage that shows the warm resolution. newWords may be empty in any scene.",
       ].join("\n"),
     },

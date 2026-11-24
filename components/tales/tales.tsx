@@ -3,11 +3,12 @@
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
-import type { SceneLanguage, SceneLine, SceneRequest, SceneResponse } from "@/app/api/scene/contract";
+import type { SceneLanguage, SceneRequest, SceneResponse } from "@/app/api/scene/contract";
 import { Icon } from "@/components/kay/icons";
 import { randomOpening } from "@/lib/openings";
 import type { OpeningId } from "@/lib/openings";
 import { dedupeWords, fetchScene, nextSceneRequest, prefetch } from "@/lib/scene";
+import { ScenePlayback } from "@/lib/scene-playback";
 import { isListeningSupported, listenOnce, matchesWord, meaningLocale, speak, speechLocale, stopListening, stopSpeaking } from "@/lib/speech";
 import type { Voice } from "@/lib/voices";
 import type { Stage } from "@/lib/world";
@@ -59,7 +60,6 @@ function motionPreference(notify: () => void) {
   return () => query.removeEventListener("change", notify);
 }
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function Tales() {
   const [phase, setPhase] = useState<Phase>("home");
@@ -76,6 +76,7 @@ export default function Tales() {
   const [error, setError] = useState<string | null>(null);
   const [caption, setCaption] = useState<Caption | null>(null);
   const [talk, setTalk] = useState<Talk>({ line: null, speaking: false });
+  const [playback, setPlayback] = useState<ScenePlayback | null>(null);
   const [replay, setReplay] = useState(0);
   const [muted, setMuted] = useState(false);
   const [sayState, setSayState] = useState<SayState>("idle");
@@ -83,6 +84,7 @@ export default function Tales() {
   const requestId = useRef(0);
   const lastRequest = useRef<SceneRequest | null>(null);
   const mutedRef = useRef(false);
+  const playbackRef = useRef<ScenePlayback | null>(null);
   const canListen = useSyncExternalStore(subscribeNothing, isListeningSupported, notSupported);
   const reducedMotion = useSyncExternalStore(motionPreference, prefersReducedMotion, notSupported);
 
@@ -93,32 +95,32 @@ export default function Tales() {
 
   function stopAll() {
     requestId.current += 1;
+    playbackRef.current?.cancel();
     stopSpeaking();
     stopListening();
+    setTalk({ line: null, speaking: false });
   }
 
-  /** Narration, then each line in its speaker's voice. Muted, captions stay up long enough to read. */
+  /** Speech and its actions finish together before another line or choice appears. */
   async function perform(next: SceneResponse, locale: string, id: number) {
-    const steps: { voice: Voice; text: string; line: SceneLine | null }[] = [
-      { voice: "narrator", text: next.narration, line: null },
-      ...next.lines.map((line) => ({ voice: line.speaker, text: line.text, line })),
-    ];
+    const performance = new ScenePlayback(next, {
+      locale,
+      isMuted: () => mutedRef.current,
+      speak,
+      onSegment: (segment) => {
+        if (id !== requestId.current) return;
+        setCaption({ voice: segment.voice, text: segment.text });
+        setTalk({ line: segment.line, speaking: false });
+      },
+      onSpeaking: (speaking) => {
+        if (id === requestId.current) setTalk((current) => ({ ...current, speaking }));
+      },
+    });
+    playbackRef.current = performance;
+    setPlayback(performance);
     setPhase("playing");
-    for (const step of steps) {
-      if (id !== requestId.current) return;
-      setCaption({ voice: step.voice, text: step.text });
-      setTalk({ line: step.line, speaking: false });
-      if (mutedRef.current) {
-        setTalk({ line: step.line, speaking: true });
-        await wait(Math.max(1800, step.text.length * 70));
-      } else {
-        await speak(step.text, locale, { voice: step.voice, onStart: () => { if (id === requestId.current) setTalk({ line: step.line, speaking: true }); } });
-      }
-      if (id !== requestId.current) return;
-      setTalk({ line: step.line, speaking: false });
-      await wait(350);
-    }
-    if (id !== requestId.current) return;
+    const completed = await performance.play();
+    if (!completed || id !== requestId.current) return;
     setTalk({ line: null, speaking: false });
     setPhase(next.lessonComplete ? "ending" : "choosing");
   }
@@ -171,12 +173,18 @@ export default function Tales() {
   function skipToChoice() {
     if (!scene) return;
     stopAll();
+    if (!playbackRef.current?.skip()) {
+      setError(t("장면을 마무리하지 못했어요. 다시 해 볼게요.", "The scene could not finish. Please try again."));
+      return;
+    }
     setTalk({ line: null, speaking: false });
     setPhase(scene.lessonComplete ? "ending" : "choosing");
   }
 
   function goHome() {
     stopAll();
+    playbackRef.current = null;
+    setPlayback(null);
     setOpening(randomOpening(lesson));
     setScene(null);
     setSettings(null);
@@ -218,7 +226,25 @@ export default function Tales() {
     setTimeout(() => { if (id === requestId.current) choose(scene.choices[0]); }, 1000);
   }
 
-  useEffect(() => () => { stopListening(); stopSpeaking(); }, []);
+  useEffect(() => () => {
+    requestId.current += 1;
+    playbackRef.current?.cancel();
+    stopListening();
+    stopSpeaking();
+  }, []);
+
+  useEffect(() => {
+    if (!playback) return;
+    let frame: number;
+    let previous: number | null = null;
+    const tick = (now: number) => {
+      if (previous !== null) playback.advance((now - previous) / 1000);
+      previous = now;
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [playback]);
 
   useEffect(() => {
     // Warm up the first scene for preset lessons; an own lesson changes on every key.
@@ -243,7 +269,7 @@ export default function Tales() {
   return (
     <main className={`${styles.theater} ${phase === "home" ? "" : styles.storyMode}`} lang={home}>
       <div className={styles.stage}>
-        <TalesStage stage={stage} replay={replay} talk={talk} paused={false} overview={phase === "home"} reducedMotion={reducedMotion} />
+        <TalesStage stage={stage} replay={replay} talk={talk} simulation={playback?.sim} paused={phase === "loading"} overview={phase === "home"} reducedMotion={reducedMotion} />
       </div>
       <div className={styles.vignette} />
 

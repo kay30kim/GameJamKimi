@@ -260,6 +260,103 @@ test("a scene without dialogue still parses", () => {
   assert.deepEqual(parseScene(JSON.stringify(withoutLines)).lines, []);
 });
 
+test("generated cues keep approach, spoken handoff, and thanks on their speech segments", async () => {
+  const cued: SceneResponse = {
+    ...scene,
+    lines: [
+      { speaker: "friend", text: "공을 빌려줄래?", to: "hero" },
+      { speaker: "hero", text: "여기, 받아!", to: "friend" },
+      { speaker: "friend", text: "고마워!", to: "hero", emotion: "happy" },
+    ],
+    stage: {
+      ...scene.stage,
+      props: [{ prop: "ball", at: "hero" }],
+      beats: [
+        { actor: "hero", action: "walk_to", target: "friend", cue: 0 },
+        { actor: "hero", action: "give", prop: "ball", target: "friend", cue: 2 },
+        { actor: "friend", action: "emote", emotion: "happy", cue: 3 },
+        { actor: "friend", action: "jump", cue: 3 },
+      ],
+    },
+  };
+  const result = await generateScene(input, { apiKey: "test", fetcher: async () => completion(cued) });
+  assert.equal(result.mode, "kimi");
+  assert.deepEqual(result.scene, cued);
+});
+
+test("invalid cue values leave playable actions intact", () => {
+  for (const cue of [-1, 0.5, 5, "1", null, NaN, Infinity]) {
+    const stage = parseStage({ beats: [{ actor: "hero", action: "jump", cue }] });
+    assert.deepEqual(stage.beats, [{ actor: "hero", action: "jump" }], `cue ${String(cue)}`);
+  }
+  assert.deepEqual(parseStage({ beats: [{ actor: "hero", action: "jump", cue: 0 }] }).beats,
+    [{ actor: "hero", action: "jump", cue: 0 }]);
+});
+
+test("dropping a dialogue line remaps its neighbors without moving an action to another speaker", () => {
+  const parsed = parseScene(JSON.stringify({
+    ...scene,
+    lines: [
+      { speaker: "duck", text: "Not in the cast." },
+      { speaker: "hero", text: "Here, take the ball!", to: "friend" },
+      { speaker: "friend", text: "Thank you!", to: "hero" },
+    ],
+    stage: {
+      ...scene.stage,
+      beats: [
+        { actor: "hero", action: "walk_to", target: "friend", cue: 0 },
+        { actor: "hero", action: "wave", cue: 1 },
+        { actor: "hero", action: "give", prop: "ball", target: "friend", cue: 2 },
+        { actor: "friend", action: "emote", emotion: "happy", cue: 3 },
+      ],
+    },
+  }));
+  assert.deepEqual(parsed.lines.map(({ speaker }) => speaker), ["hero", "friend"]);
+  assert.deepEqual(parsed.stage.beats, [
+    { actor: "hero", action: "walk_to", target: "friend", cue: 0 },
+    { actor: "hero", action: "wave" },
+    { actor: "hero", action: "give", prop: "ball", target: "friend", cue: 1 },
+    { actor: "friend", action: "emote", emotion: "happy", cue: 2 },
+  ]);
+});
+
+test("cues outside the actual dialogue are discarded while narration and legacy beats survive", () => {
+  const parsed = parseScene(JSON.stringify({
+    ...scene,
+    stage: {
+      ...scene.stage,
+      beats: [
+        { actor: "hero", action: "walk_to", target: "friend", cue: 0 },
+        { actor: "hero", action: "wave" },
+        { actor: "friend", action: "jump", cue: 1 },
+        { actor: "hero", action: "clap", cue: 2 },
+      ],
+    },
+  }));
+  assert.deepEqual(parsed.stage.beats.map(({ cue }) => cue), [0, undefined, 1, undefined]);
+  const withoutDialogue = parseScene(JSON.stringify({ ...parsed, lines: [] }));
+  assert.deepEqual(withoutDialogue.stage.beats.map(({ cue }) => cue), [0, undefined, undefined, undefined]);
+  assert.deepEqual(withoutDialogue.stage.beats.map(({ action }) => action), ["walk_to", "wave", "jump", "clap"]);
+});
+
+test("descending cues clear timing metadata instead of reordering or losing story actions", () => {
+  const beats = [
+    { actor: "hero", action: "give", prop: "ball", target: "friend", cue: 2 },
+    { actor: "hero", action: "wave" },
+    { actor: "friend", action: "emote", emotion: "happy", cue: 1 },
+  ];
+  const parsed = parseScene(JSON.stringify({
+    ...scene,
+    lines: [{ speaker: "hero", text: "Here you go." }, { speaker: "friend", text: "Thank you." }],
+    stage: { ...scene.stage, beats },
+  }));
+  assert.deepEqual(parsed.stage.beats, [
+    { actor: "hero", action: "give", prop: "ball", target: "friend" },
+    { actor: "hero", action: "wave" },
+    { actor: "friend", action: "emote", emotion: "happy" },
+  ]);
+});
+
 test("stub scenes only give lines to actors on stage", async () => {
   for (const language of ["en", "ko"] as const) {
     const state: SceneRequest = { ...input, language, history: [] };
@@ -277,6 +374,20 @@ test("the prompt asks for dialogue from the cast", () => {
   const system = buildSceneMessages(input)[0].content;
   assert.match(system, /Dialogue:/);
   assert.match(system, /"lines":\[/);
+});
+
+test("the prompt teaches speech cues and its example puts handoff before the receiver's reaction", () => {
+  const system = buildSceneMessages(input)[0].content;
+  assert.match(system, /cue 0 = narration, cue 1 = lines\[0\]/);
+  assert.match(system, /Cues must be nondecreasing/);
+  assert.match(system, /Assign give to the giver's line/);
+  const example = parseScene(system.split("\n").find((line) => line.startsWith('{"narration":'))!);
+  const give = example.stage.beats.find((beat) => beat.action === "give")!;
+  const reaction = example.stage.beats.find((beat) => beat.action === "emote")!;
+  assert.equal(example.lines[give.cue! - 1].speaker, give.actor);
+  assert.equal(example.lines[reaction.cue! - 1].speaker, reaction.actor);
+  assert.ok(reaction.cue! > give.cue!);
+  assert.equal(example.stage.beats[0].cue, 0);
 });
 
 test("a preset lesson leads the prompt with its guide and the choice contract", () => {

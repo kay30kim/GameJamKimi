@@ -1,0 +1,51 @@
+.page {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  background: #fbf8f1;
+  color: #263d30;
+  font-size: 14px;
+}
+
+.panel {
+  padding: 20px;
+  overflow: auto;
+  border-right: 1px solid #dddcca;
+}
+
+.panel > a { font-size: 13px; text-decoration: underline; }
+.panel h1 { margin: 12px 0; font-size: 24px; }
+.notice { padding: 12px; border-radius: 10px; background: #f4e8ca; font-size: 13px; }
+.mode { display: grid; gap: 6px; margin: 18px 0 12px; font-weight: 600; }
+.mode select { min-height: 44px; padding: 6px 8px; border: 1px solid #c9ccbd; border-radius: 8px; background: white; color: inherit; }
+.controls, .voiceControls { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.voiceControls { padding-top: 12px; border-top: 1px solid #dddcca; }
+.page button { min-height: 42px; padding: 8px 12px; border: 1px solid #385c43; border-radius: 8px; background: #385c43; color: white; font-size: 13px; }
+.page button:disabled { opacity: 0.4; cursor: default; }
+.voiceControls button { background: #fff; color: #385c43; }
+.status { margin: 18px 0; }
+.status > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 8px; padding: 7px 0; border-bottom: 1px solid #e7e5d9; }
+.status dt { color: #667363; }
+.status dd { font-weight: 600; overflow-wrap: anywhere; }
+.checks { padding-left: 20px; font-size: 13px; color: #586955; }
+.checks li + li { margin-top: 10px; }
+.stage { position: relative; min-width: 0; min-height: 0; }
+.caption { position: absolute; left: 20px; right: 20px; bottom: 20px; padding: 18px; border-radius: 14px; background: #fffef3ed; text-align: center; }
+.caption > p { font-size: 22px; }
+.choices { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.choices > strong, .choices > p { flex-basis: 100%; }
+.choices > strong { font-size: 13px; }
+
+@media (max-width: 900px) {
+  .page { grid-template-columns: 300px minmax(0, 1fr); }
+  .panel { padding: 14px; }
+  .status > div { grid-template-columns: 100px minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .page { grid-template-columns: 1fr; grid-template-rows: 280px minmax(0, 1fr); }
+  .panel { border-right: 0; border-bottom: 1px solid #dddcca; }
+  .caption { left: 8px; right: 8px; bottom: 8px; padding: 12px; }
+  .caption > p { font-size: 18px; }
+}

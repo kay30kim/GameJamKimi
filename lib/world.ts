@@ -48,14 +48,20 @@ export type Weather = (typeof WEATHERS)[number];
 export type Emotion = (typeof EMOTIONS)[number];
 
 /** One step of a scene's animation. Each action takes exactly the arguments listed. */
-export type Beat =
+export type Beat = (
   | { actor: ActorId; action: "walk_to" | "run_to"; target: Spot | ActorId }
   | { actor: ActorId; action: "pick_up"; prop: PropId }
   | { actor: ActorId; action: "give"; prop: PropId; target: ActorId }
   | { actor: ActorId; action: "hug" | "help"; target: ActorId }
   | { actor: ActorId; action: "wave"; target?: ActorId }
   | { actor: ActorId; action: "jump" | "roll" | "sit" | "celebrate" | "dance" | "clap" | "nap" | "look_around" }
-  | { actor: ActorId; action: "emote"; emotion: Emotion };
+  | { actor: ActorId; action: "emote"; emotion: Emotion }
+) & {
+  /** Speech segment that starts this action: 0 = narration, 1 = lines[0], and so on.
+   * Explicit cues are nondecreasing in beat order. Omitted cues use the client's fallback plan.
+   */
+  cue?: number;
+};
 
 export type Action = Beat["action"];
 
@@ -66,7 +72,7 @@ export interface Stage {
   cast: { actor: ActorId; at: Spot }[];
   /** Props in the scene: placed at a spot, or held by an actor in the cast. */
   props: { prop: PropId; at: Spot | ActorId }[];
-  /** Played in order, one to four steps. */
+  /** Played in order, one to four steps; optional cues align them with speech segments. */
   beats: Beat[];
 }
 

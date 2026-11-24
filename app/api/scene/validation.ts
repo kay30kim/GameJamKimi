@@ -1,5 +1,5 @@
 import { ACTORS, EMOTIONS } from "../../../lib/world";
-import type { ActorId, Emotion, Stage } from "../../../lib/world";
+import type { ActorId, Beat, Emotion, Stage } from "../../../lib/world";
 import { MAX_LINES } from "./contract";
 import type { SceneLine, SceneResponse } from "./contract";
 import { parseStage } from "./stage";
@@ -19,11 +19,12 @@ const isEmotion = (value: unknown): value is Emotion => EMOTIONS.includes(value 
  * Dialogue is extra color on top of the narration, so a bad line is dropped rather than
  * failing the scene. Only actors on stage may speak or be spoken to.
  */
-export function parseLines(raw: unknown, stage: Stage): SceneLine[] {
-  if (!Array.isArray(raw)) return [];
-  const cast = new Set(stage.cast.map(({ actor }) => actor));
+function parseDialogue(raw: unknown, stage: Stage): { lines: SceneLine[]; cues: Map<number, number> } {
   const lines: SceneLine[] = [];
-  for (const line of raw) {
+  const cues = new Map<number, number>();
+  if (!Array.isArray(raw)) return { lines, cues };
+  const cast = new Set(stage.cast.map(({ actor }) => actor));
+  for (const [index, line] of raw.entries()) {
     if (!record(line) || !isActor(line.speaker) || !cast.has(line.speaker) || !shortText(line.text, 300)) continue;
     const to = isActor(line.to) && line.to !== line.speaker && cast.has(line.to) ? line.to : undefined;
     lines.push({
@@ -32,8 +33,37 @@ export function parseLines(raw: unknown, stage: Stage): SceneLine[] {
       ...(to ? { to } : {}),
       ...(isEmotion(line.emotion) ? { emotion: line.emotion } : {}),
     });
+    // A removed dialogue line must not shift its cue onto somebody else's speech.
+    cues.set(index + 1, lines.length);
+    if (lines.length === MAX_LINES) break;
   }
-  return lines.slice(0, MAX_LINES);
+  return { lines, cues };
+}
+
+export function parseLines(raw: unknown, stage: Stage): SceneLine[] {
+  return parseDialogue(raw, stage).lines;
+}
+
+function withoutCue(beat: Beat): Beat {
+  const action = { ...beat };
+  delete action.cue;
+  return action;
+}
+
+/** Keep action order intact; conflicting cue order falls back to the client's timing plan. */
+function alignCues(beats: Beat[], cues: Map<number, number>): Beat[] {
+  const aligned = beats.map((beat) => {
+    if (beat.cue === undefined || beat.cue === 0) return beat;
+    const cue = cues.get(beat.cue);
+    return cue === undefined ? withoutCue(beat) : { ...beat, cue };
+  });
+  let previous = 0;
+  for (const beat of aligned) {
+    if (beat.cue === undefined) continue;
+    if (beat.cue < previous) return aligned.map(withoutCue);
+    previous = beat.cue;
+  }
+  return aligned;
 }
 
 /** Validate semantics as well as JSON syntax; return only the public contract. */
@@ -60,9 +90,11 @@ export function parseScene(content: string): SceneResponse {
     throw new Error("Duplicate vocabulary");
   }
   const stage = parseStage(value.stage);
+  const { lines, cues } = parseDialogue(value.lines, stage);
+  stage.beats = alignCues(stage.beats, cues);
   return {
     narration: value.narration.trim(),
-    lines: parseLines(value.lines, stage),
+    lines,
     newWords: words,
     choices: choices.map((choice: string) => choice.trim()),
     lessonComplete: value.lessonComplete,

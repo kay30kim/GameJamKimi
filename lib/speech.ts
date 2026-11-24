@@ -64,188 +64,195 @@ function pickVoice(
   return bestVoice;
 }
 
-interface QueuedSpeech {
-  content: string;
-  locale: string;
-  generation: number;
-  audio: Promise<Blob>;
-  onStart?: () => void;
-  /** Settles speak()'s promise once this clip has played, failed, or been skipped. */
-  done: () => void;
+export interface SpeakResult {
+  /** At least one audio playing / browser speech start event was received. */
+  started: boolean;
+  cancelled: boolean;
 }
 
 export interface SpeakOptions {
   voice?: Voice;
-  /** Called just before the clip starts playing, so the stage can show who is talking. */
+  /** Called once, when audio is actually playing, including browser fallback. */
   onStart?: () => void;
+  signal?: AbortSignal;
 }
 
-interface ActiveAudio {
-  audio: HTMLAudioElement;
-  cancel: () => void;
+interface AudioRequest {
+  audio: Promise<Blob>;
+  controller: AbortController;
+  users: number;
+  complete: boolean;
 }
 
-interface ActiveBrowserSpeech {
-  utterance: SpeechSynthesisUtterance;
-  cancel: () => void;
+interface QueuedSpeech {
+  content: string;
+  locale: string;
+  request: AudioRequest;
+  controller: AbortController;
+  started: boolean;
+  finished: boolean;
+  start: () => void;
+  finish: () => void;
 }
 
-const audioCache = new Map<string, Promise<Blob>>();
+const audioCache = new Map<string, AudioRequest>();
 const speechQueue: QueuedSpeech[] = [];
-let playbackGeneration = 0;
 let processingQueue = false;
-let activeAudio: ActiveAudio | undefined;
-let activeBrowserSpeech: ActiveBrowserSpeech | undefined;
+let activeSpeech: QueuedSpeech | undefined;
+const TTS_TIMEOUT_MS = 20_000;
+const PLAYBACK_START_TIMEOUT_MS = 6_000;
 
 /** ElevenLabs rejects bursts, and prefetching both branches can ask for a dozen clips at once. */
 const MAX_TTS_REQUESTS = 3;
 let ttsInFlight = 0;
 const ttsWaiting: (() => void)[] = [];
 
-async function withTtsSlot<T>(task: () => Promise<T>): Promise<T> {
-  // A finished request hands its slot straight to the next waiter, so the count never overshoots.
-  if (ttsInFlight >= MAX_TTS_REQUESTS) await new Promise<void>((resolve) => ttsWaiting.push(resolve));
-  else ttsInFlight += 1;
-  try {
-    return await task();
-  } finally {
-    const next = ttsWaiting.shift();
-    if (next) next();
-    else ttsInFlight -= 1;
-  }
+function abortError(): Error {
+  return new Error("Speech was cancelled.");
 }
 
-function fetchAudio(content: string, locale: string, voice: Voice): Promise<Blob> {
-  return withTtsSlot(() => requestAudio(content, locale, voice));
+/** Cancellation releases the playback queue even if a network implementation never settles. */
+function untilAborted<T>(pending: Promise<T>, signal: AbortSignal): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(abortError());
+    if (signal.aborted) reject(abortError());
+    else signal.addEventListener("abort", abort, { once: true });
+    pending.then(resolve, reject).finally(() => signal.removeEventListener("abort", abort));
+  });
 }
 
-async function requestAudio(content: string, locale: string, voice: Voice): Promise<Blob> {
+function acquireTtsSlot(signal: AbortSignal): Promise<() => void> {
+  return new Promise((resolve, reject) => {
+    const release = () => {
+      const next = ttsWaiting.shift();
+      if (next) next();
+      else ttsInFlight -= 1;
+    };
+    const start = () => {
+      signal.removeEventListener("abort", abort);
+      resolve(release);
+    };
+    const abort = () => {
+      const index = ttsWaiting.indexOf(start);
+      if (index >= 0) ttsWaiting.splice(index, 1);
+      reject(abortError());
+    };
+    if (signal.aborted) reject(abortError());
+    else if (ttsInFlight < MAX_TTS_REQUESTS) {
+      ttsInFlight += 1;
+      start();
+    } else {
+      ttsWaiting.push(start);
+      signal.addEventListener("abort", abort, { once: true });
+    }
+  });
+}
+
+async function requestAudio(content: string, locale: string, voice: Voice, signal: AbortSignal): Promise<Blob> {
   const response = await fetch("/api/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text: content, lang: locale, voice }),
+    signal,
   });
   const contentType = response.headers.get("content-type");
-  if (
-    !response.ok ||
-    contentType?.split(";", 1)[0].trim().toLowerCase() !== "audio/mpeg"
-  ) {
+  if (!response.ok || contentType?.split(";", 1)[0].trim().toLowerCase() !== "audio/mpeg") {
     throw new Error("Speech audio is unavailable.");
   }
-
   const audio = await response.blob();
   if (audio.size === 0) throw new Error("Speech audio is empty.");
   return audio;
 }
 
-function getAudio(content: string, locale: string, voice: Voice): Promise<Blob> {
+function getAudio(content: string, locale: string, voice: Voice): AudioRequest {
   const key = JSON.stringify([content, normalizeLocale(locale), voice]);
   const cached = audioCache.get(key);
-  if (cached) return cached;
+  if (cached && !cached.controller.signal.aborted) return cached;
 
-  const request = fetchAudio(content, locale, voice);
+  const controller = new AbortController();
+  const request: AudioRequest = { controller, users: 0, complete: false, audio: Promise.resolve(new Blob()) };
+  const timeout = setTimeout(() => controller.abort(), TTS_TIMEOUT_MS);
+  request.audio = (async () => {
+    const release = await acquireTtsSlot(controller.signal);
+    try {
+      if (controller.signal.aborted) throw abortError();
+      return await untilAborted(requestAudio(content, locale, voice, controller.signal), controller.signal);
+    } finally {
+      release();
+    }
+  })().finally(() => {
+    clearTimeout(timeout);
+    request.complete = true;
+  });
   audioCache.set(key, request);
-  void request.catch(() => {
+  void request.audio.catch(() => {
     if (audioCache.get(key) === request) audioCache.delete(key);
   });
   return request;
 }
 
-function playAudio(audioBlob: Blob): Promise<void> {
+function playAudio(audioBlob: Blob, signal: AbortSignal, onStart: () => void, textLength: number): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (
-      typeof Audio === "undefined" ||
-      typeof URL.createObjectURL !== "function" ||
-      typeof URL.revokeObjectURL !== "function"
-    ) {
+    if (signal.aborted || typeof Audio === "undefined" ||
+      typeof URL.createObjectURL !== "function" || typeof URL.revokeObjectURL !== "function") {
       reject(new Error("Audio playback is unavailable."));
       return;
     }
-
+    let audio: HTMLAudioElement;
     let objectUrl: string;
     try {
+      audio = new Audio();
       objectUrl = URL.createObjectURL(audioBlob);
     } catch {
       reject(new Error("Audio playback is unavailable."));
       return;
     }
-
-    let audio: HTMLAudioElement;
-    try {
-      audio = new Audio();
-    } catch {
-      try {
-        URL.revokeObjectURL(objectUrl);
-      } catch {
-        // Ignore URL cleanup failures when audio cannot be constructed.
-      }
-      reject(new Error("Audio playback is unavailable."));
-      return;
-    }
-
     let settled = false;
-    const cleanup = () => {
-      audio.onended = null;
-      audio.onerror = null;
-      if (activeAudio?.audio === audio) activeAudio = undefined;
-      try {
-        URL.revokeObjectURL(objectUrl);
-      } catch {
-        // The object URL may already have been revoked during page teardown.
-      }
-    };
+    let started = false;
+    let watchdog: ReturnType<typeof setTimeout>;
     const finish = (error?: Error) => {
       if (settled) return;
       settled = true;
-      cleanup();
-      if (error) reject(error);
-      else resolve();
-    };
-    const pauseAndFinish = (error?: Error) => {
-      if (settled) return;
-      settled = true;
-      try {
-        audio.pause();
-      } catch {
-        // Playback may already have stopped.
+      clearTimeout(watchdog);
+      signal.removeEventListener("abort", abort);
+      audio.onplaying = audio.onended = audio.onerror = null;
+      if (error) {
+        try { audio.pause(); } catch { /* Playback may already have stopped. */ }
       }
-      cleanup();
+      try { URL.revokeObjectURL(objectUrl); } catch { /* Already cleaned up by the browser. */ }
       if (error) reject(error);
       else resolve();
     };
-
-    activeAudio = {
-      audio,
-      cancel: () => pauseAndFinish(),
+    const abort = () => finish(abortError());
+    signal.addEventListener("abort", abort, { once: true });
+    audio.onplaying = () => {
+      if (settled || started || signal.aborted) return;
+      started = true;
+      clearTimeout(watchdog);
+      watchdog = setTimeout(() => finish(new Error("Audio playback timed out.")), Math.max(15_000, textLength * 400));
+      onStart();
     };
     audio.onended = () => finish();
-    audio.onerror = () => pauseAndFinish(new Error("Audio playback failed."));
-
+    audio.onerror = () => finish(new Error("Audio playback failed."));
+    watchdog = setTimeout(() => finish(new Error("Audio playback did not start.")), PLAYBACK_START_TIMEOUT_MS);
     try {
       audio.src = objectUrl;
-      const playback = audio.play();
-      if (playback) {
-        void playback.catch(() =>
-          pauseAndFinish(new Error("Audio playback failed.")),
-        );
-      }
+      void audio.play()?.catch(() => finish(new Error("Audio playback failed.")));
     } catch {
-      pauseAndFinish(new Error("Audio playback failed."));
+      finish(new Error("Audio playback failed."));
     }
   });
 }
 
-function speakWithBrowser(content: string, locale: string): Promise<void> {
+function speakWithBrowser(content: string, locale: string, signal: AbortSignal, onStart: () => void): Promise<void> {
   const synthesis = getSpeechSynthesis();
-  if (!synthesis || typeof SpeechSynthesisUtterance === "undefined") {
-    return Promise.resolve();
-  }
+  if (signal.aborted || !synthesis || typeof SpeechSynthesisUtterance === "undefined") return Promise.resolve();
 
   return new Promise((resolve) => {
     let utterance: SpeechSynthesisUtterance;
     try {
       utterance = new SpeechSynthesisUtterance(content);
-      if (locale) utterance.lang = locale;
+      utterance.lang = locale;
       utterance.rate = 0.95;
       const voice = pickVoice(synthesis, locale);
       if (voice) utterance.voice = voice;
@@ -253,49 +260,54 @@ function speakWithBrowser(content: string, locale: string): Promise<void> {
       resolve();
       return;
     }
-
-    const finish = () => {
-      utterance.onend = null;
-      utterance.onerror = null;
-      if (activeBrowserSpeech?.utterance === utterance) {
-        activeBrowserSpeech = undefined;
+    let settled = false;
+    let started = false;
+    let watchdog: ReturnType<typeof setTimeout>;
+    const finish = (cancel = false) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(watchdog);
+      signal.removeEventListener("abort", abort);
+      utterance.onstart = utterance.onend = utterance.onerror = null;
+      if (cancel) {
+        try { synthesis.cancel(); } catch { /* The speech engine may have closed. */ }
       }
       resolve();
     };
-    utterance.onend = finish;
-    utterance.onerror = finish;
-    activeBrowserSpeech = { utterance, cancel: finish };
-
-    try {
-      synthesis.speak(utterance);
-    } catch {
-      finish();
-    }
+    const abort = () => finish(true);
+    signal.addEventListener("abort", abort, { once: true });
+    utterance.onstart = () => {
+      if (settled || started || signal.aborted) return;
+      started = true;
+      clearTimeout(watchdog);
+      watchdog = setTimeout(() => finish(true), Math.max(15_000, content.length * 400));
+      onStart();
+    };
+    utterance.onend = () => finish();
+    utterance.onerror = () => finish();
+    watchdog = setTimeout(() => finish(true), PLAYBACK_START_TIMEOUT_MS);
+    try { synthesis.speak(utterance); } catch { finish(); }
   });
 }
 
 async function processSpeechQueue(): Promise<void> {
   if (processingQueue) return;
   processingQueue = true;
-
   try {
     while (speechQueue.length > 0) {
-      const item = speechQueue.shift();
-      if (!item) continue;
+      const item = speechQueue.shift()!;
+      activeSpeech = item;
       try {
-        if (item.generation !== playbackGeneration) continue;
+        if (item.controller.signal.aborted) continue;
         try {
-          const audioBlob = await item.audio;
-          if (item.generation !== playbackGeneration) continue;
-          item.onStart?.();
-          await playAudio(audioBlob);
+          const audio = await untilAborted(item.request.audio, item.controller.signal);
+          if (!item.controller.signal.aborted) await playAudio(audio, item.controller.signal, item.start, item.content.length);
         } catch {
-          if (item.generation !== playbackGeneration) continue;
-          item.onStart?.();
-          await speakWithBrowser(item.content, item.locale);
+          if (!item.controller.signal.aborted) await speakWithBrowser(item.content, item.locale, item.controller.signal, item.start);
         }
       } finally {
-        item.done();
+        item.finish();
+        if (activeSpeech === item) activeSpeech = undefined;
       }
     }
   } finally {
@@ -303,45 +315,53 @@ async function processSpeechQueue(): Promise<void> {
   }
 }
 
-/** Queue speech, preferring server audio with browser speech as a fallback. */
-/** Fetch speech audio ahead of time so speak() can play it without waiting. */
+/** Fetch speech ahead of time without claiming that playback has started. */
 export function preloadSpeech(text: string, locale: string, voice: Voice = "narrator"): void {
   const content = text.trim();
   if (!content || typeof window === "undefined") return;
-  void getAudio(content, locale.trim(), voice).catch(() => {});
+  void getAudio(content, locale.trim(), voice).audio.catch(() => {});
 }
 
-/** Resolves when this clip finishes, fails, or is cancelled by stopSpeaking(). Never rejects. */
-export function speak(text: string, locale: string, { voice = "narrator", onStart }: SpeakOptions = {}): Promise<void> {
+/** Never rejects. A non-started, non-cancelled result lets callers show readable captions. */
+export function speak(text: string, locale: string, { voice = "narrator", onStart, signal }: SpeakOptions = {}): Promise<SpeakResult> {
   const content = text.trim();
-  if (!content || typeof window === "undefined") return Promise.resolve();
-
-  return new Promise((done) => {
-    speechQueue.push({
-      content,
-      locale: locale.trim(),
-      generation: playbackGeneration,
-      audio: getAudio(content, locale.trim(), voice),
-      onStart,
-      done,
-    });
-    void processSpeechQueue().catch(() => undefined);
+  if (!content || typeof window === "undefined" || signal?.aborted) {
+    return Promise.resolve({ started: false, cancelled: signal?.aborted ?? false });
+  }
+  return new Promise((resolve) => {
+    const controller = new AbortController();
+    const request = getAudio(content, locale.trim(), voice);
+    request.users += 1;
+    const cancel = () => controller.abort();
+    const item: QueuedSpeech = {
+      content, locale: locale.trim(), request, controller, started: false, finished: false,
+      start() {
+        if (item.finished || item.started || controller.signal.aborted) return;
+        item.started = true;
+        try { onStart?.(); } catch { /* A UI callback must not strand the audio queue. */ }
+      },
+      finish() {
+        if (item.finished) return;
+        item.finished = true;
+        signal?.removeEventListener("abort", cancel);
+        controller.signal.removeEventListener("abort", item.finish);
+        request.users -= 1;
+        if (controller.signal.aborted && request.users === 0 && !request.complete) request.controller.abort();
+        resolve({ started: item.started, cancelled: controller.signal.aborted });
+      },
+    };
+    controller.signal.addEventListener("abort", item.finish, { once: true });
+    signal?.addEventListener("abort", cancel, { once: true });
+    speechQueue.push(item);
+    void processSpeechQueue();
   });
 }
 
 export function stopSpeaking(): void {
-  playbackGeneration += 1;
-  for (const item of speechQueue.splice(0)) item.done();
-  activeAudio?.cancel();
-  activeBrowserSpeech?.cancel();
-
+  activeSpeech?.controller.abort();
+  for (const item of speechQueue.splice(0)) item.controller.abort();
   const synthesis = getSpeechSynthesis();
-  if (!synthesis) return;
-  try {
-    synthesis.cancel();
-  } catch {
-    // The browser may already have torn down its speech service.
-  }
+  try { synthesis?.cancel(); } catch { /* The browser may already have closed its speech service. */ }
 }
 
 interface RecognitionAlternative {

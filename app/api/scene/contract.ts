@@ -39,7 +39,7 @@ export interface SceneResponse {
   /** Uses the other language; empty when lessonComplete is true. */
   choices: string[];
   lessonComplete: boolean;
-  /** What the 3D engine plays for this scene, always valid for the world in lib/world.ts. */
+  /** What the 3D engine plays. Beat cues reference narration (0) or this response's lines (1-based). */
   stage: Stage;
 }
 

@@ -55,7 +55,12 @@ export interface Sim {
   props: Partial<Record<PropId, PropState>>;
   /** True once every beat has played. */
   done: boolean;
-  step(dt: number): void;
+  /** Finished beat slots, including skipped actions and actors absent from the cast. */
+  completedBeats: number;
+  /** Permit only beats below this cumulative count; a beat already running may finish. */
+  step(dt: number, beatLimit?: number): void;
+  /** Advance remaining actions for an explicit skip. False means the bounded budget ran out. */
+  finish(): boolean;
   /** True while two characters are allowed to be closer than touching, such as during a hug. */
   together(a: ActorId, b: ActorId): boolean;
 }
@@ -119,6 +124,7 @@ export function createSim(stage: Stage): Sim {
   });
 
   let dt = 0;
+  let allowedBeats = stage.beats.length;
   const actor = (id: ActorId) => actors[id];
   const at = (a: ActorState): Point => [a.x, a.z];
   const touching = (a: ActorState, b: ActorState) => RADIUS[a.id] + RADIUS[b.id];
@@ -357,11 +363,16 @@ export function createSim(stage: Stage): Sim {
 
   function* play() {
     for (let left = 0.6; left > 0; left -= dt) yield;
-    for (const beat of stage.beats) {
+    for (let index = 0; index < stage.beats.length; index++) {
+      // Dialogue cues release more of the existing timeline without recreating its state.
+      while (index >= allowedBeats) yield;
+      const beat = stage.beats[index];
       const a = actor(beat.actor);
-      if (!a) continue;
-      // The union is checked per action by the BEATS table's type.
-      yield* (BEATS[beat.action] as (b: Beat, a: ActorState) => Generator)(beat, a);
+      if (a) {
+        // The union is checked per action by the BEATS table's type.
+        yield* (BEATS[beat.action] as (b: Beat, a: ActorState) => Generator)(beat, a);
+      }
+      sim.completedBeats = index + 1;
     }
   }
 
@@ -449,9 +460,11 @@ export function createSim(stage: Stage): Sim {
   const sim: Sim = {
     actors,
     props,
-    done: false,
+    done: stage.beats.length === 0,
+    completedBeats: 0,
     together: (a, b) => close.has(pairKey(a, b)),
-    step(seconds) {
+    step(seconds, beatLimit = stage.beats.length) {
+      allowedBeats = Number.isNaN(beatLimit) ? 0 : Math.min(stage.beats.length, Math.max(0, Math.floor(beatLimit)));
       dt = Math.min(seconds, 0.1);
       for (const a of Object.values(actors)) {
         a.poseTime += dt;
@@ -464,6 +477,13 @@ export function createSim(stage: Stage): Sim {
       if (!sim.done && timeline.next().done) sim.done = true;
       separate();
       moveProps(before);
+    },
+    finish() {
+      // Fixed steps retain all movement/contact rules. Two simulated minutes per
+      // remaining beat leave room for a long walk while guaranteeing a finite skip.
+      const frames = Math.max(1, stage.beats.length - sim.completedBeats) * 120 * 30;
+      for (let frame = 0; frame < frames && !sim.done; frame++) sim.step(1 / 30);
+      return sim.done;
     },
   };
   return sim;

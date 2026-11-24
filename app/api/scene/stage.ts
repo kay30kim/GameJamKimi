@@ -1,5 +1,6 @@
 import { ACTORS, EMOTIONS, MAX_BEATS, PROPS, SPOTS, WEATHERS } from "../../../lib/world";
 import type { ActorId, Beat, Emotion, PropId, Spot, Stage, Weather } from "../../../lib/world";
+import { MAX_LINES } from "./contract";
 
 type Fields = Record<string, unknown>;
 
@@ -33,7 +34,12 @@ const BEAT_PARSERS: Record<Beat["action"], (actor: ActorId, raw: Fields) => Beat
 
 function parseBeat(raw: unknown): Beat | null {
   if (!isRecord(raw) || !isActor(raw.actor) || typeof raw.action !== "string" || !Object.hasOwn(BEAT_PARSERS, raw.action)) return null;
-  return BEAT_PARSERS[raw.action as Beat["action"]](raw.actor, raw);
+  const beat = BEAT_PARSERS[raw.action as Beat["action"]](raw.actor, raw);
+  // Bad timing metadata must not remove an otherwise playable action.
+  if (beat && typeof raw.cue === "number" && Number.isInteger(raw.cue) && raw.cue >= 0 && raw.cue <= MAX_LINES) {
+    beat.cue = raw.cue;
+  }
+  return beat;
 }
 
 function actorsIn(beat: Beat): ActorId[] {

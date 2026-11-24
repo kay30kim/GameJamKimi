@@ -97,9 +97,9 @@ function Director({ sim, paused }: { sim: Sim; paused: boolean }) {
   return null;
 }
 
-function World({ stage, replay, talk, paused, overview = false, reducedMotion }: StageProps & { reducedMotion: boolean }) {
+function World({ stage, replay, talk, paused, simulation, overview = false, reducedMotion }: StageProps & { reducedMotion: boolean }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- replay restarts the same stage
-  const sim = useMemo(() => createSim(stage), [stage, replay]);
+  const sim = useMemo(() => simulation ?? createSim(stage), [stage, replay, simulation]);
   const sun = useRef<DirectionalLight>(null);
   const { gl } = useThree();
   useEffect(() => {
@@ -122,7 +122,7 @@ function World({ stage, replay, talk, paused, overview = false, reducedMotion }:
     <directionalLight position={[5, 8, -9]} color="#fff2d7" intensity={stage.weather === "rainy" ? 0.6 : 1.2} />
     <Meadow />
     {stage.weather === "rainy" && <Rain sim={sim} />}
-    <Director sim={sim} paused={paused} />
+    {!simulation && <Director sim={sim} paused={paused} />}
     <CameraDirector sim={sim} talk={talk} sun={sun} sunOffset={light.offset} reducedMotion={reducedMotion} overview={overview} />
     {(Object.keys(sim.actors) as ActorId[]).map((id) => <CastMember key={id} id={id} sim={sim} talk={talk} />)}
     {(Object.keys(sim.props) as PropId[]).map((id) => <PropItem key={id} id={id} sim={sim} />)}
@@ -147,6 +147,8 @@ export interface StageProps {
   replay: number;
   talk: Talk;
   paused: boolean;
+  /** Shared speech/action simulation, advanced by the story's playback clock. */
+  simulation?: Sim;
   /** Frame the cast to the right of the welcome panel. */
   overview?: boolean;
 }
