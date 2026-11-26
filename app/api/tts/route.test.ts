@@ -558,11 +558,51 @@ test("provider failure logs expose stage and HTTP status without credentials or 
   metadataFails = false;
   await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
   assert.deepEqual(warnings, [
-    ["[tts] provider request failed", { provider: "typecast", stage: "voice-metadata", status: 401 }],
-    ["[tts] provider request failed", { provider: "typecast", stage: "synthesis", status: 429 }],
+    ["[tts] provider request failed", { provider: "typecast", stage: "voice-metadata", status: 401, contentType: "other", server: "other", category: "unknown" }],
+    ["[tts] provider request failed", { provider: "typecast", stage: "synthesis", status: 429, contentType: "text", server: "other", category: "unknown" }],
   ]);
   const logged = JSON.stringify(warnings);
   for (const privateValue of ["test-typecast-key", "안녕, 친구야!", "private provider details", process.env.TYPECAST_VOICE_HERO!]) {
     assert.equal(logged.includes(privateValue), false);
   }
+});
+
+test("provider diagnostics distinguish edge denial from JSON permission errors without logging bodies", async (t) => {
+  environment(t);
+  const warnings: unknown[][] = [];
+  t.mock.method(console, "warn", (...args: unknown[]) => { warnings.push(args); });
+  const failures = [
+    new Response("<html>Request blocked by CloudFront. private-request-id</html>", { status: 403, headers: { "Content-Type": "text/html", Server: "CloudFront" } }),
+    Response.json({ error: { code: "PERMISSION_DENIED", message: "Starter plan unavailable: private-account-detail" } }, { status: 403 }),
+    Response.json({ detail: { code: "SECRET_API_KEY" }, message: "IP address not allowed: 192.0.2.1" }, { status: 403 }),
+    Response.json({ error: { code: "PRIVATE DIALOGUE" } }, { status: 403 }),
+    Response.json({ error_code: "PERMISSION_DENIED", message: "This is a dormant account: private-account-id" }, { status: 403 }),
+  ];
+  provider(t, { audio: () => failures.shift()! });
+  for (let i = 0; i < 5; i++) await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
+  assert.deepEqual(warnings.map((entry) => entry[1]), [
+    { provider: "typecast", stage: "synthesis", status: 403, contentType: "html", server: "cloudfront", category: "waf" },
+    { provider: "typecast", stage: "synthesis", status: 403, contentType: "json", server: "other", category: "plan", code: "PERMISSION_DENIED" },
+    { provider: "typecast", stage: "synthesis", status: 403, contentType: "json", server: "other", category: "ip" },
+    { provider: "typecast", stage: "synthesis", status: 403, contentType: "json", server: "other", category: "unknown" },
+    { provider: "typecast", stage: "synthesis", status: 403, contentType: "json", server: "other", category: "auth", code: "PERMISSION_DENIED" },
+  ]);
+  const logged = JSON.stringify(warnings);
+  for (const value of ["private-request-id", "private-account-detail", "private-account-id", "192.0.2.1", "SECRET_API_KEY", "PRIVATE DIALOGUE"]) assert.equal(logged.includes(value), false);
+});
+
+test("provider diagnostic reads are bounded and a stalled error body cannot hang a failed request", async (t) => {
+  environment(t);
+  let cancelled = false;
+  const warnings: unknown[][] = [];
+  t.mock.method(console, "warn", (...args: unknown[]) => { warnings.push(args); });
+  provider(t, { audio: () => new Response(new ReadableStream({ cancel() { cancelled = true; } }), { status: 403 }) });
+  await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
+  assert.equal(cancelled, true);
+  assert.equal(warnings.length, 1);
+  assert.equal((warnings[0][1] as { category: string }).category, "unknown");
+
+  provider(t, { audio: () => new Response(" ".repeat(8192) + "secret API key", { status: 403 }) });
+  await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
+  assert.equal((warnings[1][1] as { category: string }).category, "unknown", "text beyond the prefix is never inspected");
 });

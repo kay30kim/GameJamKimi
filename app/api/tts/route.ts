@@ -50,9 +50,58 @@ function isMp3(bytes: Uint8Array): boolean {
     (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0));
 }
 
-/** Diagnose deployment/provider failures without recording credentials or dialogue. */
-function reportProviderFailure(provider: "typecast" | "elevenlabs", stage: "voice-metadata" | "synthesis", status: number) {
-  console.warn("[tts] provider request failed", { provider, stage, status });
+/** Read only a bounded error prefix; diagnostics must not delay a failed request. */
+async function errorPrefix(response: Response): Promise<string> {
+  const reader = response.body?.getReader();
+  if (!reader) return "";
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      (async () => {
+        const decoder = new TextDecoder();
+        let text = "";
+        let remaining = 8192;
+        while (remaining > 0) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          text += decoder.decode(value.subarray(0, remaining), { stream: true });
+          remaining -= value.length;
+        }
+        return text + decoder.decode();
+      })(),
+      new Promise<string>((resolve) => { timeout = setTimeout(() => resolve(""), 750); }),
+    ]);
+  } catch { return ""; }
+  finally {
+    clearTimeout(timeout);
+    void reader.cancel().catch(() => {});
+  }
+}
+
+/** Log fixed categories and machine codes, never provider messages, credentials or dialogue. */
+async function reportProviderFailure(provider: "typecast" | "elevenlabs", stage: "voice-metadata" | "synthesis", response: Response) {
+  const mime = response.headers.get("content-type") ?? "";
+  const contentType = /json/i.test(mime) ? "json" : /html/i.test(mime) ? "html" : /text\//i.test(mime) ? "text" : "other";
+  const edge = [response.headers.get("server"), response.headers.get("via"), response.headers.get("x-cache")].join(" ");
+  const server = /cloudfront/i.test(edge) ? "cloudfront" : /cloudflare/i.test(edge) ? "cloudflare" : "other";
+  const body = await errorPrefix(response);
+  const category = /\b(?:waf|cloudfront|cloudflare|bot detection|request blocked)\b/i.test(body) ? "waf"
+    : /\b(?:ip address|ip restriction|ip allowlist|ip whitelist)\b/i.test(body) ? "ip"
+    : /\b(?:region|country|geographic|geo.block)\b/i.test(body) ? "region"
+    : /\b(?:starter|subscription|plan|upgrade)\b/i.test(body) ? "plan"
+    : /\b(?:quota|credits?|balance|payment)\b/i.test(body) ? "quota"
+    : /\b(?:api.?key|unauthorized|authentication|invalid token|dormant account)\b/i.test(body) ? "auth"
+    : /\b(?:forbidden|permission|access denied)\b/i.test(body) ? "permission" : "unknown";
+  let code: string | undefined;
+  if (contentType === "json") {
+    try {
+      const parsed = JSON.parse(body);
+      const candidate: unknown = parsed?.error?.code ?? parsed?.error?.type ?? parsed?.detail?.code ?? parsed?.error_code;
+      if (typeof candidate === "string" && /^[A-Z][A-Z0-9_]{0,63}$/.test(candidate) &&
+        !/(?:KEY|TOKEN|SECRET|TEXT|VOICE|PASSWORD|AUTHORIZATION)/.test(candidate)) code = candidate;
+    } catch { /* A truncated or non-JSON error still has safe header/category diagnostics. */ }
+  }
+  console.warn("[tts] provider request failed", { provider, stage, status: response.status, contentType, server, category, ...(code ? { code } : {}) });
 }
 
 async function checkedEmotions(config: TypecastConfig, voice: Voice, signal: AbortSignal): Promise<string[]> {
@@ -64,7 +113,7 @@ async function checkedEmotions(config: TypecastConfig, voice: Voice, signal: Abo
     headers: { "X-API-KEY": config.apiKey }, cache: "no-store", signal,
   });
   if (!metadata.ok) {
-    reportProviderFailure("typecast", "voice-metadata", metadata.status);
+    await reportProviderFailure("typecast", "voice-metadata", metadata);
     throw new SpeechFailure(502, "TTS_UPSTREAM_ERROR", "Speech service failed.");
   }
   const emotions = typecastEmotions(await metadata.json(), config, voice);
@@ -193,7 +242,7 @@ export async function POST(request: Request): Promise<Response> {
     });
 
     if (!upstream.ok) {
-      reportProviderFailure(typecast ? "typecast" : "elevenlabs", "synthesis", upstream.status);
+      await reportProviderFailure(typecast ? "typecast" : "elevenlabs", "synthesis", upstream);
       throw new SpeechFailure(502, "TTS_UPSTREAM_ERROR", "Speech service failed.");
     }
 
