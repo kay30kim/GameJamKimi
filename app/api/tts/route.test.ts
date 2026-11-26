@@ -14,6 +14,7 @@ const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
 let fixtureId = 0;
 
 function environment(t: TestContext, changes: Record<string, string | undefined> = {}) {
+  t.mock.method(console, "warn", () => {});
   const values: Record<string, string | undefined> = {
     TYPECAST_API_KEY: "test-typecast-key",
     TYPECAST_MODEL: undefined,
@@ -542,4 +543,26 @@ test("validated voice metadata is reused across different lines", async (t) => {
   assert.equal((await POST(request({ text: "두 번째 대사야.", lang: "ko-KR", voice: "hero" }))).status, 200);
   assert.equal(syntheses(calls).length, 2);
   assert.equal(calls.filter(({ url }) => url.startsWith(`${api}/v3/voices/`)).length, 1);
+});
+
+test("provider failure logs expose stage and HTTP status without credentials or dialogue", async (t) => {
+  environment(t);
+  const warnings: unknown[][] = [];
+  t.mock.method(console, "warn", (...args: unknown[]) => { warnings.push(args); });
+  let metadataFails = true;
+  provider(t, {
+    metadata: (id) => metadataFails ? new Response(null, { status: 401 }) : Response.json(voiceDetails(id)),
+    audio: () => new Response("private provider details", { status: 429 }),
+  });
+  await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
+  metadataFails = false;
+  await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
+  assert.deepEqual(warnings, [
+    ["[tts] provider request failed", { provider: "typecast", stage: "voice-metadata", status: 401 }],
+    ["[tts] provider request failed", { provider: "typecast", stage: "synthesis", status: 429 }],
+  ]);
+  const logged = JSON.stringify(warnings);
+  for (const privateValue of ["test-typecast-key", "안녕, 친구야!", "private provider details", process.env.TYPECAST_VOICE_HERO!]) {
+    assert.equal(logged.includes(privateValue), false);
+  }
 });

@@ -50,6 +50,11 @@ function isMp3(bytes: Uint8Array): boolean {
     (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0));
 }
 
+/** Diagnose deployment/provider failures without recording credentials or dialogue. */
+function reportProviderFailure(provider: "typecast" | "elevenlabs", stage: "voice-metadata" | "synthesis", status: number) {
+  console.warn("[tts] provider request failed", { provider, stage, status });
+}
+
 async function checkedEmotions(config: TypecastConfig, voice: Voice, signal: AbortSignal): Promise<string[]> {
   const key = generatedKey({ account: config.apiKey, voice: config.voiceId, model: config.model, role: voice });
   const cached = voiceMetadata.get(key);
@@ -58,7 +63,10 @@ async function checkedEmotions(config: TypecastConfig, voice: Voice, signal: Abo
   const metadata = await fetch(`${TYPECAST_BASE_URL}/v3/voices/${encodeURIComponent(config.voiceId)}`, {
     headers: { "X-API-KEY": config.apiKey }, cache: "no-store", signal,
   });
-  if (!metadata.ok) throw new SpeechFailure(502, "TTS_UPSTREAM_ERROR", "Speech service failed.");
+  if (!metadata.ok) {
+    reportProviderFailure("typecast", "voice-metadata", metadata.status);
+    throw new SpeechFailure(502, "TTS_UPSTREAM_ERROR", "Speech service failed.");
+  }
   const emotions = typecastEmotions(await metadata.json(), config, voice);
   signal.throwIfAborted();
   if (!emotions) throw new SpeechFailure(503, "TTS_NOT_CONFIGURED", "The selected speech voice is not compatible.");
@@ -185,6 +193,7 @@ export async function POST(request: Request): Promise<Response> {
     });
 
     if (!upstream.ok) {
+      reportProviderFailure(typecast ? "typecast" : "elevenlabs", "synthesis", upstream.status);
       throw new SpeechFailure(502, "TTS_UPSTREAM_ERROR", "Speech service failed.");
     }
 
