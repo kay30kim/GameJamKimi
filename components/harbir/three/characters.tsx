@@ -4,14 +4,15 @@ import { useFrame, useLoader } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { RefObject } from "react";
 import type { ReactNode } from "react";
-import { Group, MathUtils, Vector3 } from "three";
+import { CatmullRomCurve3, Group, MathUtils, Vector3 } from "three";
 import type { Object3D } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { motionOf } from "@/lib/harbir/motion";
 import type { Motion } from "@/lib/harbir/motion";
 import type { Sim } from "@/lib/harbir/sim";
-import { PALETTE } from "@/lib/harbir/style";
+import { PALETTE, ROUGHNESS } from "@/lib/harbir/style";
 import type { ActorId } from "@/lib/world";
+import type { CameraSubject } from "@/lib/camera-director";
 import { Blob, Face } from "./primitives";
 import { clearGripFloor, PALM, registerGrip, removeGrip } from "./grips";
 import type { GripPoint } from "./grips";
@@ -22,7 +23,7 @@ export interface Rig {
   rightArm?: Object3D | null;
   leftLeg?: Object3D | null;
   rightLeg?: Object3D | null;
-  /** Only Alice's model has a separate head, ears, and tail. */
+  /** Optional pivots for the model's head, ears, and tail. */
   head?: Object3D | null;
   leftEar?: Object3D | null;
   rightEar?: Object3D | null;
@@ -140,7 +141,7 @@ function pose(id: ActorId, sim: Sim, frame: Frame, rig: Rig, follow: Follow, del
 }
 
 /** Wraps a body in the posing groups and drives it every frame. */
-export function Puppet({ id, sim, rig, build = {}, children }: { id: ActorId; sim: Sim; rig: RefObject<Rig>; build?: Build; children: ReactNode }) {
+export function Puppet({ id, sim, rig, build = {}, cameraSubject, children }: { id: ActorId; sim: Sim; rig: RefObject<Rig>; build?: Build; cameraSubject?: CameraSubject; children: ReactNode }) {
   const place = useRef<Group>(null);
   const lift = useRef<Group>(null);
   const squash = useRef<Group>(null);
@@ -154,11 +155,18 @@ export function Puppet({ id, sim, rig, build = {}, children }: { id: ActorId; si
     removeGrip(sim, id, palm);
     palm.removeFromParent();
   }, [sim, id, palm]);
+  // This shared buffer is imperative frame data, like the Three rig; React never renders from it.
+  /* eslint-disable react-hooks/immutability */
   useFrame(({ clock }, delta) => {
     if (!place.current || !lift.current || !squash.current || !lean.current || !flip.current || !center.current) return;
     follow.current ??= newFollow(sim.actors[id]?.heading ?? 0);
     const frame = { place: place.current, lift: lift.current, squash: squash.current, lean: lean.current, flip: flip.current, center: center.current };
     pose(id, sim, frame, rig.current, follow.current, delta, clock.elapsedTime, build);
+    // Camera-only frame data follows the rendered pose without changing the simulation.
+    if (cameraSubject) {
+      cameraSubject.heading = frame.place.rotation.y;
+      cameraSubject.lift = frame.lift.position.y;
+    }
     const arm = rig.current.rightArm;
     if (arm) {
       if (palm.parent !== arm) arm.add(palm);
@@ -168,6 +176,7 @@ export function Puppet({ id, sim, rig, build = {}, children }: { id: ActorId; si
       registerGrip(sim, id, palm, frame.place);
     }
   }, -1);
+  /* eslint-enable react-hooks/immutability */
   return (
     <group ref={place}>
       <group ref={lift}>
@@ -244,7 +253,9 @@ function Limb({ rig, name, position, children }: { rig: SetLimb; name: keyof Rig
 }
 
 /** Momo the bear cub: warm brown, round ears, light muzzle, blue scarf. */
-function Momo({ rig }: { rig: SetLimb }) {
+type BodyProps = { rig: SetLimb; speaking?: boolean };
+
+function Momo({ rig, speaking = false }: BodyProps) {
   return (
     <group>
       {[-1, 1].map((side) => (
@@ -271,13 +282,13 @@ function Momo({ rig }: { rig: SetLimb }) {
         </group>
       ))}
       <Blob position={[0, 1.08, 0.27]} scale={[0.15, 0.11, 0.09]} color={PALETTE.bearMuzzle} />
-      <Face center={[0, 1.2, 0]} size={0.34} nose={PALETTE.eye} />
+      <Face center={[0, 1.2, 0]} size={0.34} nose={PALETTE.eye} speaking={speaking} />
     </group>
   );
 }
 
 /** Bori the puppy: honey fur, floppy ears, pink collar. Front legs use the arm slots. */
-function Bori({ rig }: { rig: SetLimb }) {
+function Bori({ rig, speaking = false }: BodyProps) {
   return (
     <group>
       {([[-1, 1], [1, 1], [-1, -1], [1, -1]] as const).map(([side, front]) => (
@@ -302,13 +313,13 @@ function Bori({ rig }: { rig: SetLimb }) {
       ))}
       <Blob position={[0, 0.78, 0.53]} scale={[0.13, 0.1, 0.1]} color={PALETTE.bearMuzzle} />
       <Blob position={[0, 0.82, 0.63]} scale={[0.05, 0.04, 0.035]} color={PALETTE.eye} shadow={false} />
-      <Face center={[0, 0.9, 0.32]} size={0.26} nose={PALETTE.eye} spread={1.05} />
+      <Face center={[0, 0.9, 0.32]} size={0.26} nose={PALETTE.eye} spread={1.05} speaking={speaking} />
     </group>
   );
 }
 
 /** Grandma Owl: soft brown feathers, ear tufts, gold glasses, lilac shawl. Wings use the arm slots. */
-function GrandmaOwl({ rig }: { rig: SetLimb }) {
+function GrandmaOwl({ rig, speaking = false }: BodyProps) {
   return (
     <group>
       {[-1, 1].map((side) => (
@@ -338,13 +349,20 @@ function GrandmaOwl({ rig }: { rig: SetLimb }) {
           </mesh>
         </group>
       ))}
-      <Face center={[0, 1.38, 0]} size={0.36} nose={PALETTE.beak} spread={0.82} />
+      <Face center={[0, 1.38, 0]} size={0.36} nose={PALETTE.beak} spread={0.82} speaking={speaking} />
     </group>
   );
 }
 
 /** Nabi the kitten: ginger tabby fur, pointed ears, curled tail, lilac bow. Front legs use the arm slots. */
-function Nabi({ rig }: { rig: SetLimb }) {
+function Nabi({ rig, speaking = false }: BodyProps) {
+  const tailCurve = useMemo(() => new CatmullRomCurve3([
+    new Vector3(0, 0, 0),
+    new Vector3(0, 0.12, -0.13),
+    new Vector3(0, 0.29, -0.16),
+    new Vector3(0, 0.43, -0.1),
+    new Vector3(0, 0.47, 0),
+  ]), []);
   return (
     <group>
       {([[-1, 1], [1, 1], [-1, -1], [1, -1]] as const).map(([side, front]) => (
@@ -361,10 +379,14 @@ function Nabi({ rig }: { rig: SetLimb }) {
       <Blob position={[0, 0.42, 0]} scale={[0.25, 0.22, 0.38]} color={PALETTE.kittenFur} />
       <Blob position={[0, 0.36, 0.04]} scale={[0.18, 0.14, 0.3]} color={PALETTE.kittenBelly} shadow={false} />
       {[-0.12, 0.02, 0.16].map((z) => <Blob key={z} position={[0, 0.6, z]} scale={[0.2, 0.04, 0.035]} color={PALETTE.kittenStripe} shadow={false} />)}
-      {/* The tail curls up behind, like a question mark. */}
-      {[[0, 0.48, -0.4, 0.06], [0, 0.66, -0.48, 0.055], [0, 0.84, -0.44, 0.05], [0, 0.95, -0.34, 0.045]].map(([x, y, z, r]) => (
-        <Blob key={y} position={[x, y, z]} scale={[r, r * 1.3, r]} color={PALETTE.kittenFur} />
-      ))}
+      {/* One continuous curl, rooted inside the rump so wagging never opens a gap. */}
+      <Limb rig={rig} name="tail" position={[0, 0.48, -0.3]}>
+        <mesh castShadow>
+          <tubeGeometry args={[tailCurve, 32, 0.052, 12, false]} />
+          <meshStandardMaterial color={PALETTE.kittenFur} roughness={ROUGHNESS.soft} />
+        </mesh>
+        <Blob position={[0, 0.47, 0]} scale={[0.052, 0.052, 0.052]} color={PALETTE.kittenFur} />
+      </Limb>
       <Blob position={[0, 0.8, 0.3]} scale={[0.26, 0.23, 0.23]} color={PALETTE.kittenFur} />
       {[-1, 1].map((side) => (
         <group key={side} position={[side * 0.15, 1.0, 0.27]} rotation={[0, 0, -side * 0.25]}>
@@ -376,13 +398,13 @@ function Nabi({ rig }: { rig: SetLimb }) {
       <Blob position={[0, 0.74, 0.5]} scale={[0.11, 0.08, 0.06]} color={PALETTE.kittenBelly} shadow={false} />
       <Blob position={[0.16, 0.66, 0.44]} rotation={[0, 0, 0.4]} scale={[0.07, 0.045, 0.04]} color={PALETTE.kittenBow} />
       <Blob position={[0.24, 0.66, 0.42]} rotation={[0, 0, -0.4]} scale={[0.07, 0.045, 0.04]} color={PALETTE.kittenBow} />
-      <Face center={[0, 0.82, 0.3]} size={0.23} nose={PALETTE.cheek} spread={1.05} />
+      <Face center={[0, 0.82, 0.3]} size={0.23} nose={PALETTE.cheek} spread={1.05} noseDepth={0.02} mouthDepth={0.06} speaking={speaking} />
     </group>
   );
 }
 
 /** Dodo the duckling: round yellow down, orange bill and feet. Wings use the arm slots. */
-function Dodo({ rig }: { rig: SetLimb }) {
+function Dodo({ rig, speaking = false }: BodyProps) {
   return (
     <group>
       {[-1, 1].map((side) => (
@@ -401,7 +423,7 @@ function Dodo({ rig }: { rig: SetLimb }) {
       <Blob position={[0, 0.82, 0.03]} scale={[0.24, 0.23, 0.22]} color={PALETTE.duckDown} />
       <Blob position={[0, 1.06, 0]} scale={[0.04, 0.06, 0.04]} color={PALETTE.duckDown} />
       <Blob position={[0, 0.77, 0.24]} scale={[0.11, 0.04, 0.09]} color={PALETTE.duckBill} />
-      <Face center={[0, 0.84, 0.03]} size={0.22} nose={PALETTE.duckDown} spread={0.95} />
+      <Face center={[0, 0.84, 0.03]} size={0.22} nose={null} spread={0.95} mouthDepth={0.105} mouthWidth={2.4} speaking={speaking} />
     </group>
   );
 }
@@ -410,14 +432,14 @@ const BODIES = { friend: Momo, puppy: Bori, grownup: GrandmaOwl, kitten: Nabi, d
 /** Alice stays the biggest child; Grandma Owl is the tallest. */
 const BODY_SCALE = { friend: 0.88, puppy: 0.9, grownup: 1, kitten: 0.95, duck: 0.95 } as const;
 
-export function Character({ id, sim }: { id: keyof typeof BODIES; sim: Sim }) {
+export function Character({ id, sim, cameraSubject, speaking = false }: { id: keyof typeof BODIES; sim: Sim; cameraSubject?: CameraSubject; speaking?: boolean }) {
   // Filled in by each limb's ref callback after render; Puppet only reads it inside useFrame.
   const rig = useRef<Rig>({});
   const setLimb = useCallback<SetLimb>((name, limb) => { rig.current[name] = limb; }, []);
   const Body = BODIES[id];
   return (
-    <Puppet id={id} sim={sim} rig={rig}>
-      <group scale={BODY_SCALE[id]}><Body rig={setLimb} /></group>
+    <Puppet id={id} sim={sim} rig={rig} cameraSubject={cameraSubject}>
+      <group scale={BODY_SCALE[id]}><Body rig={setLimb} speaking={speaking} /></group>
     </Puppet>
   );
 }

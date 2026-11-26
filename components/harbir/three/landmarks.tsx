@@ -2,7 +2,7 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { Color, MathUtils, Object3D } from "three";
+import { Color, MathUtils, Object3D, Vector3 } from "three";
 import type { Group, InstancedMesh, Material } from "three";
 import { standingPoint } from "@/lib/harbir/sim";
 import type { Point } from "@/lib/harbir/sim";
@@ -37,12 +37,12 @@ export function Tree({ position, scale = 1, apples = false }: { position: Vec3; 
 }
 
 /**
- * A scenery tree that fades out while it stands between the camera and Alice,
- * so the high camera never loses sight of the story.
+ * Foreground trees yield to the actual view ray, including reverse dialogue shots.
  */
 function SceneryTree({ position, scale }: { position: Vec3; scale: number }) {
   const ref = useRef<Group>(null);
   const materials = useRef<Material[] | null>(null);
+  const direction = useMemo(() => new Vector3(), []);
   useFrame(({ camera }, delta) => {
     if (!materials.current) {
       const found: Material[] = [];
@@ -53,9 +53,15 @@ function SceneryTree({ position, scale }: { position: Vec3; scale: number }) {
       for (const material of found) material.transparent = true;
       materials.current = found;
     }
-    const focusZ = camera.position.z - CAMERA.distance;
-    const inCorridor = position[2] > focusZ + 0.5 && position[2] < camera.position.z + 1 &&
-      Math.abs(position[0] - camera.position.x) < 4.5 + scale;
+    camera.getWorldDirection(direction);
+    const focus = camera.userData.storyFocus as Vector3 | undefined;
+    const fx = focus?.x ?? camera.position.x + direction.x * CAMERA.distance;
+    const fz = focus?.z ?? camera.position.z + direction.z * CAMERA.distance;
+    const dx = camera.position.x - fx, dz = camera.position.z - fz;
+    const length2 = dx * dx + dz * dz;
+    const along = length2 > 0.01 ? ((position[0] - fx) * dx + (position[2] - fz) * dz) / length2 : -1;
+    const distance = Math.hypot(position[0] - fx - along * dx, position[2] - fz - along * dz);
+    const inCorridor = along > 0.06 && along < 1.15 && distance < 0.65 + scale * 1.2;
     for (const material of materials.current) {
       material.opacity = MathUtils.damp(material.opacity, inCorridor ? 0.18 : 1, 6, delta);
       material.depthWrite = material.opacity > 0.95;

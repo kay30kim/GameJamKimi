@@ -11,6 +11,7 @@ import { Beam, Ellipsoid as E, material, sphere } from "@/components/kay/three/p
 import type { Vec3 } from "@/components/kay/three/primitives";
 import type { SceneLine } from "@/app/api/scene/contract";
 import type { Sim } from "@/lib/harbir/sim";
+import type { CameraSubject } from "@/lib/camera-director";
 import type { ActorId, Emotion } from "@/lib/world";
 
 type Kind = "alice" | "momo" | "bori" | "owl";
@@ -58,25 +59,30 @@ function moodOf(id: ActorId, sim: Sim, { line }: Talk): Emotion {
 }
 
 /** Eyes, brows, mouth, and where the head looks. The body itself is posed by Puppet. */
-function useFace(id: KayActor, sim: Sim, talk: Talk) {
+function useFace(id: KayActor, sim: Sim, talk: Talk, cameraSubject?: CameraSubject) {
   const look = useRef<Group>(null), eyes = useRef<Group>(null), mouth = useRef<Mesh>(null);
   const browL = useRef<Group>(null), browR = useRef<Group>(null);
-  useFrame(({ clock }, elapsed) => {
+  useFrame(({ clock, camera }, elapsed) => {
     const actor = sim.actors[id];
     if (!actor || !look.current) return;
     const delta = Math.min(elapsed, 0.05);
     const t = clock.elapsedTime + Object.keys(LOOKS).indexOf(id) * 1.71;
     const { line } = talk;
-    const talking = line?.speaker === id && talk.speaking;
+    const isSpeaker = line?.speaker === id;
+    const talking = isSpeaker && talk.speaking;
     const mood = moodOf(id, sim, talk);
     const partner = line?.speaker === id ? line.to : line?.to === id ? line.speaker : undefined;
     const other = partner && sim.actors[partner];
-    const target = other || (!line && talk.watch);
-    const yaw = target ? MathUtils.clamp(wrapAngle(Math.atan2(target.x - actor.x, target.z - actor.z) - actor.heading), -0.7, 0.7) : 0;
+    // Face the shot as soon as the line is selected, including while its audio loads.
+    const target = isSpeaker ? camera.position : other || (!line && talk.watch);
+    const heading = cameraSubject?.heading ?? actor.heading;
+    const yawLimit = isSpeaker ? 0.45 : 0.7;
+    const yaw = target ? MathUtils.clamp(wrapAngle(Math.atan2(target.x - actor.x, target.z - actor.z) - heading), -yawLimit, yawLimit) : 0;
     // Only a watched point has a height; partners are looked at level.
     const watching = !other && !line && talk.watch;
     const up = watching ? MathUtils.clamp(-Math.atan2(watching.y - HEAD[id], Math.hypot(watching.x - actor.x, watching.z - actor.z)), -0.35, 0.3) : 0;
-    look.current.rotation.y = MathUtils.damp(look.current.rotation.y, yaw, 5, delta);
+    const easedYaw = MathUtils.damp(look.current.rotation.y, yaw, 5, delta);
+    look.current.rotation.y = isSpeaker ? MathUtils.clamp(easedYaw, -0.45, 0.45) : easedYaw;
     const bob = talking ? Math.sin(t * 4.1) * 0.06 : 0;
     look.current.rotation.x = MathUtils.damp(look.current.rotation.x, (mood === "sad" ? 0.13 : 0) + bob + up, 6, delta);
     look.current.rotation.z = MathUtils.damp(look.current.rotation.z, mood === "curious" ? -0.1 : mood === "sad" ? 0.1 : talking ? Math.sin(t * 2.9) * 0.07 : 0, 6, delta);
@@ -105,8 +111,8 @@ function Limb({ rig, name, position, rotation, children }: { rig: SetLimb; name:
   return <group position={position} rotation={rotation} ref={(group) => rig(name, group)}>{children}</group>;
 }
 
-function KayBody({ id, build: c, sim, talk, rig }: { id: KayActor; build: Look; sim: Sim; talk: Talk; rig: SetLimb }) {
-  const { look, eyes, mouth, browL, browR } = useFace(id, sim, talk);
+function KayBody({ id, build: c, sim, talk, rig, cameraSubject }: { id: KayActor; build: Look; sim: Sim; talk: Talk; rig: SetLimb; cameraSubject?: CameraSubject }) {
+  const { look, eyes, mouth, browL, browR } = useFace(id, sim, talk, cameraSubject);
   const kind = c.kind;
   const faceZ = kind === "owl" ? 0.46 : c.head[2] * 0.91;
   return <group scale={c.scale}>
@@ -172,16 +178,16 @@ function KayBody({ id, build: c, sim, talk, rig }: { id: KayActor; build: Look; 
   </group>;
 }
 
-function KayCharacter({ id, sim, talk }: { id: KayActor; sim: Sim; talk: Talk }) {
+function KayCharacter({ id, sim, talk, cameraSubject }: { id: KayActor; sim: Sim; talk: Talk; cameraSubject?: CameraSubject }) {
   const rig = useRef<Rig>({});
   const setLimb = useCallback<SetLimb>((name, limb) => { rig.current[name] = limb; }, []);
   const look = LOOKS[id];
   const build: Build = { middle: look.middle, upright: true, grip: [0.07, look.kind === "owl" ? -0.43 : -0.42, 0.025] };
-  return <Puppet id={id} sim={sim} rig={rig} build={build}><KayBody id={id} build={look} sim={sim} talk={talk} rig={setLimb} /></Puppet>;
+  return <Puppet id={id} sim={sim} rig={rig} build={build} cameraSubject={cameraSubject}><KayBody id={id} build={look} sim={sim} talk={talk} rig={setLimb} cameraSubject={cameraSubject} /></Puppet>;
 }
 
 /** Kay's faces for the original four friends; Nabi and Dodo keep Harbir's bodies until they get their own. */
-export function CastMember({ id, sim, talk }: { id: ActorId; sim: Sim; talk: Talk }) {
-  if (isKayActor(id)) return <KayCharacter id={id} sim={sim} talk={talk} />;
-  return <Character id={id as Exclude<ActorId, KayActor | "hero">} sim={sim} />;
+export function CastMember({ id, sim, talk, cameraSubject }: { id: ActorId; sim: Sim; talk: Talk; cameraSubject?: CameraSubject }) {
+  if (isKayActor(id)) return <KayCharacter id={id} sim={sim} talk={talk} cameraSubject={cameraSubject} />;
+  return <Character id={id as Exclude<ActorId, KayActor | "hero">} sim={sim} cameraSubject={cameraSubject} speaking={talk.speaking && talk.line?.speaker === id} />;
 }

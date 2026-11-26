@@ -1,0 +1,37 @@
+.page { min-height: 100svh; display: grid; grid-template-columns: 280px minmax(0, 1fr); background: #f8f6ed; color: #324c39; font-size: 14px; }
+.panel { height: 100svh; overflow: auto; padding: 22px 18px; border-right: 1px solid #d5daca; }
+.panel > a { font-size: 13px; text-decoration: underline; }
+.panel h1 { font-size: 25px; margin: 16px 0 10px; }
+.notice { padding: 12px; border-radius: 10px; background: #eee6d0; line-height: 1.5; }
+.field { display: grid; gap: 7px; margin: 18px 0; font-weight: 650; }
+.field select { width: 100%; min-height: 44px; border: 1px solid #acbaa3; border-radius: 8px; padding: 7px; color: inherit; background: white; }
+.field select:disabled { opacity: .5; }
+.checks { display: grid; gap: 13px; margin: 20px 0; }
+.checks label { display: flex; align-items: center; gap: 8px; line-height: 1.4; }
+.checks input { width: 18px; height: 18px; accent-color: #45694e; flex-shrink: 0; }
+.controls { display: grid; gap: 8px; }
+.page button { min-height: 42px; border: 1px solid #45694e; border-radius: 9px; padding: 9px 12px; background: #45694e; color: white; font: inherit; }
+.page button:disabled { opacity: .4; cursor: default; }
+.status { margin: 20px 0; }
+.status > div { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid #dce0d2; }
+.status dt { color: #718168; }
+.status dd { font-weight: 650; }
+.hint { line-height: 1.6; font-size: 12px; color: #6a7861; }
+.stage { position: relative; min-width: 0; height: 100svh; min-height: 500px; overflow: hidden; }
+.caption { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); width: min(720px, 92%); border-radius: 18px; padding: 18px 22px 13px; background: #fffef3f2; box-shadow: 0 10px 40px #203a3326; text-align: center; }
+.captionLabel { display: block; font-size: 12px; font-weight: 650; margin-bottom: 7px; color: #677959; }
+.caption > p { font-size: clamp(18px, 2vw, 24px); line-height: 1.6; margin: 0; }
+.caption small { display: block; font-size: 10px; margin-top: 10px; color: #7f8a72; }
+.practice { display: grid; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #d4dac7; }
+.practice strong { font-size: 24px; }
+.practice p { line-height: 1.5; }
+.practice button { width: 100%; }
+@media (max-width: 720px) {
+  .page { grid-template-columns: 1fr; }
+  .stage { grid-row: 1; height: 100svh; }
+  .panel { height: auto; overflow: visible; border-right: 0; border-top: 1px solid #d5daca; }
+  .caption { padding: 16px 15px 12px; bottom: 14px; }
+  .caption > p { font-size: 18px; }
+  .practice { gap: 8px; margin-top: 12px; padding-top: 12px; }
+  .practice strong { font-size: 22px; }
+}

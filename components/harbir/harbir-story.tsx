@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { SceneLanguage, SceneRequest, SceneResponse } from "@/app/api/scene/contract";
 import { dedupeWords, fetchScene, nextSceneRequest, prefetch } from "@/lib/scene";
-import { isListeningSupported, listenOnce, matchesWord, meaningLocale, speak, speechLocale, stopListening, stopSpeaking } from "@/lib/speech";
+import { isListeningSupported, listenOnce, matchesWord, speak, speechLocale, stopListening, stopSpeaking } from "@/lib/speech";
 import styles from "./harbir.module.css";
 import Landing from "./landing";
 import SetupFlow, { isPresetLesson } from "./setup-flow";
@@ -130,7 +130,7 @@ export default function HarbirStory() {
 
   useEffect(() => {
     if (!scene || !settings || (phase !== "scene" && phase !== "ending")) return;
-    speak(scene.narration, meaningLocale(settings.language));
+    speak(scene.narration, speechLocale(settings.language));
     return () => stopSpeaking();
   }, [phase, scene, settings]);
 
@@ -182,9 +182,9 @@ export default function HarbirStory() {
         <section className={`${styles.card} ${styles.story}`} aria-live="polite">
           <div className={styles.storyTop}>
             <p className={styles.eyebrow}>{phase === "ending" ? "A happy ending" : "What will Alice do?"}</p>
-            <button className={styles.link} onClick={() => speak(story.scene.narration, meaningLocale(story.settings.language))}>Hear again</button>
+            <button className={styles.link} onClick={() => speak(story.scene.narration, speechLocale(story.settings.language))}>Hear again</button>
           </div>
-          <p className={styles.narration} lang={meaningLocale(story.settings.language)}>{story.scene.narration}</p>
+          <p className={styles.narration} lang={speechLocale(story.settings.language)}>{story.scene.narration}</p>
           {sayWords && story.scene.newWords.length > 0 && (
             <div className={styles.words}>
               {story.scene.newWords.map(({ word, meaning }) => (

@@ -1,0 +1,906 @@
+{
+  "id": "sharing",
+  "order": 3,
+  "names": {
+    "ko": "나눔",
+    "en": "Sharing"
+  },
+  "versions": [
+    {
+      "age": 3,
+      "language": "ko",
+      "title": "공이 왔다 갔다",
+      "goal": "함께 쓰는 공의 차례를 바꾸기",
+      "phrase": "네 차례야",
+      "meaning": "Your turn",
+      "cast": [
+        "앨리스",
+        "모모"
+      ],
+      "setting": "함께 쓰는 공 하나 · 놀이터",
+      "caregiverNote": "“네 차례야”와 공이 움직이는 순간을 함께 보여 주세요. 말하기는 선택이에요.",
+      "scenes": [
+        {
+          "title": "모모의 공놀이",
+          "narration": "둘이 함께 쓰는 공이에요. 먼저 모모가 놀아요.",
+          "action": "모모가 공을 들고 있어요. 둘이 서서 가까이 있어요. 모모의 “네 차례야”에 맞춰 앨리스에게 공을 한 번 건네요. 앨리스의 답은 받은 다음에 해요. 얼굴이 보이는 사선 구도를 써요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "네 차례야."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "고마워! 공이 왔네."
+            }
+          ]
+        },
+        {
+          "title": "바꾸는 말",
+          "narration": "공은 이제 앨리스에게 있어요.",
+          "action": "앨리스가 공을 들고 아이에게 정면으로 말해요. 이번 장면에서는 공을 건네지 않아요. 뜻 설명이 끝난 뒤 앨리스가 공을 들고 짧게 한 번 춤춘 다음 멈춰요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“네 차례야”는 영어로 “Your turn”이야."
+            }
+          ]
+        },
+        {
+          "title": "다음 차례를 고를 때",
+          "narration": "앨리스의 짧은 놀이가 끝났어요. 모모가 기다리고 있어요.",
+          "action": "선택한 길만 이어서 보여 줘요. 대사 전 공을 미리 건네지 않아요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "모모에게 건네요",
+              "narration": "앨리스가 기다리는 모모를 봐요.",
+              "action": "둘이 서서 손이 닿는 거리를 확보해요. 앨리스의 “네 차례야”에 맞춰 모모에게 공을 한 번 건네요. 모모의 고맙다는 말은 받은 뒤에 해요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "모모야, 네 차례야."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "고마워! 나도 좋아."
+                }
+              ]
+            },
+            {
+              "label": "공을 계속 들고 놀아요",
+              "narration": "앨리스는 조금 더 혼자 놀고 싶어요.",
+              "action": "앨리스의 첫 말 뒤 공을 들고 한 번 춤춰요. 모모가 말하면 멈추고 모모 얼굴로 전환해요. 앨리스가 고치는 말을 한 뒤 가까이 서서 “네 차례야”에 맞춰 건네요. 모모의 답은 받은 뒤에 해요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "나 더 놀래!"
+                },
+                {
+                  "speaker": "모모",
+                  "text": "내 차례가 안 와. 슬퍼."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "기다렸구나. 이제 네 차례야."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "고마워. 공이 와서 좋아."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "돌아오는 차례",
+          "narration": "모모가 공을 들고 짧게 춤춰요. 앨리스는 곁에서 기다려요.",
+          "action": "춤이 끝나면 멈춰 대사해요. 모모의 “네 차례야”에 맞춰 서서 앨리스에게 공을 돌려줘요. 이전 건네기를 반복하지 않고 새 차례로 한 번만 돌려줘요. 받은 뒤 앨리스의 얼굴을 보여 줘요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "네 차례야."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "고마워. 네가 기쁘니 나도 기뻐!"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “네 차례야” 해 볼까? 듣기만 해도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "같이 보는 책을 네가 다 봤어. 나비에게 건넬 때 뭐라고 할까? 조용히 들어도 돼.",
+        "example": "네 차례야."
+      }
+    },
+    {
+      "age": 3,
+      "language": "en",
+      "title": "Here comes the ball",
+      "goal": "Swap turns with a shared ball",
+      "phrase": "Your turn",
+      "meaning": "네 차례야",
+      "cast": [
+        "Alice",
+        "Momo"
+      ],
+      "setting": "One shared ball · playground",
+      "caregiverNote": "Pair “Your turn” with the moving ball. Speaking is optional.",
+      "scenes": [
+        {
+          "title": "Momo’s turn",
+          "narration": "This is a ball for both friends. Momo has the first turn.",
+          "action": "Momo starts holding the ball. Both stand within reach. Momo gives it to Alice on “Your turn.” Alice answers after receiving it. Keep both faces visible from a slight front angle.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "Your turn."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Thank you! Here comes the ball."
+            }
+          ]
+        },
+        {
+          "title": "Words for a swap",
+          "narration": "Alice now has the ball.",
+          "action": "Alice holds the ball and addresses the viewer. Do not hand over the ball in this scene. After the meaning explanation ends, Alice does one short dance holding the ball, then stops.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“네 차례야” means “Your turn” in English."
+            }
+          ]
+        },
+        {
+          "title": "Time for another turn",
+          "narration": "Alice’s little turn is over. Momo is waiting.",
+          "action": "Play only the selected path. Do not pass the ball before the handoff line.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Pass the ball to Momo",
+              "narration": "Alice looks at Momo waiting.",
+              "action": "Both stand within reach. Alice gives the ball to Momo on “Your turn.” Momo’s thanks comes after receipt.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Your turn, Momo."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Thank you! I like this."
+                }
+              ]
+            },
+            {
+              "label": "Keep playing alone",
+              "narration": "Alice would like more time playing alone.",
+              "action": "After Alice’s first line, she dances once with the ball. Stop when Momo speaks and show his face. After Alice’s repair, stand within reach and give on “Your turn.” Momo answers after receiving it.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I want more play!"
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "My turn isn’t coming. I’m sad."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "You waited. Your turn now."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Thanks. I’m happy to have a turn."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "The turn comes back",
+          "narration": "Momo does a short dance holding the ball. Alice waits nearby.",
+          "action": "Stop dancing before speech. On Momo’s “Your turn,” return the ball to Alice while standing within reach. This is one new turn, not a replay of an earlier handoff. Show Alice’s face after receipt. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "Your turn."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Thank you. You’re happy, and I’m happy too!"
+            },
+            {
+              "speaker": "Alice",
+              "text": "Try “Your turn” with me? You can listen too."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You finished looking at a book you share with Nabi. What could you say when passing it? Quiet listening is okay.",
+        "example": "Your turn."
+      }
+    },
+    {
+      "age": 4,
+      "language": "ko",
+      "title": "기다리는 모모",
+      "goal": "친구가 기다리는 마음을 보고 차례를 돌려주기",
+      "phrase": "네 차례야",
+      "meaning": "Your turn",
+      "cast": [
+        "앨리스",
+        "모모"
+      ],
+      "setting": "함께 쓰는 공 하나 · 놀이터",
+      "caregiverNote": "공은 함께 쓰기로 한 물건이에요. 개인 물건을 억지로 내놓게 하는 상황으로 바꾸지 마세요.",
+      "scenes": [
+        {
+          "title": "모모의 공놀이",
+          "narration": "모모와 앨리스가 번갈아 공을 들고 놀기로 했어요. 모모의 짧은 춤이 끝났어요.",
+          "action": "모모가 공을 들고 있어요. 둘이 서서 가까이 있어요. 모모의 “네 차례야”에 맞춰 앨리스에게 공을 한 번 건네요. 앨리스의 답은 받은 다음에 해요. 얼굴이 보이는 사선 구도를 써요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "네 차례야. 이번엔 네 춤을 볼게."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "고마워. 춤 한 번 추고 바꾸자."
+            }
+          ]
+        },
+        {
+          "title": "바꾸는 말",
+          "narration": "공은 이제 앨리스에게 있어요.",
+          "action": "앨리스가 공을 들고 아이에게 정면으로 말해요. 이번 장면에서는 공을 건네지 않아요. 뜻 설명이 끝난 뒤 앨리스가 공을 들고 짧게 한 번 춤춘 다음 멈춰요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“네 차례야”는 영어로 “Your turn”이야. 이제 상대가 해 볼 시간이라는 뜻이야."
+            }
+          ]
+        },
+        {
+          "title": "다음 차례를 고를 때",
+          "narration": "앨리스의 짧은 놀이가 끝났어요. 모모가 기다리고 있어요.",
+          "action": "선택한 길만 이어서 보여 줘요. 대사 전 공을 미리 건네지 않아요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "약속한 차례를 바꿔요",
+              "narration": "앨리스가 기다리는 모모를 봐요.",
+              "action": "둘이 서서 손이 닿는 거리를 확보해요. 앨리스의 “네 차례야”에 맞춰 모모에게 공을 한 번 건네요. 모모의 고맙다는 말은 받은 뒤에 해요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "내 춤은 끝났어. 네 차례야."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "내 차례를 기다렸어. 고마워!"
+                }
+              ]
+            },
+            {
+              "label": "춤을 또 시작해요",
+              "narration": "앨리스는 조금 더 혼자 놀고 싶어요.",
+              "action": "앨리스의 첫 말 뒤 공을 들고 한 번 춤춰요. 모모가 말하면 멈추고 모모 얼굴로 전환해요. 앨리스가 고치는 말을 한 뒤 가까이 서서 “네 차례야”에 맞춰 건네요. 모모의 답은 받은 뒤에 해요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "재미있어! 한 번 더 할래."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "내 차례인 줄 알았는데, 기다리니 서운해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "약속을 잊었어. 미안해. 네 차례야."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "고마워. 이제 내 춤을 보여 줄게."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "돌아오는 차례",
+          "narration": "모모가 공을 들고 짧게 춤춰요. 앨리스는 곁에서 기다려요.",
+          "action": "춤이 끝나면 멈춰 대사해요. 모모의 “네 차례야”에 맞춰 서서 앨리스에게 공을 돌려줘요. 이전 건네기를 반복하지 않고 새 차례로 한 번만 돌려줘요. 받은 뒤 앨리스의 얼굴을 보여 줘요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "나는 다 했어. 네 차례야."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "모모도 신나게 놀아서 나도 기뻐."
+            },
+            {
+              "speaker": "모모",
+              "text": "우리 차례가 다시 돌아오네!"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "같이 “네 차례야”라고 해 볼래? 말없이 보아도 괜찮아."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "함께 쓰는 연을 잠깐 잡아 봤어. 보리가 기다리면 뭐라고 말하며 건넬까? 듣기만 해도 좋아.",
+        "example": "보리야, 네 차례야."
+      }
+    },
+    {
+      "age": 4,
+      "language": "en",
+      "title": "Momo is waiting",
+      "goal": "Notice the waiting friend and pass the turn back",
+      "phrase": "Your turn",
+      "meaning": "네 차례야",
+      "cast": [
+        "Alice",
+        "Momo"
+      ],
+      "setting": "One shared ball · playground",
+      "caregiverNote": "The ball is already agreed to be shared. Do not change this into forced sharing of a personal possession.",
+      "scenes": [
+        {
+          "title": "Momo’s turn",
+          "narration": "Momo and Alice agreed to take turns holding the ball and dancing. Momo’s little dance has ended.",
+          "action": "Momo starts holding the ball. Both stand within reach. Momo gives it to Alice on “Your turn.” Alice answers after receiving it. Keep both faces visible from a slight front angle.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "Your turn. I’ll watch your dance now."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Thanks. Let’s swap after one dance."
+            }
+          ]
+        },
+        {
+          "title": "Words for a swap",
+          "narration": "Alice now has the ball.",
+          "action": "Alice holds the ball and addresses the viewer. Do not hand over the ball in this scene. After the meaning explanation ends, Alice does one short dance holding the ball, then stops.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“네 차례야” means “Your turn” in English. It says it is time for the other person to try."
+            }
+          ]
+        },
+        {
+          "title": "Time for another turn",
+          "narration": "Alice’s little turn is over. Momo is waiting.",
+          "action": "Play only the selected path. Do not pass the ball before the handoff line.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Swap at the agreed time",
+              "narration": "Alice looks at Momo waiting.",
+              "action": "Both stand within reach. Alice gives the ball to Momo on “Your turn.” Momo’s thanks comes after receipt.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "My dance is finished. Your turn."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "I’ve been waiting for my turn. Thank you!"
+                }
+              ]
+            },
+            {
+              "label": "Start another dance",
+              "narration": "Alice would like more time playing alone.",
+              "action": "After Alice’s first line, she dances once with the ball. Stop when Momo speaks and show his face. After Alice’s repair, stand within reach and give on “Your turn.” Momo answers after receiving it.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "This is fun! I’ll do another one."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "I thought it was my turn. I feel left out waiting."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I forgot our plan. I’m sorry. Your turn."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Thank you. I can show you my dance now."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "The turn comes back",
+          "narration": "Momo does a short dance holding the ball. Alice waits nearby.",
+          "action": "Stop dancing before speech. On Momo’s “Your turn,” return the ball to Alice while standing within reach. This is one new turn, not a replay of an earlier handoff. Show Alice’s face after receipt. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "I’m finished. Your turn."
+            },
+            {
+              "speaker": "Alice",
+              "text": "I’m happy you had fun too."
+            },
+            {
+              "speaker": "Momo",
+              "text": "Our turns keep coming back!"
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we say “Your turn”? You can watch without speaking."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You have held a shared kite for a little while. Bori is waiting. What could you say when passing it? Listening is fine.",
+        "example": "Your turn, Bori."
+      }
+    },
+    {
+      "age": 5,
+      "language": "ko",
+      "title": "한 번씩 하기로 했지",
+      "goal": "함께 정한 차례가 친구의 기다림을 어떻게 바꾸는지 알기",
+      "phrase": "네 차례야",
+      "meaning": "Your turn",
+      "cast": [
+        "앨리스",
+        "모모"
+      ],
+      "setting": "함께 쓰는 공 하나 · 놀이터",
+      "caregiverNote": "더 하고 싶은 마음도 인정해 주세요. 약속을 놓쳤을 때 다시 말하고 바꿀 수 있음을 보여 줘요.",
+      "scenes": [
+        {
+          "title": "모모의 공놀이",
+          "narration": "두 친구는 춤을 한 번씩 추며 공을 바꾸기로 했어요. 모모가 먼저 끝냈어요.",
+          "action": "모모가 공을 들고 있어요. 둘이 서서 가까이 있어요. 모모의 “네 차례야”에 맞춰 앨리스에게 공을 한 번 건네요. 앨리스의 답은 받은 다음에 해요. 얼굴이 보이는 사선 구도를 써요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "나는 한 번 다 췄어. 네 차례야."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "고마워. 내가 끝나면 다시 너에게 줄게."
+            }
+          ]
+        },
+        {
+          "title": "바꾸는 말",
+          "narration": "공은 이제 앨리스에게 있어요.",
+          "action": "앨리스가 공을 들고 아이에게 정면으로 말해요. 이번 장면에서는 공을 건네지 않아요. 뜻 설명이 끝난 뒤 앨리스가 공을 들고 짧게 한 번 춤춘 다음 멈춰요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“네 차례야”는 영어로 “Your turn”이야. 우리가 정한 순서를 바꿀 때 쓰는 말이야."
+            }
+          ]
+        },
+        {
+          "title": "다음 차례를 고를 때",
+          "narration": "앨리스의 짧은 놀이가 끝났어요. 모모가 기다리고 있어요.",
+          "action": "선택한 길만 이어서 보여 줘요. 대사 전 공을 미리 건네지 않아요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "놀이가 끝난 뒤 바로 건네요",
+              "narration": "앨리스가 기다리는 모모를 봐요.",
+              "action": "둘이 서서 손이 닿는 거리를 확보해요. 앨리스의 “네 차례야”에 맞춰 모모에게 공을 한 번 건네요. 모모의 고맙다는 말은 받은 뒤에 해요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "내 춤이 끝났으니 네 차례야."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "언제 받을지 아니까 기다리기 쉬웠어. 고마워."
+                }
+              ]
+            },
+            {
+              "label": "재미있어서 혼자 더 해요",
+              "narration": "앨리스는 조금 더 혼자 놀고 싶어요.",
+              "action": "앨리스의 첫 말 뒤 공을 들고 한 번 춤춰요. 모모가 말하면 멈추고 모모 얼굴로 전환해요. 앨리스가 고치는 말을 한 뒤 가까이 서서 “네 차례야”에 맞춰 건네요. 모모의 답은 받은 뒤에 해요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "나는 아직 더 재미있게 놀 수 있어!"
+                },
+                {
+                  "speaker": "모모",
+                  "text": "네 춤이 끝나면 내 차례라고 생각했어. 계속 기다리니 속상해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내 재미만 생각하다 약속을 놓쳤어. 미안해. 지금 네 차례야."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "고마워. 다음에 더 하고 싶으면 같이 정하자."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "돌아오는 차례",
+          "narration": "모모가 공을 들고 짧게 춤춰요. 앨리스는 곁에서 기다려요.",
+          "action": "춤이 끝나면 멈춰 대사해요. 모모의 “네 차례야”에 맞춰 서서 앨리스에게 공을 돌려줘요. 이전 건네기를 반복하지 않고 새 차례로 한 번만 돌려줘요. 받은 뒤 앨리스의 얼굴을 보여 줘요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "내 춤도 끝났어. 네 차례야."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 즐거워하니 나도 기뻐. 차례가 돌아올 걸 아니까 기다릴 수 있었어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “네 차례야”라고 말해 볼까? 소리 내지 않고 생각해도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "둘이 보던 책을 네가 다 봤어. 나비에게 차례를 넘기며 이유도 짧게 말해 볼까? 말하지 않아도 괜찮아.",
+        "example": "나는 다 봤어. 이제 네 차례야."
+      }
+    },
+    {
+      "age": 5,
+      "language": "en",
+      "title": "One dance each",
+      "goal": "Understand how an agreed turn helps a friend wait",
+      "phrase": "Your turn",
+      "meaning": "네 차례야",
+      "cast": [
+        "Alice",
+        "Momo"
+      ],
+      "setting": "One shared ball · playground",
+      "caregiverNote": "Acknowledge wanting more time. Show that a missed agreement can be repaired with words and action.",
+      "scenes": [
+        {
+          "title": "Momo’s turn",
+          "narration": "The friends agreed to swap the ball after one dance each. Momo has finished first.",
+          "action": "Momo starts holding the ball. Both stand within reach. Momo gives it to Alice on “Your turn.” Alice answers after receiving it. Keep both faces visible from a slight front angle.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "I’ve finished my dance. Your turn."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Thank you. I’ll give it back when I’m done."
+            }
+          ]
+        },
+        {
+          "title": "Words for a swap",
+          "narration": "Alice now has the ball.",
+          "action": "Alice holds the ball and addresses the viewer. Do not hand over the ball in this scene. After the meaning explanation ends, Alice does one short dance holding the ball, then stops.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“네 차례야” means “Your turn” in English. We use it when we swap in the order we agreed on."
+            }
+          ]
+        },
+        {
+          "title": "Time for another turn",
+          "narration": "Alice’s little turn is over. Momo is waiting.",
+          "action": "Play only the selected path. Do not pass the ball before the handoff line.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Pass it when the dance ends",
+              "narration": "Alice looks at Momo waiting.",
+              "action": "Both stand within reach. Alice gives the ball to Momo on “Your turn.” Momo’s thanks comes after receipt.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "My dance is over, so it’s your turn."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Knowing when my turn would come made waiting easier. Thank you."
+                }
+              ]
+            },
+            {
+              "label": "Keep playing because it is fun",
+              "narration": "Alice would like more time playing alone.",
+              "action": "After Alice’s first line, she dances once with the ball. Stop when Momo speaks and show his face. After Alice’s repair, stand within reach and give on “Your turn.” Momo answers after receiving it.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I can have even more fun with this!"
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "I thought my turn came after your dance. I feel upset waiting longer."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I thought about my fun and missed our agreement. I’m sorry. Your turn now."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Thank you. Next time you want longer, we can make a plan together."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "The turn comes back",
+          "narration": "Momo does a short dance holding the ball. Alice waits nearby.",
+          "action": "Stop dancing before speech. On Momo’s “Your turn,” return the ball to Alice while standing within reach. This is one new turn, not a replay of an earlier handoff. Show Alice’s face after receipt. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "My dance is finished too. Your turn."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Seeing you enjoy it makes me happy. Knowing my turn would return helped me wait."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Want to say “Your turn” with me? Thinking it quietly is okay."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You finished a book you were sharing with Nabi. Can you pass the turn and give a short reason? You do not have to speak.",
+        "example": "I’m finished looking. Your turn."
+      }
+    },
+    {
+      "age": 6,
+      "language": "ko",
+      "title": "더 하고 싶은 마음도 말해요",
+      "goal": "내가 더 놀고 싶은 마음과 친구와 정한 차례를 함께 고려하기",
+      "phrase": "네 차례야",
+      "meaning": "Your turn",
+      "cast": [
+        "앨리스",
+        "모모"
+      ],
+      "setting": "함께 쓰는 공 하나 · 놀이터",
+      "caregiverNote": "더 긴 차례를 원할 수 있어요. 몰래 순서를 바꾸는 것과 말로 합의하는 것을 구별하되 아이를 평가하지 않아요.",
+      "scenes": [
+        {
+          "title": "모모의 공놀이",
+          "narration": "함께 쓰는 공으로 각자 짧은 춤을 보여 주기로 했어요. 모모가 첫 춤을 마쳤어요.",
+          "action": "모모가 공을 들고 있어요. 둘이 서서 가까이 있어요. 모모의 “네 차례야”에 맞춰 앨리스에게 공을 한 번 건네요. 앨리스의 답은 받은 다음에 해요. 얼굴이 보이는 사선 구도를 써요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "나는 끝났어. 네 차례야. 네가 정한 춤을 보고 싶어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "고마워. 이 춤을 끝내면 바꾸자."
+            }
+          ]
+        },
+        {
+          "title": "바꾸는 말",
+          "narration": "공은 이제 앨리스에게 있어요.",
+          "action": "앨리스가 공을 들고 아이에게 정면으로 말해요. 이번 장면에서는 공을 건네지 않아요. 뜻 설명이 끝난 뒤 앨리스가 공을 들고 짧게 한 번 춤춘 다음 멈춰요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“네 차례야”는 영어로 “Your turn”이야. 상대에게 기회를 넘기는 말이야. 더 하고 싶으면 순서를 혼자 바꾸지 않고 물어볼 수 있어."
+            }
+          ]
+        },
+        {
+          "title": "다음 차례를 고를 때",
+          "narration": "앨리스의 짧은 놀이가 끝났어요. 모모가 기다리고 있어요.",
+          "action": "선택한 길만 이어서 보여 줘요. 대사 전 공을 미리 건네지 않아요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "약속대로 기회를 넘겨요",
+              "narration": "앨리스가 기다리는 모모를 봐요.",
+              "action": "둘이 서서 손이 닿는 거리를 확보해요. 앨리스의 “네 차례야”에 맞춰 모모에게 공을 한 번 건네요. 모모의 고맙다는 말은 받은 뒤에 해요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "한 번 더 하고 싶지만 약속한 춤은 끝났네. 네 차례야."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "내 차례도 생각해 줘서 고마워. 내가 끝나면 더 긴 춤을 함께 정해 보자."
+                }
+              ]
+            },
+            {
+              "label": "묻지 않고 새 춤을 시작해요",
+              "narration": "앨리스는 조금 더 혼자 놀고 싶어요.",
+              "action": "앨리스의 첫 말 뒤 공을 들고 한 번 춤춰요. 모모가 말하면 멈추고 모모 얼굴로 전환해요. 앨리스가 고치는 말을 한 뒤 가까이 서서 “네 차례야”에 맞춰 건네요. 모모의 답은 받은 뒤에 해요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "이번엔 다른 춤까지 해 볼래!"
+                },
+                {
+                  "speaker": "모모",
+                  "text": "언제 내 차례인지 모르겠어. 내 바람은 빠진 것 같아 서운해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "더 하고 싶은 마음을 말하지 않고 순서부터 바꿨네. 미안해. 지금은 네 차례야."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "고마워. 다음 순서는 둘이 같이 정하자."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "돌아오는 차례",
+          "narration": "모모가 공을 들고 짧게 춤춰요. 앨리스는 곁에서 기다려요.",
+          "action": "춤이 끝나면 멈춰 대사해요. 모모의 “네 차례야”에 맞춰 서서 앨리스에게 공을 돌려줘요. 이전 건네기를 반복하지 않고 새 차례로 한 번만 돌려줘요. 받은 뒤 앨리스의 얼굴을 보여 줘요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "나는 끝났어. 네 차례야. 다음엔 얼마나 해 볼까?"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 기뻐하니 나도 기뻐. 이번엔 서로 원하는 시간을 말해 보자."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "같이 “네 차례야”라고 해 볼까? 네 말로 바꿔도 되고, 듣기만 해도 좋아."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "보리와 함께 보는 책이 재미있어서 더 보고 싶어. 지금은 보리 차례라면 어떻게 말할까? 생각만 해도 돼.",
+        "example": "지금은 네 차례야. 네가 다 본 뒤에 내가 조금 더 봐도 될까?"
+      }
+    },
+    {
+      "age": 6,
+      "language": "en",
+      "title": "Say when you want more time",
+      "goal": "Consider your wish for more time alongside an agreed turn",
+      "phrase": "Your turn",
+      "meaning": "네 차례야",
+      "cast": [
+        "Alice",
+        "Momo"
+      ],
+      "setting": "One shared ball · playground",
+      "caregiverNote": "Wanting a longer turn is valid. Distinguish changing the plan alone from asking to agree on a new plan, without grading the child.",
+      "scenes": [
+        {
+          "title": "Momo’s turn",
+          "narration": "The friends agreed to show one short dance each with their shared ball. Momo finishes the first dance.",
+          "action": "Momo starts holding the ball. Both stand within reach. Momo gives it to Alice on “Your turn.” Alice answers after receiving it. Keep both faces visible from a slight front angle.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "I’m finished. Your turn. I’d like to see the dance you chose."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Thank you. We can swap after this dance."
+            }
+          ]
+        },
+        {
+          "title": "Words for a swap",
+          "narration": "Alice now has the ball.",
+          "action": "Alice holds the ball and addresses the viewer. Do not hand over the ball in this scene. After the meaning explanation ends, Alice does one short dance holding the ball, then stops.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“네 차례야” means “Your turn” in English. It tells a friend it is time for them to try. If I want longer, I can ask instead of changing the order alone."
+            }
+          ]
+        },
+        {
+          "title": "Time for another turn",
+          "narration": "Alice’s little turn is over. Momo is waiting.",
+          "action": "Play only the selected path. Do not pass the ball before the handoff line.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Pass the agreed turn",
+              "narration": "Alice looks at Momo waiting.",
+              "action": "Both stand within reach. Alice gives the ball to Momo on “Your turn.” Momo’s thanks comes after receipt.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I’d like another dance, but our agreed turn is finished. Your turn."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Thanks for remembering my chance too. After mine, we can plan a longer dance together."
+                }
+              ]
+            },
+            {
+              "label": "Start a new dance without asking",
+              "narration": "Alice would like more time playing alone.",
+              "action": "After Alice’s first line, she dances once with the ball. Stop when Momo speaks and show his face. After Alice’s repair, stand within reach and give on “Your turn.” Momo answers after receiving it.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I’ll try a different dance as well!"
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "I don’t know when my turn is coming. I feel left out of the plan."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I changed the order without saying I wanted longer. I’m sorry. Your turn now."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Thank you. Let’s decide the next turns together."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "The turn comes back",
+          "narration": "Momo does a short dance holding the ball. Alice waits nearby.",
+          "action": "Stop dancing before speech. On Momo’s “Your turn,” return the ball to Alice while standing within reach. This is one new turn, not a replay of an earlier handoff. Show Alice’s face after receipt. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "I’m finished. Your turn. How long shall we try next?"
+            },
+            {
+              "speaker": "Alice",
+              "text": "Seeing you happy makes me happy too. Let’s each say how much time we would like."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we try “Your turn”? Your own words or quiet listening are welcome."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You want more time with a book you share with Bori, but it is Bori’s turn now. What could you say? Thinking quietly is okay.",
+        "example": "Your turn now. After you finish, could I look a little longer?"
+      }
+    }
+  ]
+}

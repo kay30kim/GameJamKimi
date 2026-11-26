@@ -1,0 +1,1002 @@
+{
+  "id": "honesty",
+  "order": 4,
+  "names": {
+    "ko": "정직",
+    "en": "Honesty"
+  },
+  "versions": [
+    {
+      "age": 3,
+      "language": "ko",
+      "title": "책이 여기 있어",
+      "goal": "내가 한 일을 짧게 말하기",
+      "phrase": "내가 그랬어",
+      "meaning": "It was me",
+      "cast": [
+        "앨리스",
+        "나비",
+        "부엉이 할머니"
+      ],
+      "setting": "나비의 책 하나 · 벤치 근처 풀밭 길",
+      "caregiverNote": "실수를 말하는 아이를 겁주지 않아요. 예문은 연습이고 실제 고백은 선택 뒤에 나와요.",
+      "scenes": [
+        {
+          "title": "찾고 있는 책",
+          "narration": "앨리스가 나비의 책을 말없이 가져왔어요. 나비는 책을 찾아요.",
+          "action": "앨리스는 책을 들고 있어요. 나비가 주변을 둘러봐요. 각 화자의 앞모습을 보여 줘요. 할머니의 예문은 연습 설명이지 사건 고백이 아니에요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "내 책 어디 있지?"
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "한 일을 말할 땐 “내가 그랬어”라고 할 수 있어."
+            }
+          ]
+        },
+        {
+          "title": "사실을 말하는 표현",
+          "narration": "앨리스가 나비에게 말할 때 쓸 표현을 우리에게 알려 줘요.",
+          "action": "앨리스는 아이를 향해 표현을 설명해요. 나비에게 실제로 고백하거나 책을 건네는 동작은 아직 없어요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“내가 그랬어”는 영어로 “It was me”야."
+            }
+          ]
+        },
+        {
+          "title": "말을 꺼낼까?",
+          "narration": "나비는 아직 책이 어디 있는지 몰라요.",
+          "action": "선택한 갈래에서만 실제 고백해요. 두 갈래가 끝날 때까지 책은 앨리스가 계속 들고 있어요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "지금 사실을 말해요",
+              "narration": "앨리스가 나비 앞에서 멈춰요.",
+              "action": "앨리스가 나비에게 걸어가 멈춘 뒤 앞모습으로 대사해요. 책을 아직 돌려주지 않아요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 그랬어. 책을 가져왔어."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "돌려줄래?"
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "응. 미안해."
+                }
+              ]
+            },
+            {
+              "label": "아직 말하지 않아요",
+              "narration": "앨리스는 말을 꺼내기가 망설여져요.",
+              "action": "앨리스는 책을 들고 말없이 잠깐 기다려요. 나비의 표정을 앞에서 보여 줘요. 할머니가 곁에 서고, 앨리스가 얼굴을 보여 주며 고백해요. 책은 아직 앨리스에게 있어요.",
+              "lines": [
+                {
+                  "speaker": "나비",
+                  "text": "책이 없어. 슬퍼."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "말하기가 떨려요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "여기 있을게. 천천히 말해도 돼."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 그랬어. 책을 가져왔어."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "이제 알겠어. 돌려줘."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "책을 돌려줄 때",
+          "narration": "이제 나비가 책을 받을 준비를 해요.",
+          "action": "둘이 서서 손이 닿는 거리를 확보해요. 앨리스의 “여기 있어”에 맞춰 나비에게 책을 한 번만 건네요. 나비의 답은 받은 뒤 해요. 두 친구가 앉아 말할 때도 얼굴을 보여 줘요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "여기 있어."
+            },
+            {
+              "speaker": "나비",
+              "text": "책이 와서 좋아. 고마워."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 좋으니 나도 좋아."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "같이 “내가 그랬어” 해 볼까? 듣기만 해도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "모모의 공을 네가 옮겼어. 누가 옮겼냐고 물으면 어떻게 말할까? 조용히 들어도 돼.",
+        "example": "내가 그랬어."
+      }
+    },
+    {
+      "age": 3,
+      "language": "en",
+      "title": "Here is the book",
+      "goal": "Use a short phrase to say what you did",
+      "phrase": "It was me",
+      "meaning": "내가 그랬어",
+      "cast": [
+        "Alice",
+        "Nabi",
+        "Grandma Owl"
+      ],
+      "setting": "One book belonging to Nabi · path near the bench",
+      "caregiverNote": "Do not frighten a child who tells about a mistake. The example is practice; the actual confession follows the choice.",
+      "scenes": [
+        {
+          "title": "The missing book",
+          "narration": "Alice took Nabi’s book without telling him. Nabi is looking for it.",
+          "action": "Alice holds the book. Nabi looks around. Keep each speaking face visible. Grandma’s example is a language model, not a confession about this event.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "Where is my book?"
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "To say what you did, you can say “It was me.”"
+            }
+          ]
+        },
+        {
+          "title": "Words for telling what happened",
+          "narration": "Alice shares words she can use before speaking to Nabi.",
+          "action": "Alice explains the expression to the viewer. There is no actual confession to Nabi or book handoff yet.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“내가 그랬어” means “It was me” in English."
+            }
+          ]
+        },
+        {
+          "title": "Will Alice speak?",
+          "narration": "Nabi still does not know where the book is.",
+          "action": "The actual confession happens only inside the chosen path. Alice keeps holding the book through the end of either path.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Tell what happened now",
+              "narration": "Alice stops in front of Nabi.",
+              "action": "Alice walks to Nabi, stops, and speaks with her face visible. Do not return the book yet.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "It was me. I took the book."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Can I have it back?"
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Yes. I’m sorry."
+                }
+              ]
+            },
+            {
+              "label": "Stay quiet for now",
+              "narration": "Alice hesitates to start speaking.",
+              "action": "Alice holds the book during a short silent pause. Show Nabi’s face. Grandma stands nearby, then Alice confesses with her face visible. The book remains with Alice.",
+              "lines": [
+                {
+                  "speaker": "Nabi",
+                  "text": "My book is gone. I’m sad."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I feel wobbly about telling."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "I’m here. You can take your time."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "It was me. I took the book."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Now I know. Please give it back."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Time to return it",
+          "narration": "Nabi is ready to receive the book.",
+          "action": "Both stand within reach. Give the book once on Alice’s “Here it is.” Nabi answers after receiving it. If the friends sit, keep their speaking faces visible. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "Here it is."
+            },
+            {
+              "speaker": "Nabi",
+              "text": "I’m happy my book is back. Thank you."
+            },
+            {
+              "speaker": "Alice",
+              "text": "You feel happy. I do too."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Try “It was me” with me? You can just listen."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You moved Momo’s ball. Someone asks who moved it. What could you say? Listening is okay.",
+        "example": "It was me."
+      }
+    },
+    {
+      "age": 4,
+      "language": "ko",
+      "title": "나비가 찾던 그림책",
+      "goal": "걱정되는 마음을 말하고 사실을 알려 주기",
+      "phrase": "내가 그랬어",
+      "meaning": "It was me",
+      "cast": [
+        "앨리스",
+        "나비",
+        "부엉이 할머니"
+      ],
+      "setting": "나비의 책 하나 · 벤치 근처 풀밭 길",
+      "caregiverNote": "“떨려”, “속상해”를 짧게 읽어 주세요. 도움을 받아 말해도 아이가 자기 말로 이야기하게 해요.",
+      "scenes": [
+        {
+          "title": "찾고 있는 책",
+          "narration": "앨리스는 나비에게 묻지 않고 책을 가져와 보고 있었어요. 나비는 책이 없어 속상해요.",
+          "action": "앨리스는 책을 들고 있어요. 나비가 주변을 둘러봐요. 각 화자의 앞모습을 보여 줘요. 할머니의 예문은 연습 설명이지 사건 고백이 아니에요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "내 그림책이 안 보여."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "내가 한 일을 이야기할 땐 “내가 그랬어”라고 시작할 수 있어."
+            }
+          ]
+        },
+        {
+          "title": "사실을 말하는 표현",
+          "narration": "앨리스가 나비에게 말할 때 쓸 표현을 우리에게 알려 줘요.",
+          "action": "앨리스는 아이를 향해 표현을 설명해요. 나비에게 실제로 고백하거나 책을 건네는 동작은 아직 없어요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“내가 그랬어”는 영어로 “It was me”야. 내가 한 일이라고 알려 주는 말이야."
+            }
+          ]
+        },
+        {
+          "title": "말을 꺼낼까?",
+          "narration": "나비는 아직 책이 어디 있는지 몰라요.",
+          "action": "선택한 갈래에서만 실제 고백해요. 두 갈래가 끝날 때까지 책은 앨리스가 계속 들고 있어요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "나비에게 바로 말해요",
+              "narration": "앨리스가 나비 앞에서 멈춰요.",
+              "action": "앨리스가 나비에게 걸어가 멈춘 뒤 앞모습으로 대사해요. 책을 아직 돌려주지 않아요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 그랬어. 묻지 않고 책을 가져갔어. 미안해."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "책이 안 보여서 속상했어. 돌려줄래?"
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "응. 돌려줄게."
+                }
+              ]
+            },
+            {
+              "label": "말없이 기다려요",
+              "narration": "앨리스는 말을 꺼내기가 망설여져요.",
+              "action": "앨리스는 책을 들고 말없이 잠깐 기다려요. 나비의 표정을 앞에서 보여 줘요. 할머니가 곁에 서고, 앨리스가 얼굴을 보여 주며 고백해요. 책은 아직 앨리스에게 있어요.",
+              "lines": [
+                {
+                  "speaker": "나비",
+                  "text": "아무리 봐도 없네. 속상해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "할머니, 말하기가 떨려요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "옆에서 들어 줄게."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "나비야, 내가 그랬어. 책을 가져갔어. 미안해."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "내 책이 어디 있는지 알았어. 돌려줘."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "책을 돌려줄 때",
+          "narration": "이제 나비가 책을 받을 준비를 해요.",
+          "action": "둘이 서서 손이 닿는 거리를 확보해요. 앨리스의 “여기 있어”에 맞춰 나비에게 책을 한 번만 건네요. 나비의 답은 받은 뒤 해요. 두 친구가 앉아 말할 때도 얼굴을 보여 줘요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "여기 있어. 다음엔 먼저 물어볼게."
+            },
+            {
+              "speaker": "나비",
+              "text": "찾아서 마음이 좋아졌어. 말해 줘서 고마워."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네 마음이 좋아져서 나도 기뻐."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “내가 그랬어”를 말해 볼래? 말하지 않고 들어도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "보리에게 말하지 않고 연을 가져왔어. 보리가 찾으면 무엇을 말할까? 듣기만 해도 괜찮아.",
+        "example": "내가 그랬어. 연을 가져왔어. 미안해."
+      }
+    },
+    {
+      "age": 4,
+      "language": "en",
+      "title": "Nabi’s picture book",
+      "goal": "Name a worried feeling and tell what happened",
+      "phrase": "It was me",
+      "meaning": "내가 그랬어",
+      "cast": [
+        "Alice",
+        "Nabi",
+        "Grandma Owl"
+      ],
+      "setting": "One book belonging to Nabi · path near the bench",
+      "caregiverNote": "Read “nervous” and “upset” slowly. An adult can stay nearby while the child uses their own words.",
+      "scenes": [
+        {
+          "title": "The missing book",
+          "narration": "Alice took Nabi’s book to look at it without asking. Nabi is upset because he cannot find it.",
+          "action": "Alice holds the book. Nabi looks around. Keep each speaking face visible. Grandma’s example is a language model, not a confession about this event.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "I can’t see my picture book."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "When you tell what you did, you can start with “It was me.”"
+            }
+          ]
+        },
+        {
+          "title": "Words for telling what happened",
+          "narration": "Alice shares words she can use before speaking to Nabi.",
+          "action": "Alice explains the expression to the viewer. There is no actual confession to Nabi or book handoff yet.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“내가 그랬어” means “It was me” in English. It tells someone that I did the thing."
+            }
+          ]
+        },
+        {
+          "title": "Will Alice speak?",
+          "narration": "Nabi still does not know where the book is.",
+          "action": "The actual confession happens only inside the chosen path. Alice keeps holding the book through the end of either path.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Tell Nabi directly",
+              "narration": "Alice stops in front of Nabi.",
+              "action": "Alice walks to Nabi, stops, and speaks with her face visible. Do not return the book yet.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "It was me. I took your book without asking. I’m sorry."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "I felt upset when I couldn’t find it. Can I have it back?"
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Yes. I’ll return it."
+                }
+              ]
+            },
+            {
+              "label": "Wait without telling",
+              "narration": "Alice hesitates to start speaking.",
+              "action": "Alice holds the book during a short silent pause. Show Nabi’s face. Grandma stands nearby, then Alice confesses with her face visible. The book remains with Alice.",
+              "lines": [
+                {
+                  "speaker": "Nabi",
+                  "text": "I still can’t find it. I feel upset."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Grandma, I’m nervous about telling."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "I can stay beside you and listen."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Nabi, it was me. I took the book. I’m sorry."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Now I know where it is. Please return it."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Time to return it",
+          "narration": "Nabi is ready to receive the book.",
+          "action": "Both stand within reach. Give the book once on Alice’s “Here it is.” Nabi answers after receiving it. If the friends sit, keep their speaking faces visible. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "Here it is. Next time, I’ll ask first."
+            },
+            {
+              "speaker": "Nabi",
+              "text": "I feel better finding it. Thank you for telling me."
+            },
+            {
+              "speaker": "Alice",
+              "text": "I’m happy you feel better."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we try “It was me”? You may listen without speaking."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You brought Bori’s kite without telling him. He is looking for it. What could you tell him? Quiet listening is okay.",
+        "example": "It was me. I took the kite. I’m sorry."
+      }
+    },
+    {
+      "age": 5,
+      "language": "ko",
+      "title": "말하지 않으면 모르는 일",
+      "goal": "내가 아는 사실을 말해 친구가 계속 찾지 않게 하기",
+      "phrase": "내가 그랬어",
+      "meaning": "It was me",
+      "cast": [
+        "앨리스",
+        "나비",
+        "부엉이 할머니"
+      ],
+      "setting": "나비의 책 하나 · 벤치 근처 풀밭 길",
+      "caregiverNote": "사실을 말하면 즉시 모든 감정이 사라진다고 약속하지 않아요. 잘못과 고칠 행동을 짧게 연결해요.",
+      "scenes": [
+        {
+          "title": "찾고 있는 책",
+          "narration": "앨리스는 나비의 책을 묻지 않고 가져왔어요. 나비는 그 일을 몰라서 벤치 주변을 찾아요.",
+          "action": "앨리스는 책을 들고 있어요. 나비가 주변을 둘러봐요. 각 화자의 앞모습을 보여 줘요. 할머니의 예문은 연습 설명이지 사건 고백이 아니에요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "분명 여기 두었는데 어디로 갔지?"
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "실수한 일을 알릴 때 “내가 그랬어”라고 말한 뒤 무슨 일이었는지 설명할 수 있어."
+            }
+          ]
+        },
+        {
+          "title": "사실을 말하는 표현",
+          "narration": "앨리스가 나비에게 말할 때 쓸 표현을 우리에게 알려 줘요.",
+          "action": "앨리스는 아이를 향해 표현을 설명해요. 나비에게 실제로 고백하거나 책을 건네는 동작은 아직 없어요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“내가 그랬어”는 영어로 “It was me”야. 내가 한 일을 숨기지 않고 알려 주는 말이야."
+            }
+          ]
+        },
+        {
+          "title": "말을 꺼낼까?",
+          "narration": "나비는 아직 책이 어디 있는지 몰라요.",
+          "action": "선택한 갈래에서만 실제 고백해요. 두 갈래가 끝날 때까지 책은 앨리스가 계속 들고 있어요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "사실과 돌려줄 일을 말해요",
+              "narration": "앨리스가 나비 앞에서 멈춰요.",
+              "action": "앨리스가 나비에게 걸어가 멈춘 뒤 앞모습으로 대사해요. 책을 아직 돌려주지 않아요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 그랬어. 그림이 궁금해서 묻지 않고 가져갔어. 미안해."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "내가 찾는 동안 네가 가지고 있었구나. 돌려줬으면 좋겠어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "응. 지금 돌려줄게."
+                }
+              ]
+            },
+            {
+              "label": "아직 조용히 서 있어요",
+              "narration": "앨리스는 말을 꺼내기가 망설여져요.",
+              "action": "앨리스는 책을 들고 말없이 잠깐 기다려요. 나비의 표정을 앞에서 보여 줘요. 할머니가 곁에 서고, 앨리스가 얼굴을 보여 주며 고백해요. 책은 아직 앨리스에게 있어요.",
+              "lines": [
+                {
+                  "speaker": "나비",
+                  "text": "계속 찾아도 안 보여서 마음이 답답해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 말하지 않으면 나비는 계속 찾겠구나. 할머니, 옆에 있어 주세요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "응. 천천히 네 말로 이야기해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "나비야, 내가 그랬어. 그림을 보려고 가져갔어. 먼저 묻지 않아 미안해."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "말해 줘서 어디 있는지 알았어. 이제 돌려줄래?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "책을 돌려줄 때",
+          "narration": "이제 나비가 책을 받을 준비를 해요.",
+          "action": "둘이 서서 손이 닿는 거리를 확보해요. 앨리스의 “여기 있어”에 맞춰 나비에게 책을 한 번만 건네요. 나비의 답은 받은 뒤 해요. 두 친구가 앉아 말할 때도 얼굴을 보여 줘요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "여기 있어. 다음엔 보고 싶다고 먼저 물어볼게."
+            },
+            {
+              "speaker": "나비",
+              "text": "책을 찾으니 마음이 편해졌어. 알려 줘서 고마워."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 편해지니 나도 좋아. 지금은 네가 먼저 봐."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “내가 그랬어”를 해 볼까? 네 경험을 말할 필요는 없어. 듣기만 해도 좋아."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "모모가 공을 찾아. 네가 아까 집 앞에 옮겨 놓은 게 떠올랐어. 사실과 위치를 어떻게 말할까? 생각만 해도 돼.",
+        "example": "내가 그랬어. 집 앞에 옮겼어. 같이 찾으러 가자."
+      }
+    },
+    {
+      "age": 5,
+      "language": "en",
+      "title": "What a friend cannot know",
+      "goal": "Tell the fact you know so a friend does not have to keep searching",
+      "phrase": "It was me",
+      "meaning": "내가 그랬어",
+      "cast": [
+        "Alice",
+        "Nabi",
+        "Grandma Owl"
+      ],
+      "setting": "One book belonging to Nabi · path near the bench",
+      "caregiverNote": "Do not promise that truth makes every feeling disappear at once. Link the mistake to a small repair.",
+      "scenes": [
+        {
+          "title": "The missing book",
+          "narration": "Alice took Nabi’s book without asking. Nabi does not know that, so he searches around the bench.",
+          "action": "Alice holds the book. Nabi looks around. Keep each speaking face visible. Grandma’s example is a language model, not a confession about this event.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "I left it right here. Where did it go?"
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "To tell about a mistake, you can say “It was me,” then explain what happened."
+            }
+          ]
+        },
+        {
+          "title": "Words for telling what happened",
+          "narration": "Alice shares words she can use before speaking to Nabi.",
+          "action": "Alice explains the expression to the viewer. There is no actual confession to Nabi or book handoff yet.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“내가 그랬어” means “It was me” in English. It tells what I did instead of hiding it."
+            }
+          ]
+        },
+        {
+          "title": "Will Alice speak?",
+          "narration": "Nabi still does not know where the book is.",
+          "action": "The actual confession happens only inside the chosen path. Alice keeps holding the book through the end of either path.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Explain and offer to return it",
+              "narration": "Alice stops in front of Nabi.",
+              "action": "Alice walks to Nabi, stops, and speaks with her face visible. Do not return the book yet.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "It was me. I wanted to see the pictures, so I took it without asking. I’m sorry."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "You had it while I was searching. I’d like it back."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Yes. I’ll return it now."
+                }
+              ]
+            },
+            {
+              "label": "Stay silent a little longer",
+              "narration": "Alice hesitates to start speaking.",
+              "action": "Alice holds the book during a short silent pause. Show Nabi’s face. Grandma stands nearby, then Alice confesses with her face visible. The book remains with Alice.",
+              "lines": [
+                {
+                  "speaker": "Nabi",
+                  "text": "I feel frustrated because I keep looking and cannot find it."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "If I don’t say, Nabi will keep searching. Grandma, please stay beside me."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "Yes. Take your time and use your own words."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Nabi, it was me. I took it to see the pictures. I’m sorry I didn’t ask."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Now I know where it is. Could you give it back?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Time to return it",
+          "narration": "Nabi is ready to receive the book.",
+          "action": "Both stand within reach. Give the book once on Alice’s “Here it is.” Nabi answers after receiving it. If the friends sit, keep their speaking faces visible. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "Here it is. Next time I’ll ask if I can look."
+            },
+            {
+              "speaker": "Nabi",
+              "text": "Finding my book helps me feel calm. Thank you for telling me."
+            },
+            {
+              "speaker": "Alice",
+              "text": "I’m glad you feel better. You can look at it first now."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Want to try “It was me”? You do not have to tell your own story. Listening is fine."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "Momo is searching for a ball. You remember moving it beside the house. How could you explain what happened and where it is? Quiet thinking is okay.",
+        "example": "It was me. I moved it beside the house. Let’s go and find it."
+      }
+    },
+    {
+      "age": 6,
+      "language": "ko",
+      "title": "내가 아는 것, 나비가 아는 것",
+      "goal": "말하기 어려운 마음과 친구가 모르는 상황을 함께 생각하며 사실과 수정을 전하기",
+      "phrase": "내가 그랬어",
+      "meaning": "It was me",
+      "cast": [
+        "앨리스",
+        "나비",
+        "부엉이 할머니"
+      ],
+      "setting": "나비의 책 하나 · 벤치 근처 풀밭 길",
+      "caregiverNote": "고백 뒤에도 친구에게 남은 감정을 인정해요. 아이에게 실제 잘못을 찾아 말하라고 요구하지 않아요.",
+      "scenes": [
+        {
+          "title": "찾고 있는 책",
+          "narration": "앨리스는 그림이 궁금해 나비의 책을 묻지 않고 가져왔어요. 앨리스는 책의 위치를 알지만 나비는 몰라요.",
+          "action": "앨리스는 책을 들고 있어요. 나비가 주변을 둘러봐요. 각 화자의 앞모습을 보여 줘요. 할머니의 예문은 연습 설명이지 사건 고백이 아니에요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "책을 다시 보고 싶은데 찾을 수가 없어."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "내가 한 일을 말할 땐 “내가 그랬어”로 시작하고, 이유와 고칠 일을 덧붙일 수 있어."
+            }
+          ]
+        },
+        {
+          "title": "사실을 말하는 표현",
+          "narration": "앨리스가 나비에게 말할 때 쓸 표현을 우리에게 알려 줘요.",
+          "action": "앨리스는 아이를 향해 표현을 설명해요. 나비에게 실제로 고백하거나 책을 건네는 동작은 아직 없어요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“내가 그랬어”는 영어로 “It was me”야. 내가 한 일을 인정하는 말이야. 이유를 설명해도 다른 사람 탓으로 돌리지는 않아."
+            }
+          ]
+        },
+        {
+          "title": "말을 꺼낼까?",
+          "narration": "나비는 아직 책이 어디 있는지 몰라요.",
+          "action": "선택한 갈래에서만 실제 고백해요. 두 갈래가 끝날 때까지 책은 앨리스가 계속 들고 있어요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "나비가 모르는 일을 알려 줘요",
+              "narration": "앨리스가 나비 앞에서 멈춰요.",
+              "action": "앨리스가 나비에게 걸어가 멈춘 뒤 앞모습으로 대사해요. 책을 아직 돌려주지 않아요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 그랬어. 그림을 보고 싶어서 묻지 않고 책을 가져갔어. 네가 찾을 줄은 생각하지 못했어. 미안해."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "나는 없어졌다고 생각했어. 지금 돌려주면 좋겠어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "그래. 돌려주고 다음엔 먼저 물어볼게."
+                }
+              ]
+            },
+            {
+              "label": "걱정되어 말을 미뤄요",
+              "narration": "앨리스는 말을 꺼내기가 망설여져요.",
+              "action": "앨리스는 책을 들고 말없이 잠깐 기다려요. 나비의 표정을 앞에서 보여 줘요. 할머니가 곁에 서고, 앨리스가 얼굴을 보여 주며 고백해요. 책은 아직 앨리스에게 있어요.",
+              "lines": [
+                {
+                  "speaker": "나비",
+                  "text": "어디 있는지 몰라서 답답하고 속상해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "속상하게 할까 봐 말을 미뤘는데, 모르는 채 찾는 것도 힘들겠구나. 할머니, 같이 있어 주세요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "곁에 있을게. 있었던 일을 말해 보렴."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 그랬어. 물어보지 않고 책을 가져갔어. 내 선택이었어. 미안해. 돌려줄게."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "알려 줘서 고마워. 다음엔 찾기 전에 먼저 말해 줘."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "책을 돌려줄 때",
+          "narration": "이제 나비가 책을 받을 준비를 해요.",
+          "action": "둘이 서서 손이 닿는 거리를 확보해요. 앨리스의 “여기 있어”에 맞춰 나비에게 책을 한 번만 건네요. 나비의 답은 받은 뒤 해요. 두 친구가 앉아 말할 때도 얼굴을 보여 줘요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "여기 있어. 보고 싶어도 네 대답을 먼저 들을게."
+            },
+            {
+              "speaker": "나비",
+              "text": "아직 조금 속상하지만 책이 돌아와서 마음은 편해졌어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네 마음을 말해 줘서 고마워. 지금은 네가 편하게 보도록 기다릴게."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "같이 “내가 그랬어”라고 해 볼까? 오늘 이야기 속 말만 연습해도 되고, 조용히 들어도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "보리의 물뿌리개를 쓰고 다른 자리에 두었어. 보리가 찾을 때 누구 탓도 하지 않고 무엇과 위치를 말할 수 있을까? 듣기만 해도 돼.",
+        "example": "내가 그랬어. 쓰고 나서 꽃밭에 두었어. 알려 주지 않아 미안해. 같이 찾아줄게."
+      }
+    },
+    {
+      "age": 6,
+      "language": "en",
+      "title": "What I know, what Nabi knows",
+      "goal": "Consider the difficulty of telling and the friend’s missing information, then explain and repair",
+      "phrase": "It was me",
+      "meaning": "내가 그랬어",
+      "cast": [
+        "Alice",
+        "Nabi",
+        "Grandma Owl"
+      ],
+      "setting": "One book belonging to Nabi · path near the bench",
+      "caregiverNote": "A friend may still have feelings after the truth is told. Do not ask the child to disclose a real mistake.",
+      "scenes": [
+        {
+          "title": "The missing book",
+          "narration": "Alice took Nabi’s book without asking because she wanted to see the pictures. Alice knows where it is; Nabi does not.",
+          "action": "Alice holds the book. Nabi looks around. Keep each speaking face visible. Grandma’s example is a language model, not a confession about this event.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "I want to look at my book again, but I cannot find it."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "You can begin with “It was me,” then explain what happened and what you will put right."
+            }
+          ]
+        },
+        {
+          "title": "Words for telling what happened",
+          "narration": "Alice shares words she can use before speaking to Nabi.",
+          "action": "Alice explains the expression to the viewer. There is no actual confession to Nabi or book handoff yet.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“내가 그랬어” means “It was me” in English. It says I did the thing. I can explain why without blaming someone else."
+            }
+          ]
+        },
+        {
+          "title": "Will Alice speak?",
+          "narration": "Nabi still does not know where the book is.",
+          "action": "The actual confession happens only inside the chosen path. Alice keeps holding the book through the end of either path.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Tell Nabi what he does not know",
+              "narration": "Alice stops in front of Nabi.",
+              "action": "Alice walks to Nabi, stops, and speaks with her face visible. Do not return the book yet.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "It was me. I took the book without asking to see the pictures. I did not think about you searching. I’m sorry."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "I thought it was lost. I would like it back now."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Okay. I’ll return it and ask first next time."
+                }
+              ]
+            },
+            {
+              "label": "Put off telling because of worry",
+              "narration": "Alice hesitates to start speaking.",
+              "action": "Alice holds the book during a short silent pause. Show Nabi’s face. Grandma stands nearby, then Alice confesses with her face visible. The book remains with Alice.",
+              "lines": [
+                {
+                  "speaker": "Nabi",
+                  "text": "Not knowing where it is makes me frustrated and upset."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I worried that telling would upset him, but searching without knowing is hard too. Grandma, please stay with me."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "I’m here. You can tell what happened."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "It was me. I took the book without asking. That was my choice. I’m sorry. I’ll give it back."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Thank you for telling me. Next time, tell me before I have to search."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Time to return it",
+          "narration": "Nabi is ready to receive the book.",
+          "action": "Both stand within reach. Give the book once on Alice’s “Here it is.” Nabi answers after receiving it. If the friends sit, keep their speaking faces visible. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "Here it is. Even when I want a look, I’ll wait for your answer first."
+            },
+            {
+              "speaker": "Nabi",
+              "text": "I’m still a little upset, but having my book back helps me feel calmer."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Thank you for telling me how you feel. I’ll wait so you can look at it comfortably now."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we try “It was me”? We can practice just the story words. Quiet listening is welcome."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You used Bori’s watering can and left it somewhere else. How could you explain what happened and where it is without blaming anyone? You may just listen.",
+        "example": "It was me. I left it in the garden after using it. I’m sorry I didn’t say. I’ll help you find it."
+      }
+    }
+  ]
+}

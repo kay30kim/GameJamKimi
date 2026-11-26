@@ -1,8 +1,10 @@
 import type { SceneLine, SceneResponse } from "../app/api/scene/contract";
-import { createSim } from "./harbir/sim";
+import { createSim, snapshotSim } from "./harbir/sim";
 import type { Sim } from "./harbir/sim";
 import type { SpeakOptions, SpeakResult } from "./speech";
+import type { SpeechErrorCode } from "./speech-policy";
 import type { Voice } from "./voices";
+import type { Stage, WorldSnapshot } from "./world";
 
 export interface PlaybackSegment {
   voice: Voice;
@@ -47,6 +49,7 @@ interface PlaybackOptions {
   speak: (text: string, locale: string, options: SpeakOptions) => Promise<SpeakResult>;
   onSegment: (segment: PlaybackSegment, index: number) => void;
   onSpeaking: (speaking: boolean) => void;
+  onSpeechError?: (error: SpeechErrorCode) => void;
 }
 
 /**
@@ -57,6 +60,9 @@ interface PlaybackOptions {
 export class ScenePlayback {
   readonly sim: Sim;
   readonly segments: PlaybackSegment[];
+  readonly stage: Stage;
+  /** The start of this part, so Watch again does not restart the whole story. */
+  readonly startWorld: WorldSnapshot;
   private readonly abort = new AbortController();
   private result: Promise<boolean> | null = null;
   private resolve: ((completed: boolean) => void) | null = null;
@@ -68,9 +74,15 @@ export class ScenePlayback {
   private readingLeft = 0;
   private gapLeft: number | null = null;
 
-  constructor(scene: SceneResponse, private readonly options: PlaybackOptions) {
-    this.sim = createSim(scene.stage);
+  constructor(scene: SceneResponse, private readonly options: PlaybackOptions, previous?: WorldSnapshot) {
+    this.stage = previous ? { ...scene.stage, weather: previous.weather } : scene.stage;
+    this.sim = createSim(this.stage, previous);
+    this.startWorld = snapshotSim(this.sim, this.stage.weather);
     this.segments = planPlayback(scene);
+  }
+
+  snapshot(): WorldSnapshot {
+    return snapshotSim(this.sim, this.stage.weather);
   }
 
   play(): Promise<boolean> {
@@ -85,12 +97,20 @@ export class ScenePlayback {
   advance(seconds: number): void {
     if (!Number.isFinite(seconds) || seconds <= 0) return;
     const dt = Math.min(seconds, 0.1);
-    if (this.completed) { this.sim.step(dt); return; }
+    // Choices hold one durable world state for both branch prefetch and rendering.
+    // Idle animation advances without moving props or changing the saved emotions.
+    if (this.completed) {
+      for (const actor of Object.values(this.sim.actors)) actor.poseTime += dt;
+      return;
+    }
     if (!this.active) return;
     this.sim.step(dt, this.beatLimit);
     this.readingLeft = Math.max(0, this.readingLeft - dt);
     if (!this.voiceDone || this.readingLeft > 0) return;
     const segment = this.segments[this.index];
+    // A caption's full reading time is part of the line. Only then can its
+    // speaker turn away for a roll/spin and release the following actions.
+    this.beatLimit = segment.beatLimit;
     if (this.sim.completedBeats < segment.beatLimit) return;
     const last = this.index === this.segments.length - 1;
     if (last && !this.sim.done) return;
@@ -128,11 +148,19 @@ export class ScenePlayback {
     this.readingLeft = 0;
     this.gapLeft = null;
     const segment = this.segments[index];
+    const previousLimit = this.segments[index - 1]?.beatLimit ?? 0;
+    const speaker = segment.line?.speaker;
+    const turnAway = speaker ? this.stage.beats.findIndex((beat, beatIndex) =>
+      beatIndex >= previousLimit && beatIndex < segment.beatLimit && beat.actor === speaker
+      && (beat.action === "roll" || beat.action === "celebrate")) : -1;
+    // Keep the speaker's face readable without removing or changing the stunt.
+    // Earlier actions can accompany the line; ordered actions after it must wait.
+    const speakingLimit = turnAway < 0 ? segment.beatLimit : turnAway;
     const current = () => this.active && this.index === index;
     this.options.onSegment(segment, index);
     this.options.onSpeaking(false);
     const captions = () => {
-      this.beatLimit = segment.beatLimit;
+      this.beatLimit = speakingLimit;
       this.readingLeft = Math.max(1.8, segment.text.length * 0.07);
       this.voiceDone = true;
     };
@@ -141,21 +169,28 @@ export class ScenePlayback {
     const onStart = () => {
       if (!current() || started) return;
       started = true;
-      this.beatLimit = segment.beatLimit;
+      this.beatLimit = speakingLimit;
       this.options.onSpeaking(true);
     };
     // Defer invocation so a synchronous adapter failure uses the same caption fallback.
     void Promise.resolve().then(() => {
       if (!current()) return { started: false, cancelled: true };
-      return this.options.speak(segment.text, this.options.locale, { voice: segment.voice, onStart, signal: this.abort.signal });
-    }).then((result) => {
+      return this.options.speak(segment.text, this.options.locale, {
+        voice: segment.voice, emotion: segment.line?.emotion, onStart, signal: this.abort.signal,
+      });
+    }).then((result: SpeakResult) => {
       if (!current()) return;
       this.options.onSpeaking(false);
-      if (!started || !result.started || result.cancelled) captions();
-      else this.voiceDone = true;
+      if (result.error && !result.cancelled && !this.options.isMuted()) this.options.onSpeechError?.(result.error);
+      if (!started || !result.started || result.cancelled || result.error) captions();
+      else {
+        this.voiceDone = true;
+        this.beatLimit = segment.beatLimit;
+      }
     }, () => {
       if (!current()) return;
       this.options.onSpeaking(false);
+      if (!this.options.isMuted()) this.options.onSpeechError?.("TTS_UPSTREAM_ERROR");
       captions();
     });
   }

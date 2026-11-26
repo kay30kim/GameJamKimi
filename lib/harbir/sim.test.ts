@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { pushOut } from "./obstacles";
-import { createSim, PROP_RADIUS, RADIUS, standingPoint } from "./sim";
-import type { Stage } from "../world";
+import { createSim, PROP_RADIUS, RADIUS, snapshotSim, standingPoint } from "./sim";
+import type { Stage, WorldSnapshot } from "../world";
 
 function runToEnd(stage: Stage, maxSeconds = 30) {
   const sim = createSim(stage);
@@ -404,4 +404,158 @@ test("finish preserves a failed interaction instead of forcing a remote transfer
   assert.equal(sim.finish(), true);
   assert.equal(sim.completedBeats, 1);
   assert.equal(sim.props.balloon!.holder, "hero");
+});
+
+test("a choice keeps a delivered balloon with its recipient despite conflicting scene starts", () => {
+  const first = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "path" }],
+    props: [{ prop: "balloon", at: "hero" }],
+    beats: [
+      { actor: "hero", action: "give", prop: "balloon", target: "friend" },
+      { actor: "friend", action: "walk_to", target: "tree" },
+    ],
+  });
+  assert.equal(first.finish(), true);
+  assert.equal(first.props.balloon!.holder, "friend");
+  const previous = snapshotSim(first, "sunny");
+  const next = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "home" }, { actor: "friend", at: "playground" }],
+    props: [{ prop: "balloon", at: "hero" }],
+    beats: [{ actor: "hero", action: "wave", target: "friend" }],
+  }, previous);
+  assert.deepEqual(snapshotSim(next, "sunny"), previous, "new scene setup must not move characters or undo the gift");
+  assert.equal(next.completedBeats, 0, "only the new action timeline restarts");
+  assert.equal(next.finish(), true);
+  assert.equal(next.props.balloon!.holder, "friend");
+  assert.deepEqual([next.actors.friend!.x, next.actors.friend!.z], [first.actors.friend!.x, first.actors.friend!.z]);
+});
+
+test("restoring a world preserves exact coordinates, headings, sitting, emotions and prop state", () => {
+  const previous: WorldSnapshot = {
+    weather: "rainy",
+    actors: [
+      { actor: "hero", x: 2.123456789, z: 1.234567891, heading: -1.23456789, sitting: true, emotion: "sad" },
+      { actor: "friend", x: -3.456789123, z: -0.789123456, heading: 2.345678912, sitting: false },
+    ],
+    props: [
+      { prop: "ball", x: 1.111111119, z: 2.222222229 },
+      { prop: "balloon", x: -3.456789123, z: -0.789123456, holder: "friend" },
+    ],
+  };
+  const next = createSim({
+    weather: "rainy",
+    cast: [{ actor: "hero", at: "home" }, { actor: "friend", at: "pond" }],
+    props: [{ prop: "ball", at: "hero" }, { prop: "balloon", at: "playground" }],
+    beats: [],
+  }, previous);
+  assert.deepEqual(snapshotSim(next, "rainy"), previous);
+  assert.equal(next.actors.hero!.sitting, true);
+  assert.equal(next.actors.hero!.pose, "idle", "seated idle must not restart the sit-down animation");
+  assert.equal(next.actors.hero!.emotion, "sad");
+  assert.equal(next.props.ball!.holder, undefined, "a grounded object cannot be reassigned by a later stage declaration");
+});
+
+test("omitting existing cast and props from a new scene does not remove them", () => {
+  const first = createSim({
+    weather: "sunset",
+    cast: [{ actor: "hero", at: "path" }, { actor: "duck", at: "pond" }],
+    props: [{ prop: "balloon", at: "duck" }, { prop: "flower", at: "garden" }],
+    beats: [],
+  });
+  const previous = snapshotSim(first, "sunset");
+  const next = createSim({ weather: "sunset", cast: [], props: [], beats: [] }, previous);
+  assert.deepEqual(snapshotSim(next, "sunset"), previous);
+  assert.equal(next.props.balloon!.holder, "duck");
+  assert.equal(next.done, true);
+});
+
+test("new entities join the retained world without resetting props or overfilling hands", () => {
+  const first = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "path" }],
+    props: [{ prop: "balloon", at: "hero" }],
+    beats: [],
+  });
+  const previous = snapshotSim(first, "sunny");
+  const next = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "home" }, { actor: "friend", at: "path" }],
+    props: [
+      { prop: "balloon", at: "friend" },
+      { prop: "apple", at: "hero" },
+      { prop: "book", at: "friend" },
+      { prop: "flower", at: "garden" },
+    ],
+    beats: [],
+  }, previous);
+  const hero = next.actors.hero!, friend = next.actors.friend!;
+  assert.deepEqual([hero.x, hero.z], [0, 0]);
+  assert.ok(Math.hypot(hero.x - friend.x, hero.z - friend.z) >= RADIUS.hero + RADIUS.friend);
+  assert.equal(next.props.balloon!.holder, "hero");
+  assert.equal(next.props.apple!.holder, undefined);
+  assert.equal(next.props.book!.holder, "friend");
+  assert.equal(next.props.flower!.holder, undefined);
+  assert.equal(Object.values(next.props).filter(({ holder }) => holder === "hero").length, 1);
+  next.step(1 / 60, 0);
+  assert.deepEqual([hero.x, hero.z], [0, 0], "the newcomer must not shove an existing actor on the first frame");
+});
+
+test("snapshots are detached from source and restored simulations, and replay keeps the same initial world", () => {
+  const first = createSim({
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "path" }],
+    props: [{ prop: "balloon", at: "hero" }],
+    beats: [],
+  });
+  const initial = snapshotSim(first, "sunny");
+  const saved = JSON.stringify(initial);
+  first.actors.hero!.x = 100;
+  first.props.balloon!.holder = "friend";
+  assert.equal(JSON.stringify(initial), saved, "later source mutations cannot rewrite a saved snapshot");
+  initial.actors.forEach(Object.freeze);
+  initial.props.forEach(Object.freeze);
+  Object.freeze(initial.actors);
+  Object.freeze(initial.props);
+  Object.freeze(initial);
+
+  const stage: Stage = {
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "home" }],
+    props: [],
+    beats: [
+      { actor: "hero", action: "give", prop: "balloon", target: "friend" },
+      { actor: "friend", action: "walk_to", target: "tree" },
+    ],
+  };
+  const played = createSim(stage, initial);
+  assert.equal(played.finish(), true);
+  const replay = createSim(stage, initial);
+  assert.equal(replay.props.balloon!.holder, "hero");
+  assert.equal(replay.finish(), true);
+  assert.deepEqual(snapshotSim(replay, "sunny"), snapshotSim(played, "sunny"));
+  assert.equal(JSON.stringify(initial), saved, "playing or replaying must never mutate the initial snapshot");
+
+  const detached = snapshotSim(played, "sunset");
+  const actualX = played.actors.hero!.x;
+  detached.actors.find(({ actor }) => actor === "hero")!.x += 20;
+  detached.props.find(({ prop }) => prop === "balloon")!.holder = "hero";
+  assert.equal(detached.weather, "sunset");
+  assert.equal(played.actors.hero!.x, actualX);
+  assert.equal(played.props.balloon!.holder, "friend");
+});
+
+test("an undefined previous snapshot retains the original cold-start behavior", () => {
+  const stage: Stage = {
+    weather: "sunny",
+    cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "path" }],
+    props: [{ prop: "balloon", at: "hero" }],
+    beats: [{ actor: "hero", action: "give", prop: "balloon", target: "friend" }],
+  };
+  const original = createSim(stage), optional = createSim(stage, undefined);
+  assert.deepEqual(snapshotSim(optional, "sunny"), snapshotSim(original, "sunny"));
+  assert.equal(original.finish(), true);
+  assert.equal(optional.finish(), true);
+  assert.deepEqual(snapshotSim(optional, "sunny"), snapshotSim(original, "sunny"));
 });

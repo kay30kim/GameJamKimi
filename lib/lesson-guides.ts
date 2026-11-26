@@ -14,6 +14,8 @@ export interface LessonGuide {
   temptation: string;
   /** Close to what a character says at the ending, in the narration language. */
   kidPhrase: string;
+  /** Topic-specific limits that take precedence over general story and choice rules. */
+  guardrails?: string;
   /** Openings whose situation needs this lesson. The client picks one of these at random. */
   openings: readonly OpeningId[];
 }
@@ -74,6 +76,22 @@ export const LESSON_GUIDES: Record<string, LessonGuide> = {
     temptation: "try to do it all alone, or let someone else do all the work",
     kidPhrase: "We did it together!",
     openings: ["kite_tree", "picnic_prep", "spilled_apples", "thirsty_garden"],
+  },
+  body_safety: {
+    meaning: "My body belongs to me, and I can choose what feels comfortable and ask for help.",
+    looksLike: "asking before a hug and waiting for permission, happily accepting a no and offering a wave, stopping a tickle game immediately when someone says stop, saying private parts are private, asking a trusted grown-up for help",
+    temptation: "feel unsure which words to use or want a little time before asking for help; never treat saying no, changing one's mind, or declining touch as the wrong choice",
+    kidPhrase: "My body is mine. I can say stop and ask for help.",
+    guardrails: "Keep this gentle and suitable for ages 3–6: body autonomy, permission, privacy, and help. No adult sexual acts, explicit descriptions, exposure, secret-keeping scenarios, or frightening strangers. Refusal and changing one's mind are always valid; nobody becomes sad, guilty, disappointed, or less friendly because a child declines touch. Stop immediately at no or stop, without persuasion. Offer two safe choices, such as saying no or asking for help; never contrast consent with disobedience. A child can ask a trusted grown-up about any uncomfortable feeling, even when friends could handle it. If one grown-up does not listen or help, tell another trusted grown-up until someone helps; adults are not always right, and it is never the child's fault. Keep all characters covered and teach privacy through calm words with Grandma Owl; never show private body parts. Use existing supported gestures and dialogue rather than inventing a tickling animation.",
+    openings: ["ask_before_hug", "tickle_stop", "body_privacy_help"],
+  },
+  table_manners: {
+    meaning: "Mealtimes feel comfortable when we ask kindly, take turns, and listen to our bodies.",
+    looksLike: "asking \"May I have an apple, please?\", waiting for a turn with the cookies, finishing chewing and swallowing before speaking, sitting calmly for a picnic, saying \"No thank you\" or \"I'm full\" when needed",
+    temptation: "reach for a cookie before asking or rush to tell a story before finishing a mouthful; never make hunger, fullness, food preferences, or refusing food the wrong choice",
+    kidPhrase: "Please and thank you make our picnic friendly!",
+    guardrails: "Use a gentle picnic on the meadow path or near the bench with only supported apple or cookies props. No kitchen, dining table, dishes, utensils, or invented eating animations; show sitting, waiting, asking, and handing over food with supported beats, and mention chewing and swallowing in simple dialogue when relevant. Never pressure a child to taste food, take more bites, finish a plate, or ignore hunger or fullness. No food shaming, good-food/bad-food labels, rewards for eating, or guilt about waste. Declining food and asking for more when hungry are both valid. Teach calmly asking please, waiting for a turn, swallowing before speaking, and sitting comfortably; no choking scares or punishment.",
+    openings: ["picnic_please", "picnic_turns", "chew_then_speak", "calm_picnic"],
   },
 };
 

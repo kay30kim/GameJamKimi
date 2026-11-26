@@ -1,0 +1,1114 @@
+{
+  "id": "bravery",
+  "order": 6,
+  "names": {
+    "ko": "용기",
+    "en": "Bravery"
+  },
+  "versions": [
+    {
+      "age": 3,
+      "language": "ko",
+      "title": "나도 놀아도 돼?",
+      "goal": "떨리는 마음을 짧게 말하고 원하는 놀이 방법을 골라요.",
+      "phrase": "나도 놀아도 돼?",
+      "meaning": "Can I play too?",
+      "cast": [
+        "앨리스",
+        "모모",
+        "보리"
+      ],
+      "setting": "놀이터의 편안한 빈자리, 소품 없음",
+      "caregiverNote": "춤을 추거나 구경하는 선택 모두 반겨 주세요. 따라 말하기나 몸 움직이기를 요구하지 않아요.",
+      "scenes": [
+        {
+          "title": "친구들의 춤",
+          "narration": "모모와 보리가 춤을 춰요. 앨리스가 가까이 와요. 친구들이 반가워해요.",
+          "action": "모모와 보리가 짧게 춤춘다. 앨리스는 조금 떨어져 멈춘다.",
+          "lines": [
+            {
+              "speaker": "보리",
+              "text": "앨리스야, 안녕!"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "나도 놀고 싶어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "조금 떨려."
+            }
+          ]
+        },
+        {
+          "title": "물어보는 말",
+          "narration": "앨리스가 친구를 바라봐요. 모모가 잠깐 춤을 멈춰요.",
+          "action": "모모는 움직임을 멈추고 앨리스를 바라본다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "나도 놀아도 돼?"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“나도 놀아도 돼?”는 영어로 “Can I play too?”야."
+            },
+            {
+              "speaker": "모모",
+              "text": "응. 구경해도 좋아."
+            }
+          ]
+        },
+        {
+          "title": "내가 고르는 놀이",
+          "narration": "앨리스는 춤을 추거나 앉아서 볼 수 있어요. 친구들이 기다려요.",
+          "action": "어느 선택에서도 접촉을 요구하지 않는다. 앨리스의 선택 뒤에만 움직인다.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "한 번 춤춰요",
+              "narration": "앨리스는 친구 곁에서 춤을 한번 추고 싶어요.",
+              "action": "앨리스가 함께해도 되는지 묻고 보리가 반긴 뒤, 앨리스가 가까이 와서 짧게 춤춘다. 움직인 다음 기쁜 대사를 말한다.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "나도 놀아도 돼?"
+                },
+                {
+                  "speaker": "보리",
+                  "text": "응. 네 춤을 춰!"
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "이렇게 해 볼래."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "함께 있으니 좋아."
+                }
+              ]
+            },
+            {
+              "label": "앉아서 구경해요",
+              "narration": "앨리스는 앉아서 친구들의 춤을 보고 싶어요.",
+              "action": "앨리스가 구경하고 싶다고 말하고 모모가 답한 뒤 앨리스가 앉아서 손을 흔든다. 친구들은 가까이서 놀이를 이어 간다.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "나도 놀아도 돼? 앉아서 볼래."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "응. 편하게 봐."
+                },
+                {
+                  "speaker": "보리",
+                  "text": "앨리스야, 안녕!"
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "안녕! 여기 있으니 좋아."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "내 마음을 말했어",
+          "narration": "친구들이 잠깐 쉬어요. 앨리스도 편안하게 앉아요.",
+          "action": "세 친구가 서로 공간을 두고 앉는다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "떨렸어. 그래도 내 마음을 말했어."
+            },
+            {
+              "speaker": "모모",
+              "text": "네 마음을 알아서 좋아."
+            },
+            {
+              "speaker": "보리",
+              "text": "네가 와서 나도 좋아."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“나도 놀아도 돼?”라고 해 볼까? 듣기만 해도 좋아."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "나비가 공을 들고 놀고 있어. 같이 놀고 싶으면 어떻게 물을까?",
+        "example": "나도 놀아도 돼?"
+      }
+    },
+    {
+      "age": 3,
+      "language": "en",
+      "title": "Can I play too?",
+      "goal": "Name a shy feeling and choose a comfortable way to be with friends.",
+      "phrase": "Can I play too?",
+      "meaning": "나도 놀아도 돼?",
+      "cast": [
+        "Alice",
+        "Momo",
+        "Bori"
+      ],
+      "setting": "A comfortable open space at the playground; no props",
+      "caregiverNote": "Welcome dancing and watching equally. Neither saying the phrase nor moving their body is required.",
+      "scenes": [
+        {
+          "title": "A little dance",
+          "narration": "Momo and Bori dance. Alice comes nearby. Her friends look glad to see her.",
+          "action": "Momo and Bori do a short dance. Alice stops a little way away.",
+          "lines": [
+            {
+              "speaker": "Bori",
+              "text": "Hello, Alice!"
+            },
+            {
+              "speaker": "Alice",
+              "text": "I want to play."
+            },
+            {
+              "speaker": "Alice",
+              "text": "I feel shy."
+            }
+          ]
+        },
+        {
+          "title": "A little question",
+          "narration": "Alice looks at her friends. Momo stops dancing to listen.",
+          "action": "Momo stops moving and looks toward Alice.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "Can I play too?"
+            },
+            {
+              "speaker": "Alice",
+              "text": "“나도 놀아도 돼?” means “Can I play too?” in English."
+            },
+            {
+              "speaker": "Momo",
+              "text": "Yes. Watching is okay too."
+            }
+          ]
+        },
+        {
+          "title": "Alice chooses",
+          "narration": "Alice can dance or sit and watch. Her friends wait for her choice.",
+          "action": "No contact is required. Move only after Alice chooses.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Try a little dance",
+              "narration": "Alice wants to try a little dance with her friends.",
+              "action": "After Alice asks and Bori welcomes her, Alice comes closer and dances briefly. The happy reaction follows the action.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Can I play too?"
+                },
+                {
+                  "speaker": "Bori",
+                  "text": "Yes. Try your dance!"
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I’ll try this one."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "I like being together."
+                }
+              ]
+            },
+            {
+              "label": "Sit and watch",
+              "narration": "Alice wants to sit and watch her friends dance.",
+              "action": "After Alice says she wants to watch and Momo replies, Alice sits and waves. Her friends play nearby.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Can I play too? I’ll sit and watch."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Yes. Get comfortable."
+                },
+                {
+                  "speaker": "Bori",
+                  "text": "Hello, Alice!"
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Hello! I like it here."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "I said what I wanted",
+          "narration": "The friends take a little rest. Alice sits comfortably with them.",
+          "action": "All three sit with comfortable space between them.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I felt shy. I said what I wanted."
+            },
+            {
+              "speaker": "Momo",
+              "text": "I’m glad I know."
+            },
+            {
+              "speaker": "Bori",
+              "text": "I’m glad you came."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Want to try “Can I play too?” Listening is okay too."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "Nabi is playing with a ball. How could you ask to play too?",
+        "example": "Can I play too?"
+      }
+    },
+    {
+      "age": 4,
+      "language": "ko",
+      "title": "두근두근, 한마디",
+      "goal": "긴장되는 마음에 이름을 붙이고 친구에게 원하는 참여 방법을 말해요.",
+      "phrase": "같이 해도 돼?",
+      "meaning": "Can I join?",
+      "cast": [
+        "앨리스",
+        "모모",
+        "보리"
+      ],
+      "setting": "놀이터의 편안한 빈자리, 소품 없음",
+      "caregiverNote": "긴장했다고 빨리 합류시키지 않아요. 서서 춤추기와 앉아 구경하기 모두 관계를 이어 가는 선택이에요.",
+      "scenes": [
+        {
+          "title": "짝짝, 친구들이 모였어",
+          "narration": "모모와 보리가 놀이터에서 손뼉을 쳐요. 앨리스는 같이 하고 싶은데 마음이 두근거려요.",
+          "action": "모모와 보리가 손뼉을 친다. 앨리스가 가까이 걸어와 멈춘다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "처음 같이 하려니 긴장돼."
+            },
+            {
+              "speaker": "보리",
+              "text": "안녕! 우리는 손뼉 놀이 중이야."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "재미있어 보여."
+            }
+          ]
+        },
+        {
+          "title": "짧게 물어봐요",
+          "narration": "앨리스가 조금 가까이 와요. 모모는 앨리스의 말을 기다려요.",
+          "action": "앨리스가 한 번 걸어온다. 모모와 보리는 멈추고 듣는다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "같이 해도 돼?"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“같이 해도 돼?”는 영어로 “Can I join?”이야."
+            },
+            {
+              "speaker": "모모",
+              "text": "응. 손뼉을 쳐도 되고 구경해도 돼."
+            }
+          ]
+        },
+        {
+          "title": "편한 방법을 골라요",
+          "narration": "앨리스는 자기 마음에 맞는 방법을 찾아요. 친구들은 어느 쪽도 반겨요.",
+          "action": "두 선택 모두 얼굴을 볼 수 있는 거리를 유지한다. 손을 잡는 동작은 없다.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "손뼉을 쳐 봐요",
+              "narration": "앨리스는 천천히 손뼉부터 쳐 보고 싶어요. 아직 마음은 조금 두근거려요.",
+              "action": "앨리스가 함께해도 되는지 묻고 보리가 반긴 뒤, 앨리스가 가까이 와서 천천히 손뼉을 친다. 움직인 다음 기쁜 대사를 말한다.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "같이 해도 돼? 천천히 해 볼래."
+                },
+                {
+                  "speaker": "보리",
+                  "text": "좋아. 네 속도로 해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "짝짝! 해 보니 기뻐."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "네 소리가 더해져서 나도 기뻐."
+                }
+              ]
+            },
+            {
+              "label": "앉아서 손인사해요",
+              "narration": "앨리스는 몸을 쉬면서 구경하고 싶어요. 친구들에게 자기 방법을 말하려 해요.",
+              "action": "앨리스가 구경하고 싶다고 말하고 모모가 답한 뒤 앨리스가 앉아서 손을 흔든다. 친구들은 가까이서 놀이를 이어 간다.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "같이 해도 돼? 나는 앉아서 볼래."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "물론이지. 편하게 앉아."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내 마음을 말하니 편해졌어."
+                },
+                {
+                  "speaker": "보리",
+                  "text": "우리 곁에 있어 줘서 좋아."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "서로 마음을 알아요",
+          "narration": "친구들이 쉬면서 조금 전 마음을 이야기해요. 앨리스는 고른 방법이 편했어요.",
+          "action": "모두 앉아서 듣고 기쁜 표정을 보인다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "처음엔 긴장됐어. 내 방법을 골라서 좋았어."
+            },
+            {
+              "speaker": "모모",
+              "text": "네가 원하는 걸 알아서 나도 좋아."
+            },
+            {
+              "speaker": "보리",
+              "text": "다음에도 네 마음을 말해 줘."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“같이 해도 돼?”라고 말해 볼까? 오늘은 듣기만 해도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "벤치에서 나비와 할머니가 책을 보고 있어. 옆에서 같이 보고 싶으면 어떻게 물을까?",
+        "example": "같이 해도 돼? 나도 옆에서 책을 볼래."
+      }
+    },
+    {
+      "age": 4,
+      "language": "en",
+      "title": "A fluttery little question",
+      "goal": "Name nervousness and tell friends how you would like to join.",
+      "phrase": "Can I join?",
+      "meaning": "같이 해도 돼?",
+      "cast": [
+        "Alice",
+        "Momo",
+        "Bori"
+      ],
+      "setting": "A comfortable open space at the playground; no props",
+      "caregiverNote": "Do not hurry a nervous child into joining. Clapping and sitting nearby are both welcome ways to connect.",
+      "scenes": [
+        {
+          "title": "Clapping friends",
+          "narration": "Momo and Bori clap at the playground. Alice wants to join, but her tummy feels fluttery.",
+          "action": "Momo and Bori clap. Alice walks nearby and stops.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I feel nervous about joining."
+            },
+            {
+              "speaker": "Bori",
+              "text": "Hello! We’re playing a clapping game."
+            },
+            {
+              "speaker": "Alice",
+              "text": "It looks fun."
+            }
+          ]
+        },
+        {
+          "title": "A short question",
+          "narration": "Alice comes a little closer. Momo waits to hear her.",
+          "action": "Alice approaches. Momo and Bori pause to listen.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "Can I join?"
+            },
+            {
+              "speaker": "Alice",
+              "text": "“같이 해도 돼?” means “Can I join?” in English."
+            },
+            {
+              "speaker": "Momo",
+              "text": "Yes. You can clap or watch."
+            }
+          ]
+        },
+        {
+          "title": "Choose a comfortable way",
+          "narration": "Alice notices what feels right for her. Her friends welcome either choice.",
+          "action": "Keep comfortable space. No hand-holding is required.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Try a little clap",
+              "narration": "Alice wants to begin with a slow clap. She still feels a little fluttery.",
+              "action": "After Alice asks and Bori welcomes her, Alice comes closer and claps slowly. The happy reaction follows the action.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Can I join? I’ll try slowly."
+                },
+                {
+                  "speaker": "Bori",
+                  "text": "Yes. Use your own speed."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Clap, clap! I feel happy."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Your claps make me happy too."
+                }
+              ]
+            },
+            {
+              "label": "Sit and wave",
+              "narration": "Alice would like to rest and watch. She is ready to tell her friends.",
+              "action": "After Alice says she wants to watch and Momo replies, Alice sits and waves. Her friends play nearby.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Can I join? I’ll sit and watch."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Of course. Get comfortable."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Saying what I want helped me feel calm."
+                },
+                {
+                  "speaker": "Bori",
+                  "text": "I like having you nearby."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "We know each other better",
+          "narration": "The friends rest and talk about their feelings. Alice liked choosing her own way.",
+          "action": "Everyone sits and listens with happy expressions.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I felt nervous. Choosing my way felt good."
+            },
+            {
+              "speaker": "Momo",
+              "text": "I’m glad I know what you wanted."
+            },
+            {
+              "speaker": "Bori",
+              "text": "You can tell us next time too."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Want to try “Can I join?” You can just listen today."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "Nabi and Grandma are looking at a book by the bench. What could you ask?",
+        "example": "Can I join? I’d like to look too."
+      }
+    },
+    {
+      "age": 5,
+      "language": "ko",
+      "title": "처음이라 떨려",
+      "goal": "새로운 일이 떨리는 까닭을 말하고, 천천히 해 달라거나 먼저 보겠다고 부탁해요.",
+      "phrase": "처음이라 조금 떨려",
+      "meaning": "I feel nervous because it’s new",
+      "cast": [
+        "앨리스",
+        "모모",
+        "보리"
+      ],
+      "setting": "놀이터의 편안한 빈자리, 소품 없음",
+      "caregiverNote": "원인을 말하는 문장을 모델로 읽어 주세요. 친구의 춤을 그대로 따라 하거나 결국 합류해야 한다는 결말은 만들지 않아요.",
+      "scenes": [
+        {
+          "title": "처음 보는 춤",
+          "narration": "모모와 보리가 각자 좋아하는 춤을 보여 줘요. 앨리스는 새 춤이 궁금하지만 처음 해 보는 일이에요.",
+          "action": "모모와 보리가 차례로 짧게 춤춘다. 앨리스가 가까이서 본다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "나도 해 보고 싶어. 어떻게 시작할지 모르겠어."
+            },
+            {
+              "speaker": "모모",
+              "text": "우리는 서로 다른 춤을 추고 있어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "다르게 춰도 되는구나."
+            }
+          ]
+        },
+        {
+          "title": "떨리는 까닭",
+          "narration": "앨리스가 마음이 떨리는 이유를 말해요. 친구들은 서둘러 움직이지 않고 들어요.",
+          "action": "모모와 보리가 멈춘다. 앨리스가 궁금한 표정으로 말한다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "처음이라 조금 떨려."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“처음이라 조금 떨려”는 영어로 “I feel nervous because it’s new”야."
+            },
+            {
+              "speaker": "보리",
+              "text": "어떻게 하면 편할지 말해 줘."
+            }
+          ]
+        },
+        {
+          "title": "필요한 걸 부탁해요",
+          "narration": "앨리스는 해 볼 방법이나 쉬어 갈 방법을 고를 수 있어요. 어느 쪽도 친구가 되는 데 문제가 없어요.",
+          "action": "선택한 행동만 재생한다. 친구들이 앨리스를 끌거나 잡지 않는다.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "천천히 함께 춰 달라고 해요",
+              "narration": "앨리스는 속도가 느리면 해 보기 쉬울 것 같아요. 친구에게 필요한 것을 부탁하려 해요.",
+              "action": "앨리스가 천천히 해 달라고 부탁하고 보리가 답한 뒤 둘이 각각 짧게 춤춘다. 동작이 같을 필요는 없다.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "처음이라 조금 떨려. 천천히 같이 해 줄래?"
+                },
+                {
+                  "speaker": "보리",
+                  "text": "응. 나는 천천히 출게."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내 춤은 네 춤이랑 달라."
+                },
+                {
+                  "speaker": "보리",
+                  "text": "그래도 좋아. 네 춤을 보니 기뻐."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 골라서 해 보니 뿌듯해."
+                }
+              ]
+            },
+            {
+              "label": "먼저 보고 쉬어요",
+              "narration": "앨리스는 오늘 앉아서 보는 쪽이 편할 것 같아요. 친구들에게 자기 마음을 말하려 해요.",
+              "action": "앨리스가 쉬겠다고 말하고 모모가 받아들인 뒤 앨리스가 앉는다. 친구들은 짧게 춤추고 앨리스 쪽으로 인사한다.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "처음이라 조금 떨려. 오늘은 먼저 보고 쉴래."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "좋아. 함께 있어도 춤출 필요는 없어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내 마음을 알아줘서 편해졌어."
+                },
+                {
+                  "speaker": "보리",
+                  "text": "네가 편안하니 나도 좋아."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "말로 가까워졌어요",
+          "narration": "친구들이 앉아 쉬어요. 앨리스는 자기 마음과 필요한 것을 말한 일을 떠올려요.",
+          "action": "세 친구가 공간을 두고 앉는다. 모두 편안한 표정을 유지한다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "왜 떨리는지 말하니 필요한 도움을 부탁할 수 있었어."
+            },
+            {
+              "speaker": "모모",
+              "text": "네 마음을 들으니 어떻게 함께할지 알겠어."
+            },
+            {
+              "speaker": "보리",
+              "text": "춤추는 방법이 달라도 함께 있으니 좋아."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“처음이라 조금 떨려”라고 말해 볼까? 말하고 싶지 않으면 쉬어도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "처음 만난 나비에게 책을 같이 봐도 되는지 묻고 싶어. 마음을 어떻게 말할까?",
+        "example": "처음이라 조금 떨려. 나비야, 천천히 같이 책을 봐도 돼?"
+      }
+    },
+    {
+      "age": 5,
+      "language": "en",
+      "title": "It feels new",
+      "goal": "Explain why something feels nervous and ask to slow down or watch first.",
+      "phrase": "I feel nervous because it’s new",
+      "meaning": "처음이라 조금 떨려",
+      "cast": [
+        "Alice",
+        "Momo",
+        "Bori"
+      ],
+      "setting": "A comfortable open space at the playground; no props",
+      "caregiverNote": "Model the cause-and-feeling sentence. The child does not have to copy a movement or eventually join the dance.",
+      "scenes": [
+        {
+          "title": "A dance Alice has not tried",
+          "narration": "Momo and Bori show their favorite dances. Alice is curious, but this is new to her.",
+          "action": "Momo and Bori dance briefly in turn. Alice watches nearby.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I want to try. I don’t know how to start."
+            },
+            {
+              "speaker": "Momo",
+              "text": "We’re doing different dances."
+            },
+            {
+              "speaker": "Alice",
+              "text": "So our dances can be different."
+            }
+          ]
+        },
+        {
+          "title": "Say why it feels hard",
+          "narration": "Alice tells her friends why she feels fluttery. They stop to listen.",
+          "action": "Momo and Bori pause. Alice looks curious.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I feel nervous because it’s new."
+            },
+            {
+              "speaker": "Alice",
+              "text": "“처음이라 조금 떨려” means “I feel nervous because it’s new” in English."
+            },
+            {
+              "speaker": "Bori",
+              "text": "Tell us what would feel comfortable."
+            }
+          ]
+        },
+        {
+          "title": "Ask for what you need",
+          "narration": "Alice can choose a way to try or a way to rest. Either way, she belongs with her friends.",
+          "action": "Play only the chosen action. Nobody pulls Alice or holds her.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Ask for a slower dance",
+              "narration": "A slower start might help Alice. She is ready to ask her friends for it.",
+              "action": "After Alice asks for a slower start and Bori agrees, they each do a short dance. Their movements need not match.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I feel nervous because it’s new. Will you go slowly with me?"
+                },
+                {
+                  "speaker": "Bori",
+                  "text": "Yes. I’ll slow down."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "My dance looks different."
+                },
+                {
+                  "speaker": "Bori",
+                  "text": "I like seeing your dance."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I feel proud that I chose to try."
+                }
+              ]
+            },
+            {
+              "label": "Watch and rest first",
+              "narration": "Alice thinks watching would feel comfortable today. She is ready to tell her friends.",
+              "action": "After Alice chooses rest and Momo accepts, Alice sits. Her friends dance briefly and wave toward her.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I feel nervous because it’s new. I’ll watch and rest today."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "Okay. You don’t have to dance to be with us."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I feel calm because you understand."
+                },
+                {
+                  "speaker": "Bori",
+                  "text": "I’m glad you feel comfortable."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Words bring us closer",
+          "narration": "The friends sit to rest. Alice remembers telling them her feelings and what she needed.",
+          "action": "All three sit with comfortable space and calm expressions.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "Saying why I felt nervous helped me ask for what I needed."
+            },
+            {
+              "speaker": "Momo",
+              "text": "Hearing you helped me understand."
+            },
+            {
+              "speaker": "Bori",
+              "text": "We can enjoy being together in different ways."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Want to try “I feel nervous because it’s new”? You can rest instead."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You want to ask a new friend, Nabi, to look at a book together. What could you say?",
+        "example": "I feel nervous because it’s new. Could we look at the book slowly together?"
+      }
+    },
+    {
+      "age": 6,
+      "language": "ko",
+      "title": "준비되는 속도",
+      "goal": "친구의 기대와 내 준비 속도가 다를 수 있음을 알고, 참여나 휴식을 스스로 결정해요.",
+      "phrase": "내가 준비되면 해 볼게",
+      "meaning": "I’ll try when I’m ready",
+      "cast": [
+        "앨리스",
+        "모모",
+        "보리"
+      ],
+      "setting": "놀이터의 편안한 빈자리, 소품 없음",
+      "caregiverNote": "용기는 무조건 참여하거나 몸의 경계를 넘는 일이 아니에요. 준비되지 않았다는 말, 휴식, 다른 방법을 똑같이 존중해 주세요.",
+      "scenes": [
+        {
+          "title": "친구의 초대",
+          "narration": "모모는 새 춤을 앨리스와 함께 추고 싶어요. 앨리스도 궁금하지만 먼저 볼 시간이 필요해요.",
+          "action": "모모와 보리가 짧게 춤춘다. 앨리스는 거리를 두고 본다.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "앨리스야, 같이 추면 재미있겠다!"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 반겨 줘서 좋아. 나는 조금 더 보고 싶어."
+            },
+            {
+              "speaker": "보리",
+              "text": "같이 하고 싶은 마음과 준비된 마음이 다를 수도 있지."
+            }
+          ]
+        },
+        {
+          "title": "내 속도를 알려요",
+          "narration": "앨리스는 친구를 싫어해서 망설이는 게 아니라고 말해요. 친구들은 각자 속도가 다르다는 걸 들어요.",
+          "action": "모모와 보리가 멈추고 앨리스의 말을 듣는다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "내가 준비되면 해 볼게."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“내가 준비되면 해 볼게”는 영어로 “I’ll try when I’m ready”야."
+            },
+            {
+              "speaker": "모모",
+              "text": "알겠어. 지금 하라고 재촉하지 않을게."
+            }
+          ]
+        },
+        {
+          "title": "어떤 준비가 필요할까",
+          "narration": "앨리스는 지금 해 볼 만큼 준비되었는지 살펴봐요. 친구들도 대답을 바꾸려 하지 않아요.",
+          "action": "어느 선택에서도 손을 잡거나 신체 접촉을 제안하지 않는다.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "쉬운 움직임부터 해요",
+              "narration": "앨리스는 작은 움직임부터 시작하고 싶어요. 친구들이 어떤 도움을 줄 수 있을지 물으려 해요.",
+              "action": "앨리스가 손뼉부터 시작하자고 부탁하고 보리가 답한 뒤 둘이 손뼉을 친다. 앨리스가 이제 춤추고 싶다고 말한 뒤에만 짧게 춤춘다.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 준비되면 해 볼게. 먼저 손뼉 한 번부터 같이 해 줄래?"
+                },
+                {
+                  "speaker": "보리",
+                  "text": "좋아. 큰 춤을 출 필요는 없어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "이제 내 춤을 한 번 해 보고 싶어."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "네가 고른 시작을 보니 나도 기뻐."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내 속도로 해 보니 기분이 좋아."
+                }
+              ]
+            },
+            {
+              "label": "오늘은 쉬면서 구경해요",
+              "narration": "앨리스는 오늘 춤추지 않고 쉬는 쪽을 골랐어요. 이제 친구들에게 그 마음을 말하려 해요.",
+              "action": "앨리스가 쉬겠다고 말하고 친구들이 받아들인 뒤 앨리스가 앉는다. 친구들이 짧게 춤추고 손을 흔든다. 앨리스는 마지막 대사를 편히 앉아서 말한다.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 준비되면 해 볼게. 오늘은 쉬면서 구경할래."
+                },
+                {
+                  "speaker": "모모",
+                  "text": "함께 추고 싶었지만 네 선택을 존중해. 구경해도 좋아."
+                },
+                {
+                  "speaker": "보리",
+                  "text": "다시 물으며 재촉하지 않을게. 마음이 바뀌면 알려 줘."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "편하게 쉬면서 함께 있을 수 있어서 좋아."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "둘 다 말할 수 있어요",
+          "narration": "친구들은 가까이 앉아 각자 좋았던 일을 이야기해요. 함께 있는 방법이 하나뿐은 아니라는 걸 알았어요.",
+          "action": "모두 서로 공간을 두고 앉는다. 앨리스의 선택을 뒤집는 동작은 없다.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "내 속도를 말했고 너희가 들어 줘서 마음이 편했어."
+            },
+            {
+              "speaker": "모모",
+              "text": "나는 네 마음을 알게 돼서 좋아. 함께 있는 것도 기뻐."
+            },
+            {
+              "speaker": "보리",
+              "text": "다음에 다른 놀이를 할 때도 서로 물어보자."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“내가 준비되면 해 볼게”라고 말해 볼까? 지금은 듣는 쪽을 골라도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "할머니 앞에서 새로 배운 노래를 부르기엔 아직 준비가 안 됐어. 어떤 말을 할 수 있을까?",
+        "example": "내가 준비되면 해 볼게. 지금은 먼저 들어 볼래."
+      }
+    },
+    {
+      "age": 6,
+      "language": "en",
+      "title": "Ready at my own pace",
+      "goal": "Notice that friends can have different hopes and readiness, then choose participation or rest freely.",
+      "phrase": "I’ll try when I’m ready",
+      "meaning": "내가 준비되면 해 볼게",
+      "cast": [
+        "Alice",
+        "Momo",
+        "Bori"
+      ],
+      "setting": "A comfortable open space at the playground; no props",
+      "caregiverNote": "Bravery never requires participation or crossing a bodily boundary. Respect not being ready, resting, and choosing another way equally.",
+      "scenes": [
+        {
+          "title": "A friendly invitation",
+          "narration": "Momo wants Alice to try a new dance with him. Alice is curious but needs time to watch.",
+          "action": "Momo and Bori dance briefly. Alice watches from a comfortable distance.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "Alice, dancing together would be fun!"
+            },
+            {
+              "speaker": "Alice",
+              "text": "I like being invited. I want to watch a little longer."
+            },
+            {
+              "speaker": "Bori",
+              "text": "Wanting to join and feeling ready can be different."
+            }
+          ]
+        },
+        {
+          "title": "Explain your own pace",
+          "narration": "Alice explains that needing time does not mean she dislikes her friends. They listen.",
+          "action": "Momo and Bori stop to listen.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I’ll try when I’m ready."
+            },
+            {
+              "speaker": "Alice",
+              "text": "“내가 준비되면 해 볼게” means “I’ll try when I’m ready” in English."
+            },
+            {
+              "speaker": "Momo",
+              "text": "Okay. I won’t hurry you."
+            }
+          ]
+        },
+        {
+          "title": "What would help?",
+          "narration": "Alice considers what feels comfortable now. Her friends do not try to change her answer.",
+          "action": "Neither path involves hand-holding or pressure for physical contact.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Ask for a small first step",
+              "narration": "Alice would like a smaller first step. She is ready to ask what her friends can do.",
+              "action": "After Alice asks to start with a clap and Bori agrees, they clap. Alice dances only after saying she now wants to try her dance.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I’ll try when I’m ready. Could we start with one clap?"
+                },
+                {
+                  "speaker": "Bori",
+                  "text": "Yes. We don’t need a big dance."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Now I’d like to try my own dance."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "I’m happy to see the start you chose."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Trying at my own pace feels good."
+                }
+              ]
+            },
+            {
+              "label": "Rest and watch today",
+              "narration": "Alice has chosen to rest instead of dancing today. She is ready to explain her choice.",
+              "action": "After Alice chooses rest and her friends accept, Alice sits. They dance briefly and wave. Alice speaks her final line from her comfortable seat.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I’ll try when I’m ready. Today I’ll rest and watch."
+                },
+                {
+                  "speaker": "Momo",
+                  "text": "I hoped we’d dance together. Watching is welcome too."
+                },
+                {
+                  "speaker": "Bori",
+                  "text": "We won’t keep asking. Tell us if you change your mind."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I like resting and still being with you."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Room for both voices",
+          "narration": "The friends sit and talk about what felt good. There was more than one way to be together.",
+          "action": "Everyone sits with comfortable space. Do not override Alice’s chosen activity.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I felt comfortable because you listened to my pace."
+            },
+            {
+              "speaker": "Momo",
+              "text": "I’m glad I understand. I like being with you."
+            },
+            {
+              "speaker": "Bori",
+              "text": "We can ask each other before the next game too."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Want to try “I’ll try when I’m ready”? Listening is a choice too."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You are not ready to sing a new song for Grandma. What could you say?",
+        "example": "I’ll try when I’m ready. I’d like to listen first."
+      }
+    }
+  ]
+}

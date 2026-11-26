@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { speak, stopSpeaking } from "./speech";
+import { preloadSpeech, speak, stopSpeaking } from "./speech";
 
 const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
 const audioResponse = () => new Response(new Blob(["audio"], { type: "audio/mpeg" }), { headers: { "content-type": "audio/mpeg" } });
@@ -106,7 +106,7 @@ test("browser fallback waits for its real start event and reports no duplicate s
   env.rejectAudio();
   try {
     let starts = 0;
-    const result = speak("fallback start event", "ko-KR", { onStart: () => { starts += 1; } });
+    const result = speak("fallback start event", "en-US", { onStart: () => { starts += 1; } });
     await flush();
     assert.equal(env.utterances.length, 1);
     assert.equal(starts, 0);
@@ -218,7 +218,7 @@ test("unusable audio reports a caption fallback instead of pretending speech pla
   env.rejectAudio();
   try {
     let starts = 0;
-    assert.deepEqual(await speak("no usable output", "en-US", { onStart: () => { starts += 1; } }), { started: false, cancelled: false });
+    assert.deepEqual(await speak("no usable output", "en-US", { onStart: () => { starts += 1; } }), { started: false, cancelled: false, error: "TTS_PLAYBACK_ERROR" });
     assert.equal(starts, 0);
   } finally { await env.restore(); }
 });
@@ -230,7 +230,7 @@ test("cancelling browser speech after start preserves started and removes stale 
   try {
     const controller = new AbortController();
     let starts = 0;
-    const result = speak("interrupt spoken fallback", "ko-KR", { signal: controller.signal, onStart: () => { starts += 1; } });
+    const result = speak("interrupt spoken fallback", "en-US", { signal: controller.signal, onStart: () => { starts += 1; } });
     await flush();
     const lateStart = env.utterances[0].onstart;
     lateStart?.();
@@ -256,12 +256,12 @@ test("cancelling a saturated generation queue frees slots without starting aband
   try {
     const abandoned = Array.from({ length: 5 }, (_, i) => speak(`abandoned generation ${i}`, "en-US"));
     await flush();
-    assert.equal(requested.length, 3, "the provider concurrency limit remains in force");
+    assert.equal(requested.length, 2, "the Korean provider concurrency limit remains in force");
     stopSpeaking();
     assert.ok((await Promise.all(abandoned)).every((result) => result.cancelled && !result.started));
     const next = speak("fresh generation after saturation", "en-US");
     await flush();
-    assert.equal(requested.length, 4, "aborted slot waiters must never reach the provider");
+    assert.equal(requested.length, 3, "aborted slot waiters must never reach the provider");
     assert.equal(env.players.length, 1);
     env.players[0].onplaying?.();
     env.players[0].onended?.();
@@ -281,7 +281,7 @@ test("generation has a deadline even when fetch ignores abort", async () => {
     const result = speak("generation deadline", "en-US");
     await flush();
     timers.fire(20_000);
-    assert.deepEqual(await result, { started: false, cancelled: false });
+    assert.deepEqual(await result, { started: false, cancelled: false, error: "TTS_TIMEOUT" });
     assert.equal(requestSignal?.aborted, true);
     assert.equal(env.players.length, 0);
   } finally { await env.restore(); timers.restore(); }
@@ -300,8 +300,119 @@ test("missing media and browser start events settle without firing onStart", asy
     assert.equal(env.players[0].paused, true);
     assert.equal(env.utterances.length, 1);
     timers.fire(6_000);
-    assert.deepEqual(await result, { started: false, cancelled: false });
+    assert.deepEqual(await result, { started: false, cancelled: false, error: "TTS_PLAYBACK_ERROR" });
     assert.equal(starts, 0);
     assert.equal(env.browserCancels, 1);
   } finally { await env.restore(); timers.restore(); }
+});
+
+test("Korean locale and Hangul in English lines never use browser speech on server failure", async () => {
+  const env = environment();
+  env.enableBrowser();
+  let starts = 0;
+  try {
+    for (const [text, locale] of [["Korean locale needs its server voice", "KO_kr"], ["Let’s say 안녕 together", "en-US"]]) {
+      for (const code of ["TTS_NOT_CONFIGURED", "TTS_UPSTREAM_ERROR", "TTS_TIMEOUT", "TTS_PLAYBACK_ERROR"] as const) {
+        globalThis.fetch = async () => Response.json({ error: { code, message: "Private service details must not appear in UI." } }, { status: 503 });
+        assert.deepEqual(await speak(`${text} ${code}`, locale, { onStart: () => { starts += 1; } }), {
+          started: false, cancelled: false, error: code,
+        });
+      }
+    }
+    assert.equal(env.utterances.length, 0);
+    assert.equal(env.players.length, 0);
+    assert.equal(starts, 0);
+  } finally { await env.restore(); }
+});
+
+test("unknown server details and invalid audio become safe typed errors", async () => {
+  const env = environment();
+  env.enableBrowser();
+  try {
+    const responses = [
+      () => Response.json({ error: { code: "PRIVATE_DETAIL", message: "Do not forward this message." } }, { status: 502 }),
+      () => new Response("not json", { status: 502 }),
+      () => new Response("not audio", { headers: { "content-type": "text/plain" } }),
+      () => new Response(new Blob([]), { headers: { "content-type": "audio/mpeg" } }),
+    ];
+    for (const [i, response] of responses.entries()) {
+      globalThis.fetch = async () => response();
+      assert.deepEqual(await speak(`안전한 오류 ${i}`, "ko-KR"), { started: false, cancelled: false, error: "TTS_UPSTREAM_ERROR" });
+    }
+    assert.equal(env.utterances.length, 0);
+  } finally { await env.restore(); }
+});
+
+test("Korean playback failures preserve actual start without changing to another voice", async () => {
+  const env = environment();
+  env.enableBrowser();
+  try {
+    let starts = 0;
+    const result = speak("한글 음성이 중간에 멈춰요", "en-US", { onStart: () => { starts += 1; } });
+    await flush();
+    env.players[0].onplaying?.();
+    env.players[0].onerror?.();
+    assert.deepEqual(await result, { started: true, cancelled: false, error: "TTS_PLAYBACK_ERROR" });
+    assert.equal(starts, 1);
+    assert.equal(env.utterances.length, 0);
+    assert.equal(env.players[0].paused, true);
+  } finally { await env.restore(); }
+});
+
+test("Korean media that cannot start returns an error without a browser utterance", async () => {
+  const env = environment();
+  env.enableBrowser();
+  env.rejectAudio();
+  try {
+    let starts = 0;
+    assert.deepEqual(await speak("재생을 시작할 수 없어요", "ko-KR", { onStart: () => { starts += 1; } }), {
+      started: false, cancelled: false, error: "TTS_PLAYBACK_ERROR",
+    });
+    assert.equal(starts, 0);
+    assert.equal(env.utterances.length, 0);
+  } finally { await env.restore(); }
+});
+
+test("a failed Korean generation is evicted so retry can use the configured voice", async () => {
+  const env = environment();
+  env.enableBrowser();
+  let requests = 0;
+  globalThis.fetch = async () => ++requests === 1
+    ? Response.json({ error: { code: "TTS_NOT_CONFIGURED" } }, { status: 503 })
+    : audioResponse();
+  try {
+    assert.deepEqual(await speak("같은 대사를 다시 준비해요", "ko-KR"), { started: false, cancelled: false, error: "TTS_NOT_CONFIGURED" });
+    const retry = speak("같은 대사를 다시 준비해요", "ko-KR");
+    await flush();
+    assert.equal(requests, 2);
+    env.players[0].onplaying?.();
+    env.players[0].onended?.();
+    assert.deepEqual(await retry, { started: true, cancelled: false });
+    assert.equal(env.utterances.length, 0);
+  } finally { await env.restore(); }
+});
+
+test("prefetch shares matching emotional audio and keeps different emotions and speakers separate", async () => {
+  const env = environment();
+  const requests: { text: string; voice: string; emotion?: string }[] = [];
+  globalThis.fetch = async (_url, options) => {
+    requests.push(JSON.parse(String(options?.body)));
+    return audioResponse();
+  };
+  try {
+    preloadSpeech("감정에 따라 목소리가 달라요", "ko-KR", "hero", "happy");
+    await flush();
+    assert.equal(requests.length, 1);
+    assert.equal(env.players.length, 0, "prefetch must never start playback");
+    for (const [voice, emotion] of [["hero", "happy"], ["hero", "sad"], ["friend", "happy"]] as const) {
+      const result = speak("감정에 따라 목소리가 달라요", " ko_kr ", { voice, emotion });
+      await flush();
+      env.players.at(-1)!.onplaying?.();
+      env.players.at(-1)!.onended?.();
+      assert.deepEqual(await result, { started: true, cancelled: false });
+    }
+    assert.deepEqual(requests.map(({ voice, emotion }) => ({ voice, emotion })), [
+      { voice: "hero", emotion: "happy" }, { voice: "hero", emotion: "sad" }, { voice: "friend", emotion: "happy" },
+    ]);
+  } finally { await env.restore(); }
 });

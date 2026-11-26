@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/tmp/voice-auditions/
 
 # next.js
 /.next/

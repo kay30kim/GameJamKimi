@@ -1,0 +1,978 @@
+{
+  "id": "kindness",
+  "order": 1,
+  "names": {
+    "ko": "친절",
+    "en": "Kindness"
+  },
+  "versions": [
+    {
+      "age": 3,
+      "language": "ko",
+      "title": "무거운 책",
+      "goal": "힘든 친구에게 도움을 물어보기",
+      "phrase": "도와줄까?",
+      "meaning": "Can I help?",
+      "cast": [
+        "앨리스",
+        "나비"
+      ],
+      "setting": "책 하나 · 풀밭 길에서 벤치까지",
+      "caregiverNote": "한 줄 뒤에 잠깐 쉬어 주세요. 따라 말하지 않아도 괜찮아요.",
+      "scenes": [
+        {
+          "title": "책이 무거워",
+          "narration": "나비 옆에 책이 있어요. 앨리스는 놀러 가요.",
+          "action": "책은 길에 놓아요. 두 친구의 얼굴이 보이는 사선 앞모습으로 멈춰 대화해요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "책이 무거워. 힘들어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "이럴 땐 “도와줄까?” 하고 물어봐."
+            }
+          ]
+        },
+        {
+          "title": "도와줄까?",
+          "narration": "앨리스가 우리에게 한마디를 알려 줘요.",
+          "action": "앨리스의 정면 얼굴을 보여 줘요. 책은 아직 길에 있어요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“도와줄까?”는 영어로 “Can I help?”야."
+            }
+          ]
+        },
+        {
+          "title": "앨리스의 선택",
+          "narration": "앨리스가 나비를 보고 있어요.",
+          "action": "선택한 길만 보여 줘요. 대사 중에는 화자의 얼굴이 보이게 멈춰요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "도와준다고 물어요",
+              "narration": "앨리스가 나비 곁에서 멈춰요.",
+              "action": "나비가 도움을 받겠다고 답한 뒤 앨리스가 책을 집어요. 남은 대사는 멈춰서 앞모습으로 말하고, 대화가 끝나면 둘이 벤치로 걸어가요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "도와줄까?"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "응. 책을 들어 줘."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "같이 가자."
+                }
+              ]
+            },
+            {
+              "label": "먼저 놀러 가요",
+              "narration": "앨리스는 지금 놀고 싶어요.",
+              "action": "앨리스의 첫 말 뒤 빈손으로 놀이터 쪽에 몇 걸음 가고 멈춰요. 나비가 말할 때 나비 얼굴을 보여 줘요. 앨리스가 돌아와 묻고, 나비의 동의 뒤 책을 집어요. 남은 대사를 앞모습으로 마친 뒤 둘이 벤치로 가요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "나 먼저 놀래!"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "혼자라 슬퍼."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "슬프구나. 도와줄까?"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "응. 책을 들어 줘."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "둘 다 기뻐",
+          "narration": "책이 벤치까지 왔어요.",
+          "action": "둘이 가까이 선 상태에서 앨리스가 나비에게 책을 한 번 건네요. 받은 뒤 대화하고 앉아요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "도와줘서 좋아. 고마워."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 기쁘니 나도 기뻐!"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“도와줄까?” 해 볼까? 듣기만 해도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "모모가 길에 놓인 공을 들기 힘들대. 앨리스와 뭐라고 말해 볼까? 듣기만 해도 돼.",
+        "example": "도와줄까?"
+      }
+    },
+    {
+      "age": 3,
+      "language": "en",
+      "title": "A heavy book",
+      "goal": "Ask before helping a tired friend",
+      "phrase": "Can I help?",
+      "meaning": "도와줄까?",
+      "cast": [
+        "Alice",
+        "Nabi"
+      ],
+      "setting": "One book · meadow path to bench",
+      "caregiverNote": "Pause after each short line. Speaking is optional.",
+      "scenes": [
+        {
+          "title": "That book is heavy",
+          "narration": "Nabi has a book beside him. Alice is going to play.",
+          "action": "Keep the book on the path. Show both faces from the front at a slight angle.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "My book is heavy. I’m tired."
+            },
+            {
+              "speaker": "Alice",
+              "text": "I can ask, “Can I help?”"
+            }
+          ]
+        },
+        {
+          "title": "Words to try",
+          "narration": "Alice shares a little question with us.",
+          "action": "Show Alice facing the viewer. The book stays on the path.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“도와줄까?” means “Can I help?” in English."
+            }
+          ]
+        },
+        {
+          "title": "Alice chooses",
+          "narration": "Alice looks toward Nabi.",
+          "action": "Show only the selected path. Pause movement while a character speaks, with their face visible.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Ask to help",
+              "narration": "Alice stops beside Nabi.",
+              "action": "After Nabi agrees to the help, Alice picks up the book. Finish the remaining lines while standing with faces visible, then walk together to the bench.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Can I help?"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Yes. Carry my book, please."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Let’s go together."
+                }
+              ]
+            },
+            {
+              "label": "Go to play first",
+              "narration": "Alice wants to play right now.",
+              "action": "After Alice’s first line, she takes a few empty-handed steps toward the playground and stops. Show Nabi’s face for his line. Alice returns and asks; pick up the book only after Nabi agrees. Finish the remaining lines facing the viewer before both walk to the bench.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I’m going to play!"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "I’m alone. I feel sad."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "You’re sad. Can I help?"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Yes. Carry my book, please."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Happy together",
+          "narration": "The book reaches the bench.",
+          "action": "Both stand within reach. Alice gives Nabi the book once. After he receives it, they speak and sit. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "Your help made me happy. Thank you."
+            },
+            {
+              "speaker": "Alice",
+              "text": "You’re happy. I’m happy too!"
+            },
+            {
+              "speaker": "Alice",
+              "text": "Try “Can I help?” with me? You can just listen."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "Momo is having trouble picking up a ball on the path. What could you ask with Alice? Listening is okay.",
+        "example": "Can I help?"
+      }
+    },
+    {
+      "age": 4,
+      "language": "ko",
+      "title": "나비의 피곤한 팔",
+      "goal": "친구의 피곤함을 알아차리고 도움을 물어보기",
+      "phrase": "도와줄까?",
+      "meaning": "Can I help?",
+      "cast": [
+        "앨리스",
+        "나비"
+      ],
+      "setting": "책 하나 · 풀밭 길과 벤치",
+      "caregiverNote": "“피곤해”, “서운해”를 천천히 읽고 표정을 함께 봐 주세요. 어느 선택에서도 아이를 탓하지 않아요.",
+      "scenes": [
+        {
+          "title": "잠깐 쉬고 싶어",
+          "narration": "나비는 책을 옮기다가 길에서 쉬어요. 앨리스는 놀이터로 가던 중이에요.",
+          "action": "책은 나비 옆 길에 있어요. 앨리스가 다가와 두 얼굴이 보이게 멈춰요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "팔이 피곤해. 책을 벤치로 가져가고 싶어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "친구가 힘들 땐 “도와줄까?” 하고 물어볼 수 있어."
+            }
+          ]
+        },
+        {
+          "title": "도움을 묻는 말",
+          "narration": "앨리스는 책을 집기 전에 물어보는 말을 연습해요.",
+          "action": "앨리스가 아이를 향해 말해요. 나비와 책은 그대로 기다려요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“도와줄까?”는 영어로 “Can I help?”야."
+            }
+          ]
+        },
+        {
+          "title": "무엇을 먼저 할까?",
+          "narration": "앨리스는 놀이터도 가고 싶고 나비의 말도 들었어요.",
+          "action": "선택 전 책을 옮기지 않아요. 말하는 친구의 앞모습을 차례로 보여 줘요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "나비에게 필요한 도움을 물어요",
+              "narration": "앨리스가 나비에게 말을 걸려고 멈춰요.",
+              "action": "나비가 도움을 받겠다고 답한 뒤 앨리스가 책을 집어요. 남은 대사는 멈춰서 앞모습으로 말하고, 대화가 끝나면 둘이 벤치로 걸어가요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "도와줄까? 책을 들어줄까?"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "응. 그러면 팔을 쉴 수 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "내가 들게. 같이 가자."
+                }
+              ]
+            },
+            {
+              "label": "놀이터로 먼저 가요",
+              "narration": "앨리스의 마음은 놀이터로 향해요.",
+              "action": "앨리스의 첫 말 뒤 빈손으로 놀이터 쪽에 몇 걸음 가고 멈춰요. 나비가 말할 때 나비 얼굴을 보여 줘요. 앨리스가 돌아와 묻고, 나비의 동의 뒤 책을 집어요. 남은 대사를 앞모습으로 마친 뒤 둘이 벤치로 가요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "나 지금 놀러 갈래!"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "아직 힘든데 혼자 남으니 서운해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "네 말을 놓쳤어. 미안해. 도와줄까?"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "응. 책을 벤치까지 들어 줘."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "알겠어. 이번엔 같이 가자."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "마음도 쉬어요",
+          "narration": "두 친구가 벤치 옆에 도착해요.",
+          "action": "서로 닿을 만큼 가까이 선 뒤 앨리스가 책을 나비에게 줘요. 받은 다음 마주 보이는 사선 구도로 앉아요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "네가 도와줘서 마음이 좋아졌어. 고마워."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 기뻐하니까 나도 기뻐."
+            },
+            {
+              "speaker": "나비",
+              "text": "같이 앉아서 쉬자."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “도와줄까?”라고 해 볼까? 말하지 않아도 괜찮아."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "모모가 연을 벤치까지 들고 가다가 피곤하대. 앨리스처럼 뭐라고 물어볼까? 듣고 생각만 해도 돼.",
+        "example": "모모야, 도와줄까?"
+      }
+    },
+    {
+      "age": 4,
+      "language": "en",
+      "title": "Nabi’s tired arms",
+      "goal": "Notice tiredness and ask what would help",
+      "phrase": "Can I help?",
+      "meaning": "도와줄까?",
+      "cast": [
+        "Alice",
+        "Nabi"
+      ],
+      "setting": "One book · meadow path and bench",
+      "caregiverNote": "Read “tired” and “left out” slowly. Let the child notice the faces without blaming them for a choice.",
+      "scenes": [
+        {
+          "title": "A little rest",
+          "narration": "Nabi stopped while carrying his book. Alice is on her way to play.",
+          "action": "The book rests on the path beside Nabi. Alice walks over and stops with both faces visible.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "My arms are tired. I want my book at the bench."
+            },
+            {
+              "speaker": "Alice",
+              "text": "When a friend needs help, I can ask, “Can I help?”"
+            }
+          ]
+        },
+        {
+          "title": "Ask before picking it up",
+          "narration": "Alice practices a question before touching the book.",
+          "action": "Alice faces the child. Nabi and the book stay where they are.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“도와줄까?” means “Can I help?” in English."
+            }
+          ]
+        },
+        {
+          "title": "What comes first?",
+          "narration": "Alice wants to play, and she has heard Nabi asking for help.",
+          "action": "Do not move the book before the choice. Show each speaker from the front.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Ask what Nabi needs",
+              "narration": "Alice pauses to speak with Nabi.",
+              "action": "After Nabi agrees to the help, Alice picks up the book. Finish the remaining lines while standing with faces visible, then walk together to the bench.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Can I help? Shall I carry your book?"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Yes. My arms can rest."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I’ll carry it. Come with me."
+                }
+              ]
+            },
+            {
+              "label": "Go to the playground first",
+              "narration": "Alice is thinking about the playground.",
+              "action": "After Alice’s first line, she takes a few empty-handed steps toward the playground and stops. Show Nabi’s face for his line. Alice returns and asks; pick up the book only after Nabi agrees. Finish the remaining lines facing the viewer before both walk to the bench.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I’m going to play now!"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "I’m still tired. I feel left out here alone."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I missed what you said. I’m sorry. Can I help?"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Yes. Please carry my book to the bench."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Okay. Let’s go together this time."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "A lighter feeling",
+          "narration": "Both friends arrive beside the bench.",
+          "action": "While standing within reach, Alice gives Nabi the book once. After receipt, they sit with their faces visible at a slight angle. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "Your help made me feel better. Thank you."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Seeing you happy makes me happy too."
+            },
+            {
+              "speaker": "Nabi",
+              "text": "Let’s have a rest together."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we say “Can I help?” together? You can listen instead."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "Momo feels tired carrying a kite toward the bench. What could you ask him? You can think quietly too.",
+        "example": "Momo, can I help?"
+      }
+    },
+    {
+      "age": 5,
+      "language": "ko",
+      "title": "놀기 전에 잠깐",
+      "goal": "돕는 행동과 친구의 달라진 마음을 연결하기",
+      "phrase": "도와줄까?",
+      "meaning": "Can I help?",
+      "cast": [
+        "앨리스",
+        "나비"
+      ],
+      "setting": "책 하나 · 풀밭 길에서 벤치까지",
+      "caregiverNote": "친구의 마음이 달라진 이유를 한 가지만 이야기해도 충분해요. 대답이나 반복은 선택이에요.",
+      "scenes": [
+        {
+          "title": "하고 싶은 일이 둘",
+          "narration": "앨리스는 놀이터로 가고 싶어요. 나비는 무거운 책 때문에 벤치까지 못 갔어요.",
+          "action": "책은 나비 발 옆에 있어요. 두 친구의 사선 앞모습을 보여 주고 말할 때 걷지 않아요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "책을 오래 들었더니 팔이 피곤해."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "이럴 때 “도와줄까?” 하고 먼저 물으면 필요한 걸 알 수 있어."
+            }
+          ]
+        },
+        {
+          "title": "뜻을 알고 써요",
+          "narration": "앨리스가 물어보는 말의 뜻을 생각해요.",
+          "action": "앨리스가 아이에게 얼굴을 향해 설명해요. 책을 들거나 도움을 약속하는 행동은 아직 하지 않아요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“도와줄까?”는 영어로 “Can I help?”야. 도움이 필요한지 물어보는 말이야."
+            }
+          ]
+        },
+        {
+          "title": "먼저 무엇을 할까?",
+          "narration": "앨리스는 잠깐 멈추거나, 먼저 놀러 갈 수 있어요.",
+          "action": "선택한 사건을 순서대로 보여 줘요. 돌아보는 이동 중에는 대사를 시작하지 않아요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "멈춰서 도움을 제안해요",
+              "narration": "앨리스는 놀이를 잠깐 미루고 나비에게 말을 걸어요.",
+              "action": "나비가 도움을 받겠다고 답한 뒤 앨리스가 책을 집어요. 남은 대사는 멈춰서 앞모습으로 말하고, 대화가 끝나면 둘이 벤치로 걸어가요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "도와줄까? 벤치까지 책을 들어줄 수 있어."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "응, 부탁해. 그러면 팔을 쉬면서 걸을 수 있겠어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "좋아. 옮긴 다음에 놀러 갈게."
+                }
+              ]
+            },
+            {
+              "label": "먼저 놀러 가려 해요",
+              "narration": "앨리스는 놀이터에 빨리 가고 싶어요.",
+              "action": "앨리스의 첫 말 뒤 빈손으로 놀이터 쪽에 몇 걸음 가고 멈춰요. 나비가 말할 때 나비 얼굴을 보여 줘요. 앨리스가 돌아와 묻고, 나비의 동의 뒤 책을 집어요. 남은 대사를 앞모습으로 마친 뒤 둘이 벤치로 가요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "나 먼저 놀이터에 갈게!"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "팔도 피곤한데 혼자 남으니 슬퍼."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "놀고 싶어서 네 말을 제대로 못 들었어. 미안해. 지금 도와줄까?"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "응. 책을 들어주면 좋겠어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "고마워, 말해 줘서. 같이 가자."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "도움 뒤의 기분",
+          "narration": "책을 옮긴 뒤 나비의 몸과 마음이 한결 편해졌어요.",
+          "action": "둘이 가까이 선 상태에서 책을 나비에게 한 번 건네요. 나비가 받은 뒤 두 얼굴이 보이게 앉아요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "네가 도와줘서 마음이 좋아졌어. 고마워."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 기뻐하니까 나도 기뻐."
+            },
+            {
+              "speaker": "나비",
+              "text": "내가 필요했던 걸 물어봐 줘서 좋았어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "같이 “도와줄까?”라고 해 볼래? 지금은 듣기만 해도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "모모가 꽃밭에서 물뿌리개를 옮기느라 힘들어해. 뭐라고 먼저 물어볼까? 모모가 괜찮다고 하면 어떻게 할까? 말하지 않고 생각해도 돼.",
+        "example": "도와줄까? — 괜찮다고 하면 “알겠어. 필요하면 말해 줘.”"
+      }
+    },
+    {
+      "age": 5,
+      "language": "en",
+      "title": "A pause before play",
+      "goal": "Connect an offer of help with a friend’s changed feeling",
+      "phrase": "Can I help?",
+      "meaning": "도와줄까?",
+      "cast": [
+        "Alice",
+        "Nabi"
+      ],
+      "setting": "One book · meadow path to bench",
+      "caregiverNote": "One reason for the changed feeling is enough. Both repetition and answering are optional.",
+      "scenes": [
+        {
+          "title": "Two things Alice wants",
+          "narration": "Alice wants to reach the playground. Nabi has not reached the bench because his book is heavy.",
+          "action": "Keep the book on the path beside Nabi. Frame both faces at a three-quarter angle and pause walking for speech.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "My arms are tired from carrying this book."
+            },
+            {
+              "speaker": "Alice",
+              "text": "I can ask “Can I help?” to find out what a friend needs."
+            }
+          ]
+        },
+        {
+          "title": "Know what the words mean",
+          "narration": "Alice thinks about the question before using it.",
+          "action": "Alice addresses the viewer. Do not pick up the book or promise help yet.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“도와줄까?” means “Can I help?” in English. It asks whether someone would like help."
+            }
+          ]
+        },
+        {
+          "title": "What comes before play?",
+          "narration": "Alice can pause here or start toward the playground.",
+          "action": "Show only the chosen events in order. Finish turning or walking before a speaker starts.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Pause and offer help",
+              "narration": "Alice puts play on hold for a moment to speak with Nabi.",
+              "action": "After Nabi agrees to the help, Alice picks up the book. Finish the remaining lines while standing with faces visible, then walk together to the bench.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Can I help? I could carry the book to the bench."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Yes, please. Then I can rest my arms while we walk."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Okay. I can go and play after we get there."
+                }
+              ]
+            },
+            {
+              "label": "Start toward the playground",
+              "narration": "Alice wants to reach the playground quickly.",
+              "action": "After Alice’s first line, she takes a few empty-handed steps toward the playground and stops. Show Nabi’s face for his line. Alice returns and asks; pick up the book only after Nabi agrees. Finish the remaining lines facing the viewer before both walk to the bench.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I’ll go to the playground first!"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "My arms are tired, and I feel sad here alone."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I wanted to play and didn’t really listen. I’m sorry. Can I help now?"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Yes. I’d like help carrying the book."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Thanks for telling me. Let’s go together."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "How the help felt",
+          "narration": "After the book reaches the bench, Nabi feels more comfortable.",
+          "action": "Both stand within reach for one handoff from Alice to Nabi. After Nabi receives the book, they sit with both faces visible. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "Your help made me feel better. Thank you."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Seeing you happy makes me happy too."
+            },
+            {
+              "speaker": "Nabi",
+              "text": "I liked that you asked what I needed."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Want to try “Can I help?” with me? You can just listen for now."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "Momo looks tired carrying a watering can in the garden. What could you ask first? What if he says he is okay? You may think without speaking.",
+        "example": "Can I help? — If he says he is okay: “All right. Tell me if you need me.”"
+      }
+    },
+    {
+      "age": 6,
+      "language": "ko",
+      "title": "내 계획과 친구의 마음",
+      "goal": "내 계획과 친구의 필요를 함께 생각하고 도움의 범위를 묻기",
+      "phrase": "도와줄까?",
+      "meaning": "Can I help?",
+      "cast": [
+        "앨리스",
+        "나비"
+      ],
+      "setting": "책 하나 · 풀밭 길과 벤치",
+      "caregiverNote": "왜 그 선택을 했는지 정답을 요구하지 않아요. 거절을 존중하는 도움과 관계를 고치는 말을 함께 살펴보세요.",
+      "scenes": [
+        {
+          "title": "서로 다른 계획",
+          "narration": "앨리스는 놀이터에 빨리 가고 싶어요. 나비는 팔이 피곤해 책을 길에 내려놓고 쉬고 싶어 해요.",
+          "action": "책은 길에 놓여 있어요. 두 친구를 사선 앞모습으로 잡아 표정을 함께 보여 줘요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "책을 옮기다 팔이 피곤해졌어. 벤치에서 쉬고 싶어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "내가 보기엔 “도와줄까?”가 필요한 순간 같아. 그래도 나비에게 물어봐야 알겠지."
+            }
+          ]
+        },
+        {
+          "title": "내가 정해 주지 않아요",
+          "narration": "도움을 준다는 건 친구의 대답도 듣는 일이에요.",
+          "action": "앨리스가 아이에게 설명할 때 정면으로 보여요. 나비는 책 옆에서 기다려요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“도와줄까?”는 영어로 “Can I help?”야. 필요한 도움을 묻는 말이지, 내가 대신 다 정한다는 뜻은 아니야."
+            }
+          ]
+        },
+        {
+          "title": "내 속도를 잠깐 바꿀까?",
+          "narration": "앨리스의 계획과 나비의 필요가 같은 순간에 만났어요.",
+          "action": "선택 전 약속이나 소품 이동을 만들지 않아요. 각 화자의 얼굴을 보며 결과를 따라가요.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "필요한 만큼 도와요",
+              "narration": "앨리스는 나비가 원하는 도움을 먼저 물어보려고 해요.",
+              "action": "나비가 도움을 받겠다고 답한 뒤 앨리스가 책을 집어요. 남은 대사는 멈춰서 앞모습으로 말하고, 대화가 끝나면 둘이 벤치로 걸어가요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "도와줄까? 책을 들까, 아니면 여기서 같이 쉴까?"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "벤치까지 책을 들어 줘. 그다음엔 내가 들 수 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "좋아. 벤치까지만 맡을게. 그 뒤에 놀러 갈 수 있겠다."
+                }
+              ]
+            },
+            {
+              "label": "내 계획대로 먼저 가요",
+              "narration": "앨리스는 원래 계획대로 놀이터에 먼저 가려 해요.",
+              "action": "앨리스의 첫 말 뒤 빈손으로 놀이터 쪽에 몇 걸음 가고 멈춰요. 나비가 말할 때 나비 얼굴을 보여 줘요. 앨리스가 돌아와 묻고, 나비의 동의 뒤 책을 집어요. 남은 대사를 앞모습으로 마친 뒤 둘이 벤치로 가요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "나는 먼저 놀이터에 갈게."
+                },
+                {
+                  "speaker": "나비",
+                  "text": "네가 가니 혼자 해결해야 할 것 같아 서운해. 팔도 아직 피곤해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "나는 놀 시간만 생각했구나. 네 부탁을 놓쳐서 미안해. 지금 도와줄까?"
+                },
+                {
+                  "speaker": "나비",
+                  "text": "응. 벤치까지 책을 부탁해."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "알겠어. 네가 원하는 만큼 도울게."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "둘의 마음이 가벼워져요",
+          "narration": "책이 벤치까지 왔어요. 나비가 아까와 지금의 기분을 생각해요.",
+          "action": "벤치 앞에서 둘이 서서 손이 닿는 거리를 확보해 한 번 건네요. 받은 뒤 얼굴이 보이는 구도로 앉아요. 마지막 초대에서는 앨리스가 정면으로 아이에게 말해요.",
+          "lines": [
+            {
+              "speaker": "나비",
+              "text": "내 말을 듣고 도와줘서 마음이 좋아졌어. 고마워."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 기뻐하니까 나도 기뻐. 네가 필요한 걸 말해 줘서 알 수 있었어."
+            },
+            {
+              "speaker": "나비",
+              "text": "다음에도 도움이 필요하면 말할게."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “도와줄까?”라고 해 볼까? 다른 말이 떠오르면 그 말을 해도 좋고, 듣기만 해도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "보리가 꽃을 들고 멈춰 있어. 도움이 필요한 걸까, 그냥 쉬는 걸까? 추측만 하지 않고 어떤 말을 해 볼 수 있을까? 말 대신 생각해도 좋아.",
+        "example": "도와줄까? 잠깐 쉬는 거라면 옆에 있어도 될까?"
+      }
+    },
+    {
+      "age": 6,
+      "language": "en",
+      "title": "My plan, my friend",
+      "goal": "Consider a friend’s needs alongside your plan and ask how much help they want",
+      "phrase": "Can I help?",
+      "meaning": "도와줄까?",
+      "cast": [
+        "Alice",
+        "Nabi"
+      ],
+      "setting": "One book · meadow path and bench",
+      "caregiverNote": "There is no required explanation for a choice. Notice how asking, respecting an answer, and repairing a missed moment fit together.",
+      "scenes": [
+        {
+          "title": "Different plans",
+          "narration": "Alice wants to reach the playground quickly. Nabi has put down his book because his arms are tired.",
+          "action": "The book is on the path. Use a front three-quarter two-shot so both expressions are visible.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "My arms got tired carrying this. I want to rest at the bench."
+            },
+            {
+              "speaker": "Alice",
+              "text": "This looks like a time to ask “Can I help?” I’ll need Nabi’s answer to know."
+            }
+          ]
+        },
+        {
+          "title": "Helping includes listening",
+          "narration": "Offering help also means listening to the answer.",
+          "action": "Show Alice facing the viewer for the explanation. Nabi stays beside the book.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“도와줄까?” means “Can I help?” in English. It asks what help is wanted; it does not mean deciding everything for someone."
+            }
+          ]
+        },
+        {
+          "title": "Make room for another plan",
+          "narration": "Alice’s wish to play meets Nabi’s need for a rest.",
+          "action": "Do not make a promise or move the book before the choice. Keep each speaker’s face visible.",
+          "lines": [],
+          "choices": [
+            {
+              "label": "Ask how much help is needed",
+              "narration": "Alice wants to ask what kind of help Nabi would like.",
+              "action": "After Nabi agrees to the help, Alice picks up the book. Finish the remaining lines while standing with faces visible, then walk together to the bench.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Can I help? Shall I carry the book, or sit here with you?"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Please carry it to the bench. I can hold it after that."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Okay. I’ll carry it that far, then I can go and play."
+                }
+              ]
+            },
+            {
+              "label": "Follow my plan first",
+              "narration": "Alice plans to go to the playground first, as she originally intended.",
+              "action": "After Alice’s first line, she takes a few empty-handed steps toward the playground and stops. Show Nabi’s face for his line. Alice returns and asks; pick up the book only after Nabi agrees. Finish the remaining lines facing the viewer before both walk to the bench.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "I’m going to the playground first."
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "I feel left out doing this alone. My arms are still tired."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I only thought about playtime. I’m sorry I missed what you needed. Can I help now?"
+                },
+                {
+                  "speaker": "Nabi",
+                  "text": "Yes. Please carry the book to the bench."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Okay. I’ll help with the part you asked for."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "A better feeling for both",
+          "narration": "The book has reached the bench. Nabi thinks about how he felt earlier and how he feels now.",
+          "action": "Both stand within reach at the bench for one handoff. After receipt, they sit in a face-visible two-shot. For the final invitation, show Alice facing the child.",
+          "lines": [
+            {
+              "speaker": "Nabi",
+              "text": "You listened and helped me. I feel better. Thank you."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Seeing you happy makes me happy too. You told me what you needed, so I could understand."
+            },
+            {
+              "speaker": "Nabi",
+              "text": "I can tell you when I need help again."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we try “Can I help?” You may use your own words, or just listen."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "Bori has stopped while holding a flower. Does he need help, or is he resting? What could you ask instead of guessing? Thinking quietly is okay.",
+        "example": "Can I help? If you are resting, may I sit nearby?"
+      }
+    }
+  ]
+}

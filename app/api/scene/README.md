@@ -10,7 +10,7 @@
 - The Next.js app is already scaffolded. Run `npm ci` and `npm run dev`. Builder B owns the game client, layout, and styling; this API requires no frontend or package changes. If the app moves to `src/app`, move this entire directory to `src/app/api/scene` instead; do not keep both app trees.
 - Use relative `/api/scene` calls from the app. Cross-origin browser access is not enabled; a separately hosted client should proxy requests through its own server.
 
-Without `KIMI_API_KEY`, the API keeps the integration stub: a fixed kindness story ending on the third response, with narration in the other language and vocabulary words in the selected learning language. With a key, it calls Kimi with the lesson, language, age, learned words, and selected-choice history. Both modes return the same JSON contract.
+Without `KIMI_API_KEY`, the API plays a deterministic three-scene story, with dedicated stories for body boundaries and table manners. With a key, it calls Kimi with the lesson, language, age, learned words, selected-choice history, and completed world state. In both modes the selected language is the primary story language, with brief translations supporting learning.
 
 ## Builder A: server configuration
 
@@ -67,9 +67,9 @@ Every response has a `stage` for the scene. The world is fixed: every story happ
 }
 ```
 
-- `cast` gives each actor's starting spot and always includes `hero` (Alice the bunny, the child's character).
-- A prop's `at` is either a spot or the id of an actor holding it.
-- `beats` has one to four steps, played in order. The `Beat` type in `lib/world.ts` lists the exact fields for each action.
+- `cast` gives each actor's initial spot and always includes `hero` (Alice the bunny, the child's character). On continuations, existing actors keep their actual positions; these spots seed only new actors.
+- A prop's `at` is either a spot or the id of an actor holding it. Existing props keep their actual ownership and position across choices.
+- `beats` has one to four steps, played in order. Optional `cue` indexes speech: 0 is narration, 1 is the first dialogue line. The next line waits for both speech and its actions. The `Beat` type in `lib/world.ts` lists the exact fields for each action.
 - The server repairs the stage instead of rejecting the scene. It drops unknown names and malformed beats, adds anyone or anything a beat needs at its usual spot, and falls back to Alice looking happy if no beats are left. The engine can play any stage it receives without checking names.
 - The stub returns hand-written stages for its three scenes, so you can build the engine without a key.
 
@@ -78,12 +78,12 @@ To grow the world, add an entry to `lib/world.ts`. The prompt picks it up automa
 ## Story state rules
 
 1. Start with empty `history` and `wordsLearned`.
-2. After a choice, append `{ narration: currentScene.narration, choice: selectedChoice }` to history and add the displayed words to `wordsLearned` (deduplicated). Send the updated state for the next scene.
-3. `language` is the language the child is learning. Only `newWords[].word` uses it. Narration, choices, and `newWords[].meaning` use the other language, including stub, fallback, and ending scenes. For `ko`, words are Korean and narration/choices/meanings are English; for `en`, the reverse applies. `newWords` may be empty.
-4. When `lessonComplete` is true, `choices` is empty: render the ending and stop requesting scenes.
+2. After a choice, append `{ narration: currentScene.narration, choice: selectedChoice }` to history and add the displayed words to `wordsLearned` (deduplicated). Include `continuation: { world, previousLines, previousBeats }`, where `world` is the completed `WorldSnapshot`, not the next scene's declared starting positions. The opening is used only for the first scene.
+3. `language` is the primary interface, narration, dialogue, choice, and practice language: `ko` means Korean and `en` means English. `newWords[].word` uses that language; `newWords[].meaning` is a brief translation in the other language. Character lines can include a short natural bilingual example, such as “나는 지금 슬퍼. 영어로는 I'm sad.” `newWords` may be empty.
+4. All ages can practice when new words are present. Alice voices the practice invitation, then the player waits for the child to speak or choose to listen and continue. This never automatically picks a story branch. When `lessonComplete` is true, `choices` is empty: finish any practice, render the ending, and stop requesting scenes.
 5. The engine allows up to eight scenes, counting the first and ending scenes. At seven history entries, the server returns a closing without calling the model. The stub ends after three so the complete UI flow is easy to check.
 6. Requests are stateless. Retrying the same stub request returns the same scene. Disable choice buttons while loading to avoid duplicate history entries.
-7. Fetch after the child selects a choice. Any future prefetch must include the actual choice or cache each possible branch separately.
+7. Prefetch only after the current world outcome is known, while the child practices or reads choices. Cache each possible choice and continuation state separately. Replays restore the current part's own initial snapshot.
 
 ## Errors
 

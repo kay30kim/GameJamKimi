@@ -1,5 +1,8 @@
 import type { SceneLanguage } from "@/app/api/scene/contract";
 import type { Voice } from "@/lib/voices";
+import type { Emotion } from "./world";
+import { needsKoreanVoice, VOICE_CACHE_REVISION } from "./speech-policy";
+import type { SpeechErrorCode } from "./speech-policy";
 
 const NO_SPEECH_MESSAGE = "I didn't hear anything. Please try again.";
 const MICROPHONE_BLOCKED_MESSAGE =
@@ -68,10 +71,12 @@ export interface SpeakResult {
   /** At least one audio playing / browser speech start event was received. */
   started: boolean;
   cancelled: boolean;
+  error?: SpeechErrorCode;
 }
 
 export interface SpeakOptions {
   voice?: Voice;
+  emotion?: Emotion;
   /** Called once, when audio is actually playing, including browser fallback. */
   onStart?: () => void;
   signal?: AbortSignal;
@@ -91,6 +96,7 @@ interface QueuedSpeech {
   controller: AbortController;
   started: boolean;
   finished: boolean;
+  error?: SpeechErrorCode;
   start: () => void;
   finish: () => void;
 }
@@ -102,13 +108,22 @@ let activeSpeech: QueuedSpeech | undefined;
 const TTS_TIMEOUT_MS = 20_000;
 const PLAYBACK_START_TIMEOUT_MS = 6_000;
 
-/** ElevenLabs rejects bursts, and prefetching both branches can ask for a dozen clips at once. */
-const MAX_TTS_REQUESTS = 3;
+/** Keep generation within the Korean provider's free-tier concurrency allowance. */
+const MAX_TTS_REQUESTS = 2;
 let ttsInFlight = 0;
 const ttsWaiting: (() => void)[] = [];
 
 function abortError(): Error {
   return new Error("Speech was cancelled.");
+}
+
+class SpeechFailure extends Error {
+  constructor(readonly code: SpeechErrorCode) { super(code); }
+}
+
+function errorCode(value: unknown): SpeechErrorCode | undefined {
+  return value === "TTS_NOT_CONFIGURED" || value === "TTS_UPSTREAM_ERROR" ||
+    value === "TTS_TIMEOUT" || value === "TTS_PLAYBACK_ERROR" ? value : undefined;
 }
 
 /** Cancellation releases the playback queue even if a network implementation never settles. */
@@ -148,39 +163,54 @@ function acquireTtsSlot(signal: AbortSignal): Promise<() => void> {
   });
 }
 
-async function requestAudio(content: string, locale: string, voice: Voice, signal: AbortSignal): Promise<Blob> {
-  const response = await fetch("/api/tts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: content, lang: locale, voice }),
-    signal,
-  });
-  const contentType = response.headers.get("content-type");
-  if (!response.ok || contentType?.split(";", 1)[0].trim().toLowerCase() !== "audio/mpeg") {
-    throw new Error("Speech audio is unavailable.");
+async function requestAudio(content: string, locale: string, voice: Voice, emotion: Emotion | undefined, signal: AbortSignal): Promise<Blob> {
+  try {
+    const response = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: content, lang: locale, voice, emotion }),
+      signal,
+    });
+    if (!response.ok) {
+      const data: unknown = await response.json().catch(() => null);
+      const error = data && typeof data === "object" && "error" in data ? data.error : undefined;
+      const code = error && typeof error === "object" && "code" in error ? errorCode(error.code) : undefined;
+      throw new SpeechFailure(code ?? "TTS_UPSTREAM_ERROR");
+    }
+    const contentType = response.headers.get("content-type");
+    if (contentType?.split(";", 1)[0].trim().toLowerCase() !== "audio/mpeg") {
+      throw new SpeechFailure("TTS_UPSTREAM_ERROR");
+    }
+    const audio = await response.blob();
+    if (audio.size === 0) throw new SpeechFailure("TTS_UPSTREAM_ERROR");
+    return audio;
+  } catch (error) {
+    if (error instanceof SpeechFailure) throw error;
+    throw new SpeechFailure("TTS_UPSTREAM_ERROR");
   }
-  const audio = await response.blob();
-  if (audio.size === 0) throw new Error("Speech audio is empty.");
-  return audio;
 }
 
-function getAudio(content: string, locale: string, voice: Voice): AudioRequest {
-  const key = JSON.stringify([content, normalizeLocale(locale), voice]);
+function getAudio(content: string, locale: string, voice: Voice, emotion?: Emotion): AudioRequest {
+  const key = JSON.stringify([VOICE_CACHE_REVISION, content, normalizeLocale(locale), voice, emotion ?? null]);
   const cached = audioCache.get(key);
   if (cached && !cached.controller.signal.aborted) return cached;
 
   const controller = new AbortController();
   const request: AudioRequest = { controller, users: 0, complete: false, audio: Promise.resolve(new Blob()) };
-  const timeout = setTimeout(() => controller.abort(), TTS_TIMEOUT_MS);
+  let timedOut = false;
+  const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, TTS_TIMEOUT_MS);
   request.audio = (async () => {
     const release = await acquireTtsSlot(controller.signal);
     try {
       if (controller.signal.aborted) throw abortError();
-      return await untilAborted(requestAudio(content, locale, voice, controller.signal), controller.signal);
+      return await untilAborted(requestAudio(content, locale, voice, emotion, controller.signal), controller.signal);
     } finally {
       release();
     }
-  })().finally(() => {
+  })().catch((error: unknown) => {
+    if (timedOut) throw new SpeechFailure("TTS_TIMEOUT");
+    throw error;
+  }).finally(() => {
     clearTimeout(timeout);
     request.complete = true;
   });
@@ -195,7 +225,7 @@ function playAudio(audioBlob: Blob, signal: AbortSignal, onStart: () => void, te
   return new Promise((resolve, reject) => {
     if (signal.aborted || typeof Audio === "undefined" ||
       typeof URL.createObjectURL !== "function" || typeof URL.revokeObjectURL !== "function") {
-      reject(new Error("Audio playback is unavailable."));
+      reject(new SpeechFailure("TTS_PLAYBACK_ERROR"));
       return;
     }
     let audio: HTMLAudioElement;
@@ -204,7 +234,7 @@ function playAudio(audioBlob: Blob, signal: AbortSignal, onStart: () => void, te
       audio = new Audio();
       objectUrl = URL.createObjectURL(audioBlob);
     } catch {
-      reject(new Error("Audio playback is unavailable."));
+      reject(new SpeechFailure("TTS_PLAYBACK_ERROR"));
       return;
     }
     let settled = false;
@@ -229,24 +259,24 @@ function playAudio(audioBlob: Blob, signal: AbortSignal, onStart: () => void, te
       if (settled || started || signal.aborted) return;
       started = true;
       clearTimeout(watchdog);
-      watchdog = setTimeout(() => finish(new Error("Audio playback timed out.")), Math.max(15_000, textLength * 400));
+      watchdog = setTimeout(() => finish(new SpeechFailure("TTS_PLAYBACK_ERROR")), Math.max(15_000, textLength * 400));
       onStart();
     };
     audio.onended = () => finish();
-    audio.onerror = () => finish(new Error("Audio playback failed."));
-    watchdog = setTimeout(() => finish(new Error("Audio playback did not start.")), PLAYBACK_START_TIMEOUT_MS);
+    audio.onerror = () => finish(new SpeechFailure("TTS_PLAYBACK_ERROR"));
+    watchdog = setTimeout(() => finish(new SpeechFailure("TTS_PLAYBACK_ERROR")), PLAYBACK_START_TIMEOUT_MS);
     try {
       audio.src = objectUrl;
-      void audio.play()?.catch(() => finish(new Error("Audio playback failed.")));
+      void audio.play()?.catch(() => finish(new SpeechFailure("TTS_PLAYBACK_ERROR")));
     } catch {
-      finish(new Error("Audio playback failed."));
+      finish(new SpeechFailure("TTS_PLAYBACK_ERROR"));
     }
   });
 }
 
-function speakWithBrowser(content: string, locale: string, signal: AbortSignal, onStart: () => void): Promise<void> {
+function speakWithBrowser(content: string, locale: string, signal: AbortSignal, onStart: () => void): Promise<boolean> {
   const synthesis = getSpeechSynthesis();
-  if (signal.aborted || !synthesis || typeof SpeechSynthesisUtterance === "undefined") return Promise.resolve();
+  if (signal.aborted || !synthesis || typeof SpeechSynthesisUtterance === "undefined") return Promise.resolve(false);
 
   return new Promise((resolve) => {
     let utterance: SpeechSynthesisUtterance;
@@ -257,13 +287,13 @@ function speakWithBrowser(content: string, locale: string, signal: AbortSignal, 
       const voice = pickVoice(synthesis, locale);
       if (voice) utterance.voice = voice;
     } catch {
-      resolve();
+      resolve(false);
       return;
     }
     let settled = false;
     let started = false;
     let watchdog: ReturnType<typeof setTimeout>;
-    const finish = (cancel = false) => {
+    const finish = (cancel = false, completed = false) => {
       if (settled) return;
       settled = true;
       clearTimeout(watchdog);
@@ -272,7 +302,7 @@ function speakWithBrowser(content: string, locale: string, signal: AbortSignal, 
       if (cancel) {
         try { synthesis.cancel(); } catch { /* The speech engine may have closed. */ }
       }
-      resolve();
+      resolve(completed && started);
     };
     const abort = () => finish(true);
     signal.addEventListener("abort", abort, { once: true });
@@ -283,7 +313,7 @@ function speakWithBrowser(content: string, locale: string, signal: AbortSignal, 
       watchdog = setTimeout(() => finish(true), Math.max(15_000, content.length * 400));
       onStart();
     };
-    utterance.onend = () => finish();
+    utterance.onend = () => finish(false, true);
     utterance.onerror = () => finish();
     watchdog = setTimeout(() => finish(true), PLAYBACK_START_TIMEOUT_MS);
     try { synthesis.speak(utterance); } catch { finish(); }
@@ -302,8 +332,12 @@ async function processSpeechQueue(): Promise<void> {
         try {
           const audio = await untilAborted(item.request.audio, item.controller.signal);
           if (!item.controller.signal.aborted) await playAudio(audio, item.controller.signal, item.start, item.content.length);
-        } catch {
-          if (!item.controller.signal.aborted) await speakWithBrowser(item.content, item.locale, item.controller.signal, item.start);
+        } catch (error) {
+          if (!item.controller.signal.aborted) {
+            const fallbackCompleted = !needsKoreanVoice(item.content, item.locale) &&
+              await speakWithBrowser(item.content, item.locale, item.controller.signal, item.start);
+            if (!fallbackCompleted) item.error = error instanceof SpeechFailure ? error.code : "TTS_UPSTREAM_ERROR";
+          }
         }
       } finally {
         item.finish();
@@ -316,21 +350,21 @@ async function processSpeechQueue(): Promise<void> {
 }
 
 /** Fetch speech ahead of time without claiming that playback has started. */
-export function preloadSpeech(text: string, locale: string, voice: Voice = "narrator"): void {
+export function preloadSpeech(text: string, locale: string, voice: Voice = "narrator", emotion?: Emotion): void {
   const content = text.trim();
   if (!content || typeof window === "undefined") return;
-  void getAudio(content, locale.trim(), voice).audio.catch(() => {});
+  void getAudio(content, locale.trim(), voice, emotion).audio.catch(() => {});
 }
 
 /** Never rejects. A non-started, non-cancelled result lets callers show readable captions. */
-export function speak(text: string, locale: string, { voice = "narrator", onStart, signal }: SpeakOptions = {}): Promise<SpeakResult> {
+export function speak(text: string, locale: string, { voice = "narrator", emotion, onStart, signal }: SpeakOptions = {}): Promise<SpeakResult> {
   const content = text.trim();
   if (!content || typeof window === "undefined" || signal?.aborted) {
     return Promise.resolve({ started: false, cancelled: signal?.aborted ?? false });
   }
   return new Promise((resolve) => {
     const controller = new AbortController();
-    const request = getAudio(content, locale.trim(), voice);
+    const request = getAudio(content, locale.trim(), voice, emotion);
     request.users += 1;
     const cancel = () => controller.abort();
     const item: QueuedSpeech = {
@@ -347,7 +381,8 @@ export function speak(text: string, locale: string, { voice = "narrator", onStar
         controller.signal.removeEventListener("abort", item.finish);
         request.users -= 1;
         if (controller.signal.aborted && request.users === 0 && !request.complete) request.controller.abort();
-        resolve({ started: item.started, cancelled: controller.signal.aborted });
+        resolve({ started: item.started, cancelled: controller.signal.aborted,
+          ...(!controller.signal.aborted && item.error ? { error: item.error } : {}) });
       },
     };
     controller.signal.addEventListener("abort", item.finish, { once: true });

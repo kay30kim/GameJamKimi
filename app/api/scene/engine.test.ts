@@ -6,11 +6,11 @@ import { defaultStage, parseStage } from "./stage";
 import { ACTIONS, ACTORS, PROPS, SPOTS } from "../../../lib/world";
 import { buildSceneMessages } from "../../../lib/prompt";
 import { LESSON_GUIDES } from "../../../lib/lesson-guides";
-import { isOpening, randomOpening } from "../../../lib/openings";
-import type { SceneRequest, SceneResponse } from "./contract";
+import { isOpening, OPENINGS, randomOpening } from "../../../lib/openings";
+import type { SceneContinuation, SceneRequest, SceneResponse } from "./contract";
 
 const input: SceneRequest = { lesson: "kindness", language: "en", age: 5, wordsLearned: [], history: [] };
-const scene: SceneResponse = { narration: "미나가 친구를 만났어요.", lines: [{ speaker: "friend", text: "안녕!", to: "hero", emotion: "happy" }], newWords: [{ word: "friend", meaning: "친구" }], choices: ["인사해요", "손을 흔들어요"], lessonComplete: false, stage: {
+const scene: SceneResponse = { narration: "Alice meets a friend.", lines: [{ speaker: "friend", text: "Hello!", to: "hero", emotion: "happy" }], newWords: [{ word: "friend", meaning: "친구" }], choices: ["Say hello", "Wave"], lessonComplete: false, stage: {
   weather: "sunny",
   cast: [{ actor: "hero", at: "path" }, { actor: "friend", at: "playground" }],
   props: [{ prop: "ball", at: "friend" }],
@@ -26,7 +26,7 @@ test("without a key both languages keep the three-scene integration flow", async
       assert.equal(result.mode, "stub");
       assert.equal(result.scene.lessonComplete, i === 2);
       assert.doesNotThrow(() => parseScene(JSON.stringify(result.scene)));
-      if (language === "ko") {
+      if (language === "en") {
         assert.doesNotMatch(result.scene.narration, /[가-힣]/);
         assert.match(result.scene.narration, /Alice/);
         result.scene.choices.forEach((choice) => assert.doesNotMatch(choice, /[가-힣]/));
@@ -82,7 +82,7 @@ test("repeated failure yields a localized closing with a stable contract", async
     assert.equal(result.mode, "fallback");
     assert.equal(result.scene.lessonComplete, true);
     assert.deepEqual(result.scene.choices, []);
-    assert.match(result.scene.narration, language === "ko" ? /story/ : /이야기/);
+    assert.match(result.scene.narration, language === "ko" ? /이야기/ : /story/);
   }
 });
 
@@ -113,7 +113,7 @@ test("eighth scene closes without a model call, even if previous scenes never en
     assert.equal(calls, 0);
     assert.equal(result.mode, "limit");
     assert.equal(result.scene.lessonComplete, true);
-    assert.match(result.scene.narration, language === "ko" ? /story/ : /이야기/);
+    assert.match(result.scene.narration, language === "ko" ? /이야기/ : /story/);
   }
 });
 
@@ -149,14 +149,17 @@ test("prompt keeps story data separate and carries age, language, history, and e
   assert.match(messages[0].content, /in Korean/);
 });
 
-test("prompt scales sentence length with age and makes the story follow choices[0] under 4", () => {
+test("prompt scales sentence length while every age practices optionally and makes their own choice", () => {
   const system = (age: number) => buildSceneMessages({ ...input, age })[0].content;
   assert.match(system(3), /at most 8 words/);
-  assert.match(system(3), /continues with choices\[0\], so the story always follows the lesson choice/);
   assert.match(system(3), /exactly one newWord/);
-  assert.doesNotMatch(system(4), /continues with choices\[0\]/);
   assert.match(system(4), /at most 10 words each/);
   assert.match(system(6), /at most about 35 words/);
+  for (const age of [3, 4, 5, 6]) {
+    assert.match(system(age), /At every age the child can practice optionally, then make their own choice/);
+    assert.doesNotMatch(system(age), /continues with choices\[0\]|child does not pick/);
+    assert.match(system(age), /Do not add a final 'say it with me' invitation/);
+  }
 });
 
 test("reject malformed vocabulary, empty text, and inconsistent endings", () => {
@@ -165,14 +168,49 @@ test("reject malformed vocabulary, empty text, and inconsistent endings", () => 
   }
 });
 
-test("prompt uses the learning language only for words in both language directions", () => {
+test("prompt uses the selected primary language with short translations and natural bilingual examples", () => {
   for (const language of ["en", "ko"] as const) {
     const system = buildSceneMessages({ ...input, language })[0].content;
-    const learning = language === "ko" ? "Korean" : "English";
+    const primary = language === "ko" ? "Korean" : "English";
     const other = language === "ko" ? "English" : "Korean";
-    assert.ok(system.includes(`Write narration, choices, and newWords[].meaning in ${other}.`));
-    assert.ok(system.includes(`Write only newWords[].word in ${learning}.`));
+    assert.ok(system.includes(`Write narration, choices, and newWords[].word in ${primary}.`));
+    assert.ok(system.includes(`Write newWords[].meaning as a short translation in ${other}.`));
+    assert.ok(system.includes(`Dialogue is primarily in ${primary}.`));
+    assert.match(system, /one or two concrete words or short phrases/);
+    assert.match(system, /나는 지금 슬퍼\. 영어로는 I’m sad\./);
+    assert.match(system, /I’m sad\. In Korean, 슬퍼\./);
+    assert.doesNotMatch(system, /not the narration language|only newWords\[\]\.word|do not use learning-language words/i);
   }
+});
+
+test("body safety offers two valid safe choices without guilt or a refusal penalty", () => {
+  const system = buildSceneMessages({ ...input, lesson: "body_safety" })[0].content;
+  assert.match(system, /Age-appropriate body autonomy, privacy, consent, refusal, and trusted-adult help/);
+  assert.match(system, /two safe, self-directed actions/);
+  assert.match(system, /Neither choice is a wrong answer/);
+  assert.match(system, /Characters stop when asked and accept no without sadness, bargaining, or punishment/);
+  assert.match(system, /Asking a trusted grown-up for help is always allowed/);
+  assert.match(system, /No adult sexual acts/);
+  assert.match(system, /tell another trusted grown-up until someone helps/);
+  assert.doesNotMatch(system, /choices\[1\] is the pull|friend feels sad|Do not offer asking a grown-up|If the child keeps picking the pull/);
+});
+
+test("body safety and table manners offer relevant openings and pass topic safeguards to the prompt", () => {
+  for (const lesson of ["body_safety", "table_manners"]) {
+    const guide = LESSON_GUIDES[lesson];
+    assert.ok(guide.openings.length >= 3);
+    assert.ok(guide.guardrails);
+    for (const opening of guide.openings) {
+      assert.ok(isOpening(opening));
+      const messages = buildSceneMessages({ ...input, lesson, opening });
+      assert.equal(JSON.parse(messages[1].content).opening, OPENINGS[opening]);
+      assert.ok(messages[0].content.includes(guide.guardrails));
+    }
+    for (let i = 0; i < 20; i++) assert.ok(guide.openings.includes(randomOpening(lesson)));
+  }
+  const table = buildSceneMessages({ ...input, lesson: "table_manners" })[0].content;
+  assert.match(table, /Never pressure a child to taste food/);
+  assert.match(table, /Declining food and asking for more when hungry are both valid/);
 });
 
 test("stub stages are already valid for the world", async () => {
@@ -233,6 +271,65 @@ test("an opening id reaches the prompt as its situation, and the new world entri
   for (const name of ["kitten", "duck", "balloon", "watering_can", "dance", "nap", "look_around", "sunset"]) {
     assert.match(messages[0].content, new RegExp(name));
   }
+});
+
+test("the opening seeds only the first scene and disappears after a choice", () => {
+  const opening = "balloon" as const;
+  const first = buildSceneMessages({ ...input, opening });
+  assert.match(JSON.parse(first[1].content).opening, /balloon slips/);
+  assert.match(first[0].content, /This is the first scene/);
+  const next = buildSceneMessages({
+    ...input,
+    opening,
+    history: [{ narration: "Momo has the balloon now.", choice: "Walk together" }],
+  });
+  assert.equal(Object.hasOwn(JSON.parse(next[1].content), "opening"), false);
+  assert.match(next[0].content, /Start with that choice's immediate consequence/);
+  assert.match(next[0].content, /Do not replay the opening/);
+  assert.doesNotMatch(next[0].content, /This is the first scene/);
+});
+
+test("continuation sends actual ownership and previous dialogue to the model as data", async () => {
+  const continuation: SceneContinuation = {
+    world: {
+      weather: "sunset",
+      actors: [
+        { actor: "hero", x: -0.4, z: 1, heading: 0.8, sitting: false },
+        { actor: "friend", x: 0.6, z: 1.2, heading: -2.3, sitting: true, emotion: "happy" },
+      ],
+      props: [{ prop: "balloon", x: 0.6, z: 1.2, holder: "friend" }],
+    },
+    previousLines: [
+      { speaker: "hero", to: "friend", text: "내 풍선 받아!" },
+      { speaker: "friend", to: "hero", text: "고마워. 같이 걸을까?" },
+    ],
+    previousBeats: [{ actor: "hero", action: "give", prop: "balloon", target: "friend", cue: 1 }],
+  };
+  const request: SceneRequest = {
+    ...input,
+    opening: "balloon",
+    history: [{ narration: "앨리스와 모모가 풍선을 나눴어요.", choice: "함께 걸어요" }],
+    continuation,
+  };
+  let calls = 0;
+  const result = await generateScene(request, {
+    apiKey: "test",
+    fetcher: async (_url, init) => {
+      calls += 1;
+      const body = JSON.parse(String(init?.body));
+      const data = JSON.parse(body.messages[1].content);
+      assert.deepEqual(data.continuation, continuation);
+      assert.deepEqual(data.history, request.history);
+      assert.equal(Object.hasOwn(data, "opening"), false);
+      assert.match(body.messages[0].content, /Trust actual positions and ownership/);
+      assert.match(body.messages[0].content, /Do not repeat a completed pickup or handoff/);
+      assert.match(body.messages[0].content, /stage.cast and stage.props only seed new entries/);
+      assert.doesNotMatch(body.messages[0].content, /내 풍선 받아/);
+      return completion();
+    },
+  });
+  assert.equal(calls, 1);
+  assert.equal(result.mode, "kimi");
 });
 
 test("dialogue keeps only cast members and drops malformed lines", () => {

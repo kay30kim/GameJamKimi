@@ -21,6 +21,16 @@ An interactive educational game for kids under elementary-school age. A parent p
 | Parent  | Picks the lesson, language, and age, and previews a run.              |
 | Kimi K3 | Generates each scene, its choices, its new words, feedback, and the ending. |
 
+## Age-specific script drafts
+
+Review the 10 topics in Korean and English for ages 3, 4, 5, and 6 at `/lesson-scripts.html`. The page includes 80 distinct drafts, age comparison, both choice outcomes, explicit phrase meanings, and practice in a new situation. These are review drafts; live game playback still generates its own scenes.
+
+Edit the topic JSON files in [content/lesson-scripts](content/lesson-scripts/README.md), then run `npm run scripts:build` and `npm run scripts:check`.
+
+**Runtime camera:** the main player frames the speaking character from the front or a slight three-quarter angle, follows movement, and widens for interactions. It uses rendered character headings and the measured dialogue panel height so faces stay above the text in portrait and landscape. Small camera moves settle rather than loop; reduced motion removes decorative dolly/orbit movement. A speaker's rolls and celebration spins run after the voice/caption, in an action shot. The draft shot directions remain a guide for the future scripted scenes.
+
+Preview all six speakers, back-facing characters, action tracking, tall dialogue panels, and reduced motion at `/harbir/qa/camera`. This deterministic preview uses simulated speech and makes no audio or scene API calls.
+
 ## Architecture
 
 The game engine is fixed and the content is variable:
@@ -45,7 +55,7 @@ This is a hackathon project with a build window of a few hours, so we keep the f
 
 - **Hosting:** Vercel. The Kimi K3 API key stays on the server in a Vercel serverless function and never reaches the browser.
 - **Languages:** English and Korean.
-- **Audio:** ElevenLabs generates the spoken audio: the narration for each scene and each new word, read in the target language. Like the Kimi K3 key, the ElevenLabs API key stays in a Vercel serverless function.
+- **Audio:** The main story uses Typecast for Korean and mixed Korean/English lines, with a separately configured cast and real child voices for the child characters. English-only lines use the existing ElevenLabs cast. API keys stay on the server. Missing Korean voice configuration produces captions and a small notice instead of switching to a browser voice. See [voice setup and auditions](docs/typecast-voices.md).
 - **Speech recognition:** the browser's built-in Web Speech API turns the child's speech into text, and the game compares the transcript to the target word. Speech recognition works best in Chrome.
 - **Safety:** a system prompt keeps content age-appropriate, and the parent can preview a run first.
 - **MVP:** a setup screen for the lesson, language, and age, then the story loop. Each scene has a few choices, introduces a few simple words, and has a speak button for feedback. The loop repeats until Kimi K3 marks the lesson complete.
@@ -53,15 +63,17 @@ This is a hackathon project with a build window of a few hours, so we keep the f
 
 ## Run locally
 
-You need Node.js 20.9 or later.
+You need Node.js 20.9 or later for the app, and Node.js 22 or later for the voice audition tool.
 
 ```bash
 npm install
-cp .env.example .env.local   # then add the Kimi K3 and ElevenLabs keys
+cp .env.example .env.local   # only on first setup; preserve an existing .env.local
 npm run dev
 ```
 
 Open http://localhost:3000. If that port is busy, Next.js picks the next free one and prints it. Edits reload in the browser as you save.
+
+Add the story API key and speech keys to `.env.local`. For Korean audio, set `TYPECAST_API_KEY`, run `npm run voices:list`, and audition API voice IDs with `npm run voices:sample -- --voice <voice_id>` before assigning the `TYPECAST_VOICE_*` variables. A key alone does not select the cast. Restart the dev server after changing these settings. The older `/demo` and `/kay` prototypes have separate audio paths and are not migrated by this change.
 
 Until the API is ready, the game client can read the sample scene in `mocks/scene.json`, so the UI works without any API keys.
 

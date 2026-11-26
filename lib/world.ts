@@ -47,6 +47,25 @@ export type PropId = keyof typeof PROPS;
 export type Weather = (typeof WEATHERS)[number];
 export type Emotion = (typeof EMOTIONS)[number];
 
+/** Durable world state carried across choices; animation timers belong to each scene. */
+export interface WorldSnapshot {
+  weather: Weather;
+  actors: {
+    actor: ActorId;
+    x: number;
+    z: number;
+    heading: number;
+    sitting: boolean;
+    emotion?: Emotion;
+  }[];
+  props: {
+    prop: PropId;
+    x: number;
+    z: number;
+    holder?: ActorId;
+  }[];
+}
+
 /** One step of a scene's animation. Each action takes exactly the arguments listed. */
 export type Beat = (
   | { actor: ActorId; action: "walk_to" | "run_to"; target: Spot | ActorId }

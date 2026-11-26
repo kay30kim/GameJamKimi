@@ -34,6 +34,13 @@ export const OPENINGS = {
   flower_gift: "Bori the puppy picked a flower from the garden just for Alice.",
   umbrella_lent: "Grandma Owl lent Alice her umbrella in yesterday's rain, and today the sun is out.",
   picnic_prep: "The picnic starts soon, but the cookies, apples, and flowers are all in different places.",
+  ask_before_hug: "On the meadow path, Bori asks Alice if she would like a hug. Alice can choose a hug or a friendly wave, and Bori happily respects either answer.",
+  tickle_stop: "Near the bench, Momo asks Alice about playing a tickle game. Alice changes her mind and says stop; Momo respects this immediately, and they can choose a different game. Use dialogue and supported gestures, not a tickling animation.",
+  body_privacy_help: "Alice sits with Grandma Owl near the bench and asks what it means for private parts of her body to be private. Grandma Owl gently explains that Alice can say no and ask trusted grown-ups for help; if one does not listen, she can tell another. Keep this a calm conversation with no exposure or unsafe incident.",
+  picnic_please: "At a picnic near the bench, Momo has an apple and Alice would like it. Alice can practice asking politely before Momo hands it over.",
+  picnic_turns: "Alice and Bori both reach for the cookies at a picnic on the meadow path. There is enough for both, and they need to decide who will have a turn first.",
+  chew_then_speak: "During a picnic near the bench, Alice wants to tell Momo about a butterfly just after taking a bite of apple. She can finish chewing and swallowing before speaking. Keep the eating in dialogue; use supported sitting and listening gestures.",
+  calm_picnic: "Alice wants to keep playing while the friends settle for a picnic near the bench. She can sit calmly to eat when hungry, or politely save her apple for later if she is not hungry.",
 } as const;
 
 export type OpeningId = keyof typeof OPENINGS;

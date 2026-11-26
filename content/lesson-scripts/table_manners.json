@@ -1,0 +1,1186 @@
+{
+  "id": "table_manners",
+  "order": 10,
+  "names": {
+    "ko": "식사 예절",
+    "en": "Table manners"
+  },
+  "versions": [
+    {
+      "age": 3,
+      "language": "ko",
+      "title": "쿠키 주세요",
+      "goal": "말로 부탁하고 기다린 뒤 받는 경험과 기쁜 마음을 연결해요.",
+      "phrase": "주세요",
+      "meaning": "Please",
+      "cast": [
+        "앨리스",
+        "모모",
+        "부엉이 할머니"
+      ],
+      "setting": "벤치 옆 풀밭; 쿠키 접시",
+      "caregiverNote": "먹고 싶을 때만 부탁해요. 먹지 않겠다는 말은 언제나 괜찮아요.",
+      "scenes": [
+        {
+          "title": "간식이 있어요",
+          "narration": "할머니가 쿠키 접시를 들고 있어요. 앨리스와 모모가 가까이 있어요.",
+          "action": "셋이 서 있어요. 할머니만 쿠키를 들어요. 서로 얼굴을 봐요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "쿠키가 먹고 싶어요."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "말로 부탁해도 돼."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "쿠키 주세요."
+            }
+          ]
+        },
+        {
+          "title": "부탁하는 말",
+          "narration": "앨리스가 부탁하는 말을 알아봐요.",
+          "action": "접시는 할머니가 계속 들어요. 대화가 끝날 때까지 건네지 않아요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "“주세요”는 영어로 “Please”야."
+            },
+            {
+              "speaker": "모모",
+              "text": "원하는 걸 부탁하는 말이야."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "먹고 싶지 않으면 안 먹어도 돼."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "나는 지금 먹고 싶어요."
+            }
+          ]
+        },
+        {
+          "title": "어떻게 받을까?",
+          "narration": "접시는 아직 할머니에게 있어요.",
+          "action": "아래 선택의 부탁과 할머니 대답 뒤에만 건네요. 두 사람은 서서 손이 닿는 거리에 있어야 해요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "어떻게 할까?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "주세요 하고 기다려요",
+              "narration": "앨리스가 할머니를 바라봐요.",
+              "action": "'여기 있어'에 맞춰 할머니가 앨리스에게 쿠키 접시를 줘요. 받은 뒤 감사 대사를 해요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "쿠키 주세요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "응. 여기 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "고마워요!"
+                }
+              ]
+            },
+            {
+              "label": "말보다 손이 먼저 가요",
+              "narration": "앨리스가 접시 쪽으로 다가가요. 접시는 아직 멀어요.",
+              "action": "걷기와 놀란 표정으로 성급함을 보여요. 할머니는 접시를 계속 들어요. 다시 부탁한 뒤 가까이 서고, '여기 있어'에 맞춰 건네요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "어? 아직 안 닿네."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "먼저 말로 부탁해 줘."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "쿠키 주세요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "응. 여기 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "고마워요."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "모모의 차례",
+          "narration": "이제 접시는 앨리스에게 있어요. 모모도 먹고 싶어요.",
+          "action": "앨리스와 모모는 서서 가까이 있어요. '여기 있어'에 접시를 모모에게 줘요. 받은 뒤 서로 보며 말해요. 음식은 줄이지 않아요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "나도 쿠키 주세요."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "응. 여기 있어."
+            },
+            {
+              "speaker": "모모",
+              "text": "고마워. 내 차례라 기뻐."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 웃으니 나도 좋아!"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “주세요”라고 말해 볼까? 듣기만 해도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "물이 마시고 싶어요. 믿는 어른에게 어떻게 부탁할까요?",
+        "example": "물 주세요."
+      }
+    },
+    {
+      "age": 3,
+      "language": "en",
+      "title": "A cookie, please",
+      "goal": "Connect asking and waiting with receiving and shared happiness.",
+      "phrase": "Please",
+      "meaning": "주세요",
+      "cast": [
+        "Alice",
+        "Momo",
+        "Grandma Owl"
+      ],
+      "setting": "Grass beside the bench; plate of cookies",
+      "caregiverNote": "Ask only if the child wants food. Choosing not to eat is always okay.",
+      "scenes": [
+        {
+          "title": "A snack",
+          "narration": "Grandma holds the cookies. Alice and Momo are nearby.",
+          "action": "All three stand. Only Grandma holds the cookies. Face each other.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I'd like a cookie."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "You can ask me."
+            },
+            {
+              "speaker": "Alice",
+              "text": "A cookie, please."
+            }
+          ]
+        },
+        {
+          "title": "A word for asking",
+          "narration": "Alice learns a word for asking.",
+          "action": "Grandma keeps the plate. Do not pass it during this conversation.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "“주세요” means “Please” in English."
+            },
+            {
+              "speaker": "Momo",
+              "text": "It helps us ask."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "You don't have to eat."
+            },
+            {
+              "speaker": "Alice",
+              "text": "I would like some now."
+            }
+          ]
+        },
+        {
+          "title": "How shall I ask?",
+          "narration": "Grandma still has the plate.",
+          "action": "Pass only after the chosen request and Grandma's reply. Both stand within reach.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "What shall I do?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Ask and wait",
+              "narration": "Alice looks at Grandma.",
+              "action": "Grandma gives Alice the plate on 'Here you are.' Alice thanks her only after receiving it.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "A cookie, please."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "Yes. Here you are."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Thank you!"
+                }
+              ]
+            },
+            {
+              "label": "Reach before asking",
+              "narration": "Alice moves toward the plate. It is still out of reach.",
+              "action": "Use walking and a surprised expression for the hurried approach. Grandma keeps the plate. After the repaired request, stand within reach and pass on 'Here you are.'",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Oh! I can't reach it."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "Please ask me first."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "A cookie, please."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "Yes. Here you are."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Thank you."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Momo's turn",
+          "narration": "Now Alice holds the plate. Momo would like some too.",
+          "action": "Alice and Momo stand within reach. Pass the plate to Momo on 'Here you are.' Speak facing each other after receipt. Keep the food visible.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "A cookie for me, please."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Yes. Here you are."
+            },
+            {
+              "speaker": "Momo",
+              "text": "Thank you. I'm happy it's my turn."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Your smile makes me happy too!"
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we say “please”? You can just listen."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You would like some water. How could you ask a trusted grown-up?",
+        "example": "Water, please."
+      }
+    },
+    {
+      "age": 4,
+      "language": "ko",
+      "title": "기다리면 내 차례",
+      "goal": "부탁하고 기다리면 서로 차례를 알아 편해지는 것을 느껴요.",
+      "phrase": "기다릴게요",
+      "meaning": "I'll wait",
+      "cast": [
+        "앨리스",
+        "모모",
+        "부엉이 할머니"
+      ],
+      "setting": "벤치 옆; 쿠키 접시",
+      "caregiverNote": "기다림은 접시를 건네는 짧은 시간이에요. 배고픔이나 먹고 싶지 않다는 마음을 평가하지 않아요.",
+      "scenes": [
+        {
+          "title": "앉아서 쉬어요",
+          "narration": "친구들이 벤치 옆에 앉아요. 할머니는 쿠키 접시를 가지고 있어요.",
+          "action": "셋이 앉아 대화해요. 접시는 할머니가 들어요. 아직 건네지 않아요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "쿠키가 먹고 싶어요."
+            },
+            {
+              "speaker": "모모",
+              "text": "나도 먹고 싶어."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "한 명씩 부탁하면 건네줄게."
+            }
+          ]
+        },
+        {
+          "title": "기다릴 수 있어요",
+          "narration": "앨리스가 짧게 기다리는 말을 해 봐요.",
+          "action": "앉은 자리에서 서로 보며 말해요. 접시 소유자는 바뀌지 않아요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "쿠키 주세요. 기다릴게요."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“기다릴게요”는 영어로 “I'll wait”야."
+            },
+            {
+              "speaker": "모모",
+              "text": "건네줄 시간을 주는 거구나."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "맞아. 안 먹고 싶어지면 말해도 돼."
+            }
+          ]
+        },
+        {
+          "title": "짧은 기다림",
+          "narration": "접시를 받을 준비를 해요. 아직 할머니가 들고 있어요.",
+          "action": "선택에 따라 일어나 가까이 서요. '여기 있어'에 접시를 건네고, 받은 뒤에 감사해요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "어떻게 내 차례를 기다릴까?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "부탁한 뒤 기다려요",
+              "narration": "앨리스가 할머니에게 말을 걸어요.",
+              "action": "둘이 일어나 손이 닿는 거리에 서요. 부탁 뒤 할머니가 '여기 있어'라고 말하며 접시를 줘요. 둘 다 다시 앉아요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "쿠키 주세요. 기다릴게요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "응. 여기 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "고마워요. 내 손에 왔어요."
+                }
+              ]
+            },
+            {
+              "label": "말하기 전에 가까이 가요",
+              "narration": "앨리스가 급히 일어나요. 접시는 아직 할머니에게 있어요.",
+              "action": "앨리스의 걷기와 놀란 표정으로 먼저 가지려는 마음을 보여요. 할머니의 말 뒤 멈춰요. 다시 부탁하면 둘이 서서 가까워지고 '여기 있어'에 접시를 줘요. 이후 다시 앉아요.",
+              "lines": [
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "잠깐, 먼저 말해 줄래?"
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "너무 서둘렀네. 쿠키 주세요. 기다릴게요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "응. 여기 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "고마워요. 기다려도 받을 수 있네."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "말하기 전에는 삼켜요",
+          "narration": "앨리스가 쿠키를 천천히 씹어요. 다 삼킨 뒤 모모를 봐요.",
+          "action": "먹는 것은 해설만으로 전해요. 소품을 줄이거나 먹는 동작을 만들지 않아요. 대사 전에 앨리스와 모모가 일어나 가까이 서요. '여기 있어'에 접시를 모모에게 건네요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "이제 다 삼켰어. 모모야, 여기 있어."
+            },
+            {
+              "speaker": "모모",
+              "text": "고마워. 내 차례를 알아서 편했어."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 편하니 나도 기뻐."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "배부르면 그만 먹어도 돼."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “기다릴게요”라고 말해 볼까? 듣기만 해도 좋아."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "친구가 물뿌리개를 쓰고 있어요. 다 쓴 뒤 받고 싶으면 어떻게 말할까요?",
+        "example": "다 쓰면 주세요. 기다릴게요."
+      }
+    },
+    {
+      "age": 4,
+      "language": "en",
+      "title": "A turn to ask",
+      "goal": "Notice how asking and waiting helps friends know whose turn it is.",
+      "phrase": "I'll wait",
+      "meaning": "기다릴게요",
+      "cast": [
+        "Alice",
+        "Momo",
+        "Grandma Owl"
+      ],
+      "setting": "Beside the bench; plate of cookies",
+      "caregiverNote": "Waiting lasts only while the plate is passed. Do not judge hunger or a wish not to eat.",
+      "scenes": [
+        {
+          "title": "A comfortable snack",
+          "narration": "The friends sit beside the bench. Grandma holds the cookies.",
+          "action": "All three sit and talk. Grandma holds the plate; no handoff yet.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I'd like a cookie."
+            },
+            {
+              "speaker": "Momo",
+              "text": "I would like one too."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "Ask one at a time, and I'll pass the plate."
+            }
+          ]
+        },
+        {
+          "title": "Words for waiting",
+          "narration": "Alice tries words for a short wait.",
+          "action": "Talk face to face while seated. The plate stays with Grandma.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "A cookie, please. I'll wait."
+            },
+            {
+              "speaker": "Alice",
+              "text": "“기다릴게요” means “I'll wait” in English."
+            },
+            {
+              "speaker": "Momo",
+              "text": "That gives someone time to pass it."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "Yes. You may also say if you no longer want any."
+            }
+          ]
+        },
+        {
+          "title": "A little wait",
+          "narration": "It is time to ask for the plate. Grandma still holds it.",
+          "action": "Stand within reach as the chosen path proceeds. Pass on 'Here you are'; thanks follow receipt.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "How shall I wait for my turn?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Ask, then wait",
+              "narration": "Alice speaks to Grandma.",
+              "action": "Grandma and Alice stand within reach. After the request, Grandma passes on 'Here you are.' Both sit again.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "A cookie, please. I'll wait."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "Yes. Here you are."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Thank you. I have it now."
+                }
+              ]
+            },
+            {
+              "label": "Reach before asking",
+              "narration": "Alice stands up in a hurry. The plate is still with Grandma.",
+              "action": "Show the hurried attempt with walking and surprise. Alice stops at Grandma's words. After asking again, both stand within reach, pass on 'Here you are', then sit.",
+              "lines": [
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "A moment. Will you ask me first?"
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I hurried. A cookie, please. I'll wait."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "Yes. Here you are."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Thank you. I can wait and still have a turn."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Swallow before talking",
+          "narration": "Alice chews slowly. After swallowing, she looks at Momo.",
+          "action": "Convey eating through narration only; do not animate eating or remove food. Before dialogue, Alice and Momo stand within reach. Pass to Momo on 'Here you are.'",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I've swallowed now. Momo, here you are."
+            },
+            {
+              "speaker": "Momo",
+              "text": "Thank you. Knowing my turn helped me feel comfortable."
+            },
+            {
+              "speaker": "Alice",
+              "text": "I'm happy you feel comfortable."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "You can stop eating when you're full."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we say “I'll wait”? You can just listen."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "A friend is using the watering can. What could you say if you want it afterward?",
+        "example": "Please pass it when you're done. I'll wait."
+      }
+    },
+    {
+      "age": 5,
+      "language": "ko",
+      "title": "부탁을 들으면 알 수 있어요",
+      "goal": "말로 부탁하면 원하는 것을 알고 안전하게 차례를 나눌 수 있음을 이해해요.",
+      "phrase": "쿠키 좀 주세요",
+      "meaning": "May I have a cookie, please?",
+      "cast": [
+        "앨리스",
+        "모모",
+        "부엉이 할머니"
+      ],
+      "setting": "벤치 옆 풀밭; 쿠키 접시",
+      "caregiverNote": "손을 먼저 뻗는 실수는 다시 말하면 고칠 수 있어요. 먹을 양과 음식 감각은 아이의 선택을 존중해요.",
+      "scenes": [
+        {
+          "title": "서로 원하는 양",
+          "narration": "친구들이 간식을 먹으려고 앉아요. 할머니가 쿠키 접시를 들고 있어요.",
+          "action": "세 친구가 편한 간격으로 앉아요. 접시는 할머니만 들어요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "저는 지금 쿠키가 먹고 싶어요."
+            },
+            {
+              "speaker": "모모",
+              "text": "나는 조금 뒤에 먹고 싶어."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "그래. 먹고 싶은 때와 양이 다를 수 있지."
+            }
+          ]
+        },
+        {
+          "title": "구체적으로 부탁해요",
+          "narration": "앨리스는 할머니가 원하는 것을 알 수 있게 말해요.",
+          "action": "자리에서 서로 얼굴을 보며 말해요. 아직 접시를 건네지 않아요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "쿠키 좀 주세요."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“쿠키 좀 주세요”는 영어로 “May I have a cookie, please?”야."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "말해 주니 네가 무엇을 원하는지 알겠구나."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "그러면 서로 손을 급히 뻗지 않아도 되겠네요."
+            }
+          ]
+        },
+        {
+          "title": "다시 부탁할 기회",
+          "narration": "쿠키 접시는 아직 할머니에게 있어요. 앨리스가 받을 방법을 골라요.",
+          "action": "선택 안에서 부탁을 듣고 두 사람이 서서 가까워진 뒤 건네요. 감사는 받은 뒤예요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "먹고 싶은 마음을 어떻게 전할까?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "말로 부탁하고 기다려요",
+              "narration": "앨리스가 할머니와 눈을 맞춰요.",
+              "action": "'쿠키 좀 주세요' 뒤 둘이 일어나 가까이 서요. '여기 있어'에 할머니가 접시를 줘요. 받은 뒤 감사하고 다시 앉아요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "쿠키 좀 주세요. 건네주실 때까지 기다릴게요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "응. 여기 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "고마워요. 천천히 받으니 편해요."
+                }
+              ]
+            },
+            {
+              "label": "먼저 접시에 손을 뻗으려 해요",
+              "narration": "앨리스가 말하기 전에 일어나 접시로 다가가요. 아직 손에 닿지 않아요.",
+              "action": "걷기와 표정으로 조급함을 나타내요. 물건을 뺏지 않아요. 할머니의 말 뒤 다시 부탁하고, 둘이 서서 가까워져 '여기 있어'에 건네요. 이후 앉아요.",
+              "lines": [
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "먼저 말로 부탁해 줄래? 접시는 내가 들고 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "먹고 싶어서 서둘렀어요. 쿠키 좀 주세요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "응. 이제 네가 원하는 걸 알겠어. 여기 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "고마워요. 말로 부탁하면 되는구나."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "친구도 편안해요",
+          "narration": "앨리스가 천천히 씹고 삼켜요. 이제 모모도 먹고 싶다고 말할 준비가 됐어요.",
+          "action": "먹는 내용은 해설뿐이며 소품을 없애지 않아요. 모모와 앨리스는 대사 전에 일어나 가까이 서요. '여기 있어'에 접시를 모모에게 주고, 받은 뒤 감사해요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "나는 이제 먹고 싶어. 접시를 줄래?"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "응. 다 삼켰어. 여기 있어."
+            },
+            {
+              "speaker": "모모",
+              "text": "고마워. 서두르지 않아도 돼서 편했고, 같이 먹으니 좋아."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 좋아하니까 나도 기뻐."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “쿠키 좀 주세요”라고 말해 볼까? 입안에 음식이 있으면 삼킨 뒤에 해도 돼. 듣기만 해도 좋아."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "쿠키가 아니라 사과가 먹고 싶어요. 어떻게 부탁할까요?",
+        "example": "사과 좀 주세요."
+      }
+    },
+    {
+      "age": 5,
+      "language": "en",
+      "title": "Letting someone know",
+      "goal": "Understand how a spoken request helps others know what we want and pass things calmly.",
+      "phrase": "May I have a cookie, please?",
+      "meaning": "쿠키 좀 주세요",
+      "cast": [
+        "Alice",
+        "Momo",
+        "Grandma Owl"
+      ],
+      "setting": "Grass beside the bench; plate of cookies",
+      "caregiverNote": "Reaching early is repairable by asking. Respect the child's portion choice and sensory preferences.",
+      "scenes": [
+        {
+          "title": "What each friend wants",
+          "narration": "The friends sit for a snack. Grandma holds the plate of cookies.",
+          "action": "Seat the friends with comfortable space. Only Grandma holds the plate.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I'd like a cookie now."
+            },
+            {
+              "speaker": "Momo",
+              "text": "I'd like mine a little later."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "Okay. We may want different amounts at different times."
+            }
+          ]
+        },
+        {
+          "title": "Ask for what you want",
+          "narration": "Alice uses words so Grandma knows what she would like.",
+          "action": "Face each other while seated. Do not pass the plate yet.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "May I have a cookie, please?"
+            },
+            {
+              "speaker": "Alice",
+              "text": "“쿠키 좀 주세요” means “May I have a cookie, please?” in English."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "Your words tell me what you would like."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Then we don't need to reach in a hurry."
+            }
+          ]
+        },
+        {
+          "title": "A chance to ask",
+          "narration": "Grandma still has the plate. Alice chooses how to ask for it.",
+          "action": "Within the chosen path, hear the request, stand within reach, and pass. Thanks come after receipt.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "How shall I say what I would like?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Ask and wait calmly",
+              "narration": "Alice looks toward Grandma.",
+              "action": "After the request, Alice and Grandma stand within reach. Grandma passes on 'Here you are.' Alice thanks her after receipt; both sit again.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "May I have a cookie, please? I'll wait while you pass it."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "Yes. Here you are."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Thank you. It feels comfortable to take it calmly."
+                }
+              ]
+            },
+            {
+              "label": "Reach for the plate first",
+              "narration": "Alice stands and approaches before asking. The plate is still out of reach.",
+              "action": "Use walking and expressions to show haste. Do not snatch the prop. After Grandma's words and Alice's new request, both stand within reach and pass on 'Here you are.' Then sit.",
+              "lines": [
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "Could you ask me first? I'm still holding the plate."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I hurried because I wanted one. May I have a cookie, please?"
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "Yes. Now I know what you want. Here you are."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Thank you. I can use words to ask."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Comfort for both friends",
+          "narration": "Alice chews and swallows. Momo is ready to say that he would like a cookie now.",
+          "action": "Eating stays in narration and the food remains visible. Alice and Momo stand within reach before dialogue. Pass on 'Here you are'; thanks follow receipt.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "I'd like some now. Could you pass the plate?"
+            },
+            {
+              "speaker": "Alice",
+              "text": "Yes. I've swallowed. Here you are."
+            },
+            {
+              "speaker": "Momo",
+              "text": "Thank you. I felt comfortable taking my time. I'm happy to share this snack."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Seeing you happy makes me happy too."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we say “May I have a cookie, please?” Wait until you've swallowed if you're eating. Listening is fine too."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "You would like an apple instead of a cookie. How could you ask?",
+        "example": "May I have an apple, please?"
+      }
+    },
+    {
+      "age": 6,
+      "language": "ko",
+      "title": "내 차례와 친구의 속도",
+      "goal": "부탁·차례·몸의 신호를 함께 존중하면 모두 편한 이유를 설명해요.",
+      "phrase": "제 차례가 되면 알려 주세요",
+      "meaning": "Please tell me when it's my turn",
+      "cast": [
+        "앨리스",
+        "모모",
+        "부엉이 할머니"
+      ],
+      "setting": "벤치 옆; 쿠키 접시",
+      "caregiverNote": "빨리 먹거나 많이 먹는 것을 칭찬하지 않아요. 못 먹는 음식, 배부름, 더 먹고 싶은 마음 모두 말할 수 있어요.",
+      "scenes": [
+        {
+          "title": "마음과 속도가 달라요",
+          "narration": "친구들이 간식 자리에 모였어요. 할머니가 쿠키를 들고 있고, 두 친구는 각자 몸의 느낌을 살펴요.",
+          "action": "세 친구가 앉아 서로 봐요. 접시는 할머니에게 있어요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "저는 쿠키가 먹고 싶어서 빨리 받고 싶어요."
+            },
+            {
+              "speaker": "모모",
+              "text": "나는 조금만 먹고 천천히 쉬고 싶어."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "둘 다 말해 줘서 좋아. 같은 양이나 속도일 필요는 없어."
+            }
+          ]
+        },
+        {
+          "title": "차례를 알리는 부탁",
+          "narration": "앨리스는 기다리는 동안 차례를 알 수 있으면 편할 것 같아요.",
+          "action": "그대로 앉아 대사해요. 접시를 향해 몸을 겹치지 않아요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "제 차례가 되면 알려 주세요."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "“제 차례가 되면 알려 주세요”는 영어로 “Please tell me when it's my turn”이야."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "그래. 그러면 누가 받을지 서로 알 수 있겠구나."
+            },
+            {
+              "speaker": "모모",
+              "text": "내 속도도 존중받으니 마음이 편해."
+            }
+          ]
+        },
+        {
+          "title": "기다림을 어떻게 말할까?",
+          "narration": "할머니가 접시를 들고 있어요. 앨리스는 차례를 기다리는 방법을 골라요.",
+          "action": "말로 차례를 확인한 뒤에만 두 사람이 서서 가까이 다가가요. '여기 있어'에 전달하고 감사는 그 뒤예요.",
+          "lines": [
+            {
+              "speaker": "앨리스",
+              "text": "빨리 받고 싶은 마음을 말로 전할까?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "알려 달라고 부탁하고 기다려요",
+              "narration": "앨리스가 할머니에게 부탁하려고 얼굴을 들어요.",
+              "action": "차례가 됐다는 대사 뒤 할머니와 앨리스가 일어나 가까이 서요. '여기 있어'에 접시를 줘요. 받은 뒤 감사하고 다시 앉아요.",
+              "lines": [
+                {
+                  "speaker": "앨리스",
+                  "text": "제 차례가 되면 알려 주세요. 기다리고 있을게요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "지금 네 차례야. 여기 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "고마워요. 언제 받는지 아니까 편해요."
+                }
+              ]
+            },
+            {
+              "label": "말하기 전에 접시로 다가가요",
+              "narration": "앨리스가 성급히 일어나요. 할머니가 든 접시는 아직 닿지 않는 곳에 있어요.",
+              "action": "급한 마음은 걷기와 표정으로 보여요. 접시를 가져가려 하지 말고 할머니 대사 뒤 멈춰요. 새 부탁 뒤 차례를 확인하고, 둘이 서서 가까워지면 '여기 있어'에 건네요. 다시 앉아요.",
+              "lines": [
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "잠깐, 먼저 말해 줄래? 아직 내가 접시를 들고 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "빨리 받고 싶어서 먼저 손이 갔어요. 제 차례가 되면 알려 주세요."
+                },
+                {
+                  "speaker": "부엉이 할머니",
+                  "text": "네 마음을 알겠어. 이제 네 차례야. 여기 있어."
+                },
+                {
+                  "speaker": "앨리스",
+                  "text": "고마워요. 서둘렀어도 다시 말할 수 있네요."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "몸의 신호도 함께 들어요",
+          "narration": "앨리스가 쿠키를 천천히 씹고 다 삼켰어요. 모모는 이제 조금 먹고 싶어요.",
+          "action": "먹기는 해설로만 전하며 소품은 사라지지 않아요. 앨리스와 모모가 일어나 가까이 서요. '여기 있어'에 접시를 건네고, 받은 뒤 대답해요.",
+          "lines": [
+            {
+              "speaker": "모모",
+              "text": "조금 먹고 싶어. 접시를 줄래?"
+            },
+            {
+              "speaker": "앨리스",
+              "text": "응. 다 삼켜서 말할 수 있어. 여기 있어."
+            },
+            {
+              "speaker": "모모",
+              "text": "고마워. 내 속도와 먹을 양을 말할 수 있어서 편했고, 같이 있으니 즐거워."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "네가 즐거워하니 나도 좋아. 다음에도 서로 물어보자."
+            },
+            {
+              "speaker": "부엉이 할머니",
+              "text": "배부르거나 먹기 불편하면 그만 먹거나 다른 것을 부탁해도 돼."
+            },
+            {
+              "speaker": "앨리스",
+              "text": "우리 “제 차례가 되면 알려 주세요”라고 말해 볼까? 삼킨 뒤에 말하거나 듣기만 해도 돼."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "다음 간식 시간에는 더 먹고 싶지만 친구가 접시를 들고 있어요. 어떻게 말할까요?",
+        "example": "조금 더 먹고 싶어. 내 차례가 되면 알려 줄래?"
+      }
+    },
+    {
+      "age": 6,
+      "language": "en",
+      "title": "My turn and your pace",
+      "goal": "Explain why respecting requests, turns, and body signals helps everyone feel comfortable.",
+      "phrase": "Please tell me when it's my turn",
+      "meaning": "제 차례가 되면 알려 주세요",
+      "cast": [
+        "Alice",
+        "Momo",
+        "Grandma Owl"
+      ],
+      "setting": "Beside the bench; plate of cookies",
+      "caregiverNote": "Do not praise eating fast or eating more. Children may mention sensory needs, fullness, or wanting more.",
+      "scenes": [
+        {
+          "title": "Different wants and paces",
+          "narration": "The friends gather for a snack. Grandma holds the cookies. Each friend notices how their body feels.",
+          "action": "All three sit facing one another. Grandma holds the plate.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "I'd like a cookie, and I want my turn soon."
+            },
+            {
+              "speaker": "Momo",
+              "text": "I'd like a little, then some time to rest."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "I'm glad you told me. You don't need the same amount or pace."
+            }
+          ]
+        },
+        {
+          "title": "A request about turns",
+          "narration": "Alice thinks knowing when her turn comes would make waiting easier.",
+          "action": "Stay seated for dialogue. Keep bodies separated from the plate.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "Please tell me when it's my turn."
+            },
+            {
+              "speaker": "Alice",
+              "text": "“제 차례가 되면 알려 주세요” means “Please tell me when it's my turn” in English."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "Yes. Then we can both know who is ready to receive it."
+            },
+            {
+              "speaker": "Momo",
+              "text": "I feel comfortable when my pace is respected too."
+            }
+          ]
+        },
+        {
+          "title": "How shall I handle waiting?",
+          "narration": "Grandma holds the plate. Alice chooses how to wait.",
+          "action": "Confirm the turn in words before standing within reach. Pass on 'Here you are', then thank the giver.",
+          "lines": [
+            {
+              "speaker": "Alice",
+              "text": "Shall I explain that I'm eager for my turn?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Ask to be told, then wait",
+              "narration": "Alice looks at Grandma, ready to ask.",
+              "action": "After Grandma names Alice's turn, both stand within reach. Pass on 'Here you are.' Alice thanks her after receipt, then both sit.",
+              "lines": [
+                {
+                  "speaker": "Alice",
+                  "text": "Please tell me when it's my turn. I'll wait."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "It's your turn now. Here you are."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Thank you. Knowing when I can receive it helps me feel comfortable."
+                }
+              ]
+            },
+            {
+              "label": "Approach the plate before asking",
+              "narration": "Alice stands in a hurry. Grandma's plate is still out of reach.",
+              "action": "Show haste through walking and expression. Keep the plate with Grandma; stop for her line. After the repaired request and turn confirmation, stand within reach and pass on 'Here you are.' Sit again.",
+              "lines": [
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "A moment. Could you ask first? I'm still holding the plate."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "I reached because I wanted a turn quickly. Please tell me when it's my turn."
+                },
+                {
+                  "speaker": "Grandma Owl",
+                  "text": "I understand. It is your turn now. Here you are."
+                },
+                {
+                  "speaker": "Alice",
+                  "text": "Thank you. Even after hurrying, I can try asking again."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Listen to our bodies too",
+          "narration": "Alice has chewed and swallowed. Momo would like a little now.",
+          "action": "Eating is narrated only; the food does not disappear. Alice and Momo stand within reach. Pass on 'Here you are', then let the receiver answer.",
+          "lines": [
+            {
+              "speaker": "Momo",
+              "text": "I'd like a little. Could you pass the plate?"
+            },
+            {
+              "speaker": "Alice",
+              "text": "Yes. I've swallowed, so I can talk. Here you are."
+            },
+            {
+              "speaker": "Momo",
+              "text": "Thank you. Choosing my amount and pace felt comfortable. I enjoy being together."
+            },
+            {
+              "speaker": "Alice",
+              "text": "I'm happy you're happy. Let's check with each other next time."
+            },
+            {
+              "speaker": "Grandma Owl",
+              "text": "If you're full or a food feels uncomfortable, you can stop or ask for something else."
+            },
+            {
+              "speaker": "Alice",
+              "text": "Shall we say “Please tell me when it's my turn”? Speak after swallowing, or just listen."
+            }
+          ]
+        }
+      ],
+      "recall": {
+        "prompt": "At another snack, you'd like more, but a friend has the plate. What could you say?",
+        "example": "I'd like a little more. Could you tell me when it's my turn?"
+      }
+    }
+  ]
+}

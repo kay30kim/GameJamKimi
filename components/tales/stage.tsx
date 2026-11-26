@@ -11,7 +11,9 @@ import { PropItem } from "@/components/harbir/three/props";
 import { createSim } from "@/lib/harbir/sim";
 import type { Sim } from "@/lib/harbir/sim";
 import type { ActorId, PropId, Stage } from "@/lib/world";
-import { CastMember, HEAD } from "./bodies";
+import { CastMember } from "./bodies";
+import { needsCameraCut, planCamera, wrapCameraAngle } from "@/lib/camera-director";
+import type { CameraFrame, CameraSubjects } from "@/lib/camera-director";
 import type { Talk } from "./bodies";
 
 /** Kay's warm storybook light, with a peach evening and a grey rainy variant. */
@@ -23,64 +25,68 @@ const SUN = {
 } as const;
 const SHADOW_RANGE = 14;
 
-/** Kay's 180-degree rule: the camera stays on the meadow's front side, so left and right never flip. */
-const FRONT = new Vector3(0.22, 0, 1).normalize();
-
-/**
- * Frames whoever the story is about. A speaker and their listener get a two-shot, every third
- * solo line gets a close-up, and otherwise the shot widens to fit the whole cast.
- */
-function CameraDirector({ sim, talk, sun, sunOffset, reducedMotion, overview }: { sim: Sim; talk: Talk; sun: React.RefObject<DirectionalLight | null>; sunOffset: readonly [number, number, number]; reducedMotion: boolean; overview: boolean }) {
+/** A line establishes its shot before audio starts; motion then settles into a hold. */
+function CameraDirector({ sim, subjects, talk, sun, sunOffset, reducedMotion, overview, paused, cameraFrame }: {
+  sim: Sim; subjects: CameraSubjects; talk: Talk; sun: React.RefObject<DirectionalLight | null>;
+  sunOffset: readonly [number, number, number]; reducedMotion: boolean; overview: boolean;
+  paused: boolean; cameraFrame?: CameraFrame;
+}) {
   const look = useRef(new Vector3(0, 1, 0));
   const aim = useRef(new Vector3());
   const goal = useRef(new Vector3());
   const ready = useRef(false);
-  const shots = useRef({ line: null as Talk["line"], count: 0 });
+  const shots = useRef({ sim, line: null as Talk["line"], overview, elapsed: 0, count: 0, center: 0.4 });
   const { size } = useThree();
   useFrame(({ camera }, delta) => {
-    const portrait = size.width / size.height < 0.85;
-    const { line } = talk;
-    if (shots.current.line !== line) { shots.current.line = line; if (line) shots.current.count += 1; }
-    const actors = Object.values(sim.actors).filter((actor) => actor !== undefined);
-    if (!actors.length) return;
-    const speaker = line && sim.actors[line.speaker];
-    const listener = line?.to && sim.actors[line.to];
-    let distance: number;
-    let height: number;
-    let fov = portrait ? 48 : 38;
-    if (speaker && listener) {
-      aim.current.set((speaker.x + listener.x) / 2, Math.max(HEAD[line.speaker], HEAD[line.to!]) * 0.62, (speaker.z + listener.z) / 2);
-      distance = 4.6 + Math.hypot(speaker.x - listener.x, speaker.z - listener.z) * 0.9;
-      height = 1.6;
-    } else if (speaker && shots.current.count % 3 === 0) {
-      aim.current.set(speaker.x, HEAD[line.speaker] * 0.8, speaker.z);
-      distance = 3.4;
-      height = 1.1;
-      fov = portrait ? 44 : 34;
-    } else {
-      const cx = actors.reduce((sum, a) => sum + a.x, 0) / actors.length;
-      const cz = actors.reduce((sum, a) => sum + a.z, 0) / actors.length;
-      const spread = Math.max(...actors.map((a) => Math.hypot(a.x - cx, a.z - cz)));
-      // On the welcome screen the setup panel covers the left, so the cast stands to the right.
-      aim.current.set(cx - (overview && !portrait ? 2.4 : 0), 0.7, cz);
-      distance = MathUtils.clamp(6 + spread * 1.6, 6.5, 17);
-      height = 1.9 + distance * 0.18;
+    if (size.width <= 0 || size.height <= 0) return;
+    if (paused && ready.current) return;
+    const state = shots.current;
+    const changed = state.sim !== sim || state.line !== talk.line || state.overview !== overview;
+    if (changed) {
+      state.sim = sim;
+      state.line = talk.line;
+      state.overview = overview;
+      state.elapsed = 0;
+      state.count += 1;
     }
-    if (portrait) distance *= 1.25;
-    goal.current.copy(aim.current).addScaledVector(FRONT, distance).setY(aim.current.y + height);
-    if (!ready.current || reducedMotion) {
+    const dt = Math.min(delta, 0.05);
+    state.elapsed += dt;
+    const shot = planCamera({ sim, subjects, line: talk.line, aspect: size.width / size.height,
+      elapsed: state.elapsed, shotIndex: state.count, overview, reducedMotion, frame: cameraFrame });
+    if (!shot) return;
+    aim.current.fromArray(shot.target);
+    goal.current.fromArray(shot.position);
+    const distantSubject = look.current.distanceTo(aim.current) > 1.6 && camera.position.distanceTo(goal.current) > 3;
+    const cut = !ready.current || (changed && (distantSubject || needsCameraCut(camera.position.toArray(), shot)));
+    if (cut) {
       camera.position.copy(goal.current);
       look.current.copy(aim.current);
+      state.center = shot.centerY;
       ready.current = true;
     } else {
-      const k = 1 - Math.exp(-Math.min(delta, 0.05) * 1.8);
+      // No looping camera sway. Reduced-motion mode removes the dolly/orbit and
+      // uses a quiet follow instead of snapping to a new position every frame.
+      const speed = shot.kind === "tracking" ? 3.6 : 2.6;
+      const k = 1 - Math.exp(-dt * speed);
       camera.position.lerp(goal.current, k);
       look.current.lerp(aim.current, k);
+      state.center = MathUtils.damp(state.center, shot.centerY, 5, dt);
+    }
+    if (shot.speaker && shot.heading !== undefined) {
+      const actor = sim.actors[shot.speaker]!;
+      const dx = camera.position.x - actor.x, dz = camera.position.z - actor.z;
+      const offset = MathUtils.clamp(wrapCameraAngle(Math.atan2(dx, dz) - shot.heading), -0.9, 0.9);
+      const distance = Math.max(1.4, Math.hypot(dx, dz));
+      // Even during a body turn or reverse shot, never linger behind a speaker.
+      camera.position.x = actor.x + Math.sin(shot.heading + offset) * distance;
+      camera.position.z = actor.z + Math.cos(shot.heading + offset) * distance;
     }
     camera.lookAt(look.current);
+    camera.userData.storyFocus = look.current;
     const perspective = camera as PerspectiveCamera;
-    perspective.fov = MathUtils.damp(perspective.fov, fov, 2, delta);
-    perspective.updateProjectionMatrix();
+    perspective.fov = cut ? shot.fov : MathUtils.damp(perspective.fov, shot.fov, 3, dt);
+    // Shift the optical center into the space above the actual dialogue panel.
+    perspective.setViewOffset(size.width, size.height, 0, size.height * (0.5 - state.center), size.width, size.height);
     const light = sun.current;
     if (light) {
       const [ox, oy, oz] = sunOffset;
@@ -97,9 +103,10 @@ function Director({ sim, paused }: { sim: Sim; paused: boolean }) {
   return null;
 }
 
-function World({ stage, replay, talk, paused, simulation, overview = false, reducedMotion }: StageProps & { reducedMotion: boolean }) {
+function World({ stage, replay, talk, paused, simulation, overview = false, reducedMotion, cameraFrame }: StageProps & { reducedMotion: boolean }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- replay restarts the same stage
   const sim = useMemo(() => simulation ?? createSim(stage), [stage, replay, simulation]);
+  const subjects = useMemo<CameraSubjects>(() => Object.fromEntries(Object.values(sim.actors).filter((actor) => !!actor).map((actor) => [actor.id, { heading: actor.heading, lift: 0 }])), [sim]);
   const sun = useRef<DirectionalLight>(null);
   const { gl } = useThree();
   useEffect(() => {
@@ -123,8 +130,8 @@ function World({ stage, replay, talk, paused, simulation, overview = false, redu
     <Meadow />
     {stage.weather === "rainy" && <Rain sim={sim} />}
     {!simulation && <Director sim={sim} paused={paused} />}
-    <CameraDirector sim={sim} talk={talk} sun={sun} sunOffset={light.offset} reducedMotion={reducedMotion} overview={overview} />
-    {(Object.keys(sim.actors) as ActorId[]).map((id) => <CastMember key={id} id={id} sim={sim} talk={talk} />)}
+    <CameraDirector sim={sim} subjects={subjects} talk={talk} sun={sun} sunOffset={light.offset} reducedMotion={reducedMotion} overview={overview} paused={paused} cameraFrame={cameraFrame} />
+    {(Object.keys(sim.actors) as ActorId[]).map((id) => <CastMember key={id} id={id} sim={sim} talk={talk} cameraSubject={subjects[id]} />)}
     {(Object.keys(sim.props) as PropId[]).map((id) => <PropItem key={id} id={id} sim={sim} />)}
   </>;
 }
@@ -151,6 +158,8 @@ export interface StageProps {
   simulation?: Sim;
   /** Frame the cast to the right of the welcome panel. */
   overview?: boolean;
+  /** Fractions of the canvas covered by headers and dialogue/choice panels. */
+  cameraFrame?: CameraFrame;
 }
 
 export default function TalesStage({ reducedMotion = false, ...props }: StageProps & { reducedMotion?: boolean }) {

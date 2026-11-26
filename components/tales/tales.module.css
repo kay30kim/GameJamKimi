@@ -36,6 +36,7 @@
 .words small{font-size:12px;color:#8c917d}
 .alert{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);width:min(560px,90%);background:#fffef4f5;border-radius:20px;padding:22px 26px;text-align:center;box-shadow:0 14px 70px #203a3338;z-index:3}
 .alert p{margin-bottom:14px;color:#a85d46}
+.speechNotice,.decision .speechNotice{font-size:12px;line-height:1.5;color:#7b674d;background:#f3ead6;border-radius:10px;padding:9px 12px;margin:12px 0 4px}
 .wordList{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
 .wordList span{background:#edf0e2;color:#4d684e;border-radius:10px;padding:5px 11px;font-size:13px;font-weight:600}
 

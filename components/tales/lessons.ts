@@ -2,8 +2,6 @@ import type { SceneLanguage } from "@/app/api/scene/contract";
 
 export type Localized = Record<SceneLanguage, string>;
 
-/** Children under this age say the new word instead of picking a choice. */
-export const SAY_WORDS_UNDER_AGE = 4;
 export const MAX_OWN_LESSON = 200;
 export const OWN = "own";
 
@@ -16,6 +14,8 @@ export const LESSONS: { id: string; icon: string; color: string; name: Localized
   { id: "bravery", icon: "spark", color: "#c98a5a", name: { ko: "용기", en: "Bravery" } },
   { id: "gratitude", icon: "leaf", color: "#9aa86a", name: { ko: "감사", en: "Gratitude" } },
   { id: "teamwork", icon: "book", color: "#6f9a7d", name: { ko: "협동", en: "Teamwork" } },
+  { id: "body_safety", icon: "honesty", color: "#a082ab", name: { ko: "소중한 내 몸", en: "My body & boundaries" } },
+  { id: "table_manners", icon: "leaf", color: "#9a9b64", name: { ko: "식사 예절", en: "Table manners" } },
 ];
 export const OWN_CARD = { color: "#a78650", name: { ko: "직접 쓰기", en: "Your own" } };
 

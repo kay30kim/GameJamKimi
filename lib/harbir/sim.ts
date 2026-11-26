@@ -1,6 +1,6 @@
 import { ACTORS, PROPS, SPOTS } from "../world";
 import { clearLine, plan, pushOut } from "./obstacles";
-import type { ActorId, Beat, Emotion, PropId, Spot, Stage } from "../world";
+import type { ActorId, Beat, Emotion, PropId, Spot, Stage, Weather, WorldSnapshot } from "../world";
 
 /** A point on the ground, [x, z] in meters, matching lib/world.ts. */
 export type Point = readonly [number, number];
@@ -93,24 +93,70 @@ export function standingPoint(spot: Spot, slot = 0, slots = 1): Point {
 const distance = (a: Point, b: Point) => Math.hypot(b[0] - a[0], b[1] - a[1]);
 const headingTo = (from: Point, to: Point) => Math.atan2(to[0] - from[0], to[1] - from[1]);
 
+/** Copy the persistent fields so later simulation steps cannot change a saved choice/replay. */
+export function snapshotSim(sim: Sim, weather: Weather): WorldSnapshot {
+  return {
+    weather,
+    actors: Object.values(sim.actors).map(({ id, x, z, heading, sitting, emotion }) => ({
+      actor: id, x, z, heading, sitting, ...(emotion ? { emotion } : {}),
+    })),
+    props: Object.values(sim.props).map(({ id, x, z, holder }) => ({
+      prop: id, x, z, ...(holder ? { holder } : {}),
+    })),
+  };
+}
+
 /**
  * Turn a stage into a running simulation. Each beat is a generator that advances one
  * frame per step, so beats that need several moves (give = walk over, hand it across)
- * read top to bottom.
+ * read top to bottom. Existing world entities keep their state across scene choices;
+ * stage starting positions apply only to characters and props that are new to the world.
  */
-export function createSim(stage: Stage): Sim {
+export function createSim(stage: Stage, previous?: WorldSnapshot): Sim {
   const actors: Sim["actors"] = {};
+  for (const { actor: id, x, z, heading, sitting, emotion } of previous?.actors ?? []) {
+    actors[id] = {
+      id, x, z, heading, sitting, emotion,
+      // Idle respects sitting without replaying the stand-to-sit transition.
+      pose: "idle", poseTime: 0, travelled: 0,
+      emotionLeft: emotion ? EMOTION_SECONDS : 0,
+    };
+  }
+
+  function spawnPoint(point: Point, id: ActorId): Point {
+    const start = pushOut(...point, RADIUS[id]);
+    if (!previous) return start;
+    const room = ([x, z]: Point) => Object.values(actors).every((other) =>
+      Math.hypot(x - other.x, z - other.z) >= RADIUS[id] + RADIUS[other.id] + 0.02);
+    if (room(start)) return start;
+    // Move only the newcomer, so inserting a cast member cannot shove the saved cast.
+    for (let ring = 1; ring <= 8; ring++) {
+      for (let direction = 0; direction < 12; direction++) {
+        const angle = direction * Math.PI / 6;
+        const candidate = pushOut(start[0] + Math.cos(angle) * ring * 0.75, start[1] + Math.sin(angle) * ring * 0.75, RADIUS[id]);
+        if (room(candidate)) return candidate;
+      }
+    }
+    return start;
+  }
+
   const bySpot = new Map<Spot, ActorId[]>();
-  for (const { actor, at } of stage.cast) bySpot.set(at, [...(bySpot.get(at) ?? []), actor]);
+  for (const { actor, at } of stage.cast) {
+    if (!actors[actor]) bySpot.set(at, [...(bySpot.get(at) ?? []), actor]);
+  }
   for (const [spot, ids] of bySpot) {
     ids.forEach((id, slot) => {
-      const [x, z] = pushOut(...standingPoint(spot, slot, ids.length), RADIUS[id]);
+      const [x, z] = spawnPoint(standingPoint(spot, slot, ids.length), id);
       actors[id] = { id, x, z, heading: 0, pose: "idle", poseTime: 0, travelled: 0, sitting: false, emotionLeft: 0 };
     });
   }
 
   const props: Sim["props"] = {};
+  for (const { prop: id, x, z, holder } of previous?.props ?? []) {
+    props[id] = { id, x, z, holder, vx: 0, vz: 0 };
+  }
   stage.props.forEach(({ prop, at }, index) => {
+    if (props[prop]) return;
     const holder = at in ACTORS ? actors[at as ActorId] : undefined;
     const occupied = holder && Object.values(props).some((item) => item.holder === holder.id && item.id !== prop);
     if (holder && !occupied) {

@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "scripts:build": "node scripts/build-lesson-scripts.mjs",
+    "scripts:check": "node scripts/build-lesson-scripts.mjs --check",
+    "voices:list": "node scripts/typecast-voices.mjs list",
+    "voices:sample": "node scripts/typecast-voices.mjs sample"
   },
   "dependencies": {
     "@react-three/fiber": "9.8.2",
