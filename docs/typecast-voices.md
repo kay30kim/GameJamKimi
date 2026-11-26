@@ -63,7 +63,7 @@ node scripts/typecast-voices.mjs sample --voice 목록에서_복사한_voice_id 
 
 ## 4. 앱의 역할별 설정
 
-CLI는 위의 API 키와 모델만으로 목록·비교를 할 수 있습니다. 앱에서 한국어 목소리를 사용하려면 **모든 역할에 실제로 확인한 API ID**를 직접 설정합니다. 기본값이나 가짜 ID는 없습니다. 의도적으로 같은 목소리를 여러 역할에 쓸 경우에도 각 역할을 명시합니다.
+앱에는 실제 API 목록에서 확인한 캐스팅이 기본으로 들어 있습니다. `TYPECAST_API_KEY`를 설정하면 아래 목소리를 사용하며, `TYPECAST_VOICE_*`는 원하는 역할만 바꾸는 선택 항목입니다. 비어 있으면 기본 목소리를 유지합니다. 기본값과 덮어쓴 ID 모두 실제 API에서 어린이 목소리 여부와 모델 호환성을 확인한 뒤 합성합니다.
 
 ```dotenv
 TYPECAST_API_KEY=
@@ -77,17 +77,23 @@ TYPECAST_VOICE_NARRATOR=
 TYPECAST_VOICE_GROWNUP=
 ```
 
-| 항목 | 역할 |
-| --- | --- |
-| `TYPECAST_VOICE_HERO` | 앨리스 |
-| `TYPECAST_VOICE_FRIEND` | 모모 |
-| `TYPECAST_VOICE_PUPPY` | 보리 |
-| `TYPECAST_VOICE_KITTEN` | 나비 |
-| `TYPECAST_VOICE_DUCK` | 도도 |
-| `TYPECAST_VOICE_NARRATOR` | 이야기 해설 |
-| `TYPECAST_VOICE_GROWNUP` | 부엉이 할머니 |
+| 항목 | 역할 | 기본 목소리 |
+| --- | --- | --- |
+| `TYPECAST_VOICE_HERO` | 앨리스 | 아윤 |
+| `TYPECAST_VOICE_FRIEND` | 모모 | 준우 |
+| `TYPECAST_VOICE_PUPPY` | 보리 | 시우 |
+| `TYPECAST_VOICE_KITTEN` | 나비 | 수아 |
+| `TYPECAST_VOICE_DUCK` | 도도 | 하율 |
+| `TYPECAST_VOICE_NARRATOR` | 이야기 해설 | 은경 |
+| `TYPECAST_VOICE_GROWNUP` | 부엉이 할머니 | 경애 |
 
 환경 설정 후 개발 서버를 다시 시작합니다. 비교 도구 자체는 앱의 캐스팅을 바꾸지 않습니다.
+
+### 배포 사이트에서도 소리가 나게 하기
+
+`.env.local`은 Git에 포함되지 않으므로 로컬 설정이 Vercel에 자동으로 옮겨지지 않습니다. Vercel 프로젝트의 **Settings → Environment Variables**에 `TYPECAST_API_KEY`를 Production·Preview 대상으로 추가한 뒤 다시 배포해야 합니다. 역할별 ID는 기본 캐스팅을 쓴다면 추가하지 않아도 됩니다. `NEXT_PUBLIC_` 접두사는 붙이지 않습니다.
+
+로컬에서는 소리가 나는데 배포 사이트에서 `/api/tts`가 `503 TTS_NOT_CONFIGURED`를 반환한다면 먼저 해당 배포 환경의 키를 확인하세요. 호환되지 않는 역할별 ID나 모델을 설정해도 같은 코드가 반환될 수 있으므로 응답 메시지도 함께 확인합니다.
 
 ## 이용 조건과 확인 범위
 

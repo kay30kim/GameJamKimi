@@ -5,7 +5,8 @@ import type {
   SceneResponse,
 } from "../app/api/scene/contract";
 import mockScene from "../mocks/scene.json";
-import { meaningLocale, preloadSpeech, speechLocale } from "./speech";
+import { preloadSpeech, speechLocale } from "./speech";
+import { storyText } from "./story-text";
 
 /**
  * Set NEXT_PUBLIC_USE_MOCK_SCENE=1 to play against mocks/scene.json instead of
@@ -109,14 +110,9 @@ export function nextSceneRequest(
   };
 }
 
-/** Warm the scene's narration and word audio so it plays as soon as the scene shows. */
+/** Warm only the opening clip; an unchosen branch must not occupy the whole voice queue. */
 function preloadSceneSpeech(scene: SceneResponse, language: SceneLanguage) {
-  preloadSpeech(scene.narration, speechLocale(language));
-  for (const line of scene.lines) preloadSpeech(line.text, speechLocale(language), line.speaker, line.emotion);
-  for (const { word, meaning } of scene.newWords) {
-    preloadSpeech(word, speechLocale(language), "hero", "happy");
-    preloadSpeech(meaning, meaningLocale(language));
-  }
+  preloadSpeech(storyText(scene.narration), speechLocale(language));
 }
 
 /** Prefetch a scene, then warm its audio. Errors are ignored; fetchScene retries live. */

@@ -5,6 +5,7 @@ import type { SpeakOptions, SpeakResult } from "./speech";
 import type { SpeechErrorCode } from "./speech-policy";
 import type { Voice } from "./voices";
 import type { Stage, WorldSnapshot } from "./world";
+import { storyText } from "./story-text";
 
 export interface PlaybackSegment {
   voice: Voice;
@@ -17,8 +18,11 @@ export interface PlaybackSegment {
 /** Keep legacy scenes usable, while honoring the model's explicit speech cues. */
 export function planPlayback(scene: SceneResponse): PlaybackSegment[] {
   const segments: PlaybackSegment[] = [
-    { voice: "narrator", text: scene.narration, line: null, beatLimit: 0 },
-    ...scene.lines.map((line) => ({ voice: line.speaker, text: line.text, line, beatLimit: 0 })),
+    { voice: "narrator", text: storyText(scene.narration), line: null, beatLimit: 0 },
+    ...scene.lines.map((source) => {
+      const line = { ...source, text: storyText(source.text) };
+      return { voice: line.speaker, text: line.text, line, beatLimit: 0 };
+    }),
   ];
   const valid = (cue: number | undefined): cue is number =>
     Number.isInteger(cue) && cue! >= 0 && cue! < segments.length;

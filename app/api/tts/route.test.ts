@@ -4,6 +4,7 @@ import type { TestContext } from "node:test";
 import { POST } from "./route";
 import { VOICES } from "../../../lib/voices";
 import type { Voice } from "../../../lib/voices";
+import { TYPECAST_CAST } from "../../../lib/typecast";
 
 const roles = Object.keys(VOICES) as Voice[];
 const childRoles: Voice[] = ["hero", "friend", "puppy", "kitten", "duck"];
@@ -93,17 +94,27 @@ test("Korean requires its own Typecast key and never falls through to configured
   assert.equal(calls.length, 0);
 });
 
-test("each Korean role needs its own configured voice rather than another cast member's voice", async (t) => {
+test("a deployment with only the API key uses the reviewed cast for every Korean role", async (t) => {
   environment(t);
   const calls = provider(t);
+  assert.equal(new Set(Object.values(TYPECAST_CAST)).size, roles.length);
   for (const role of roles) {
     const key = `TYPECAST_VOICE_${role.toUpperCase()}`;
-    const value = process.env[key];
     delete process.env[key];
-    await error(await POST(request({ text: "안녕하세요", lang: "ko-KR", voice: role })), 503, "TTS_NOT_CONFIGURED");
-    process.env[key] = value;
+    const response = await POST(request({ text: "안녕하세요", lang: "ko-KR", voice: role }));
+    assert.equal(response.status, 200);
+    assert.equal(JSON.parse(String(syntheses(calls).at(-1)!.options.body)).voice_id, TYPECAST_CAST[role]);
   }
-  assert.equal(calls.length, 0);
+  assert.equal(syntheses(calls).length, roles.length);
+});
+
+test("blank optional cast overrides keep the reviewed default while explicit overrides are respected", async (t) => {
+  const ids = environment(t, { TYPECAST_VOICE_HERO: "  " });
+  const calls = provider(t);
+  assert.equal((await POST(request())).status, 200);
+  assert.equal(JSON.parse(String(syntheses(calls)[0].options.body)).voice_id, TYPECAST_CAST.hero);
+  assert.equal((await POST(request({ text: "같이 놀자!", lang: "ko-KR", voice: "friend" }))).status, 200);
+  assert.equal(JSON.parse(String(syntheses(calls)[1].options.body)).voice_id, ids.friend);
 });
 
 test("a Studio actor identifier cannot be mistaken for an API voice identifier", async (t) => {

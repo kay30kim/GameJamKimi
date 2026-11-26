@@ -4,6 +4,19 @@ import type { Emotion } from "./world";
 export const TYPECAST_BASE_URL = "https://api.typecast.ai";
 export const TYPECAST_CHILD_ROLES: readonly Voice[] = ["hero", "friend", "puppy", "kitten", "duck"];
 
+// Public API voice IDs, verified against the ssfm-v31 catalog. Shipping the cast
+// with the app keeps a deployment from silently losing voices that existed only
+// in a developer's .env.local. Credentials remain server environment variables.
+export const TYPECAST_CAST: Readonly<Record<Voice, string>> = {
+  narrator: "tc_6a7446c19f2d7dfed990a900", // 은경
+  hero: "tc_6ae2b38a6c6f117dcc049386", // 아윤
+  friend: "tc_6a98d65b0402016f616a7ac3", // 준우
+  puppy: "tc_6699eb3849dfac016c29444c", // 시우
+  grownup: "tc_6a867e7a0e6ddfd2f2dd17b6", // 경애
+  kitten: "tc_6699eb5749dfac016c29445c", // 수아
+  duck: "tc_65fbe54e2668bc4ddbd8b2a6", // 하율
+};
+
 export type TypecastConfig = {
   apiKey: string;
   voiceId: string;
@@ -13,7 +26,7 @@ export type TypecastConfig = {
 /** Server-only settings. Studio actor IDs must never be guessed into API voice IDs. */
 export function typecastConfig(voice: Voice): TypecastConfig | null {
   const apiKey = process.env.TYPECAST_API_KEY?.trim();
-  const voiceId = process.env[`TYPECAST_VOICE_${voice.toUpperCase()}`]?.trim();
+  const voiceId = process.env[`TYPECAST_VOICE_${voice.toUpperCase()}`]?.trim() || TYPECAST_CAST[voice];
   const model = process.env.TYPECAST_MODEL?.trim() || "ssfm-v31";
   if (!apiKey || !voiceId || !/^(?:tc|uc)_[A-Za-z0-9_-]+$/.test(voiceId) || (model !== "ssfm-v31" && model !== "ssfm-v30")) return null;
   return { apiKey, voiceId, model };

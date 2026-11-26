@@ -74,13 +74,13 @@ test("Korean mode localizes unreadable and rejected API responses", async (t) =>
   await assert.rejects(fetchScene(request), /이야기 설정/);
 });
 
-test("scene prefetch preserves each dialogue speaker and emotion in the warmed audio", async (t) => {
+test("unchosen scenes warm only their opening so dialogue and practice audio keep provider slots", async (t) => {
   const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
   Object.defineProperty(globalThis, "window", { value: {}, configurable: true });
   const audioRequests: { text: string; voice: string; emotion?: string }[] = [];
   const warmed: SceneResponse = {
     ...scene,
-    narration: "감정을 담은 새 이야기예요.",
+    narration: "감정을 담은… 새 이야기예요.",
     lines: [
       { speaker: "hero", text: "나는 지금 슬퍼.", emotion: "sad" },
       { speaker: "friend", text: "내가 곁에 있을게.", emotion: "happy" },
@@ -95,13 +95,9 @@ test("scene prefetch preserves each dialogue speaker and emotion in the warmed a
   });
   try {
     prefetch({ ...settings, language: "ko", lesson: "prefetch-emotion", history: [], wordsLearned: [] });
-    for (let i = 0; i < 10 && audioRequests.length < 5; i++) await new Promise<void>((resolve) => setImmediate(resolve));
+    for (let i = 0; i < 10; i++) await new Promise<void>((resolve) => setImmediate(resolve));
     assert.deepEqual(audioRequests.map(({ text, voice, emotion }) => ({ text, voice, emotion })), [
-      { text: warmed.narration, voice: "narrator", emotion: undefined },
-      { text: warmed.lines[0].text, voice: "hero", emotion: "sad" },
-      { text: warmed.lines[1].text, voice: "friend", emotion: "happy" },
-      { text: warmed.newWords[0].word, voice: "hero", emotion: "happy" },
-      { text: warmed.newWords[0].meaning, voice: "narrator", emotion: undefined },
+      { text: "감정을 담은... 새 이야기예요.", voice: "narrator", emotion: undefined },
     ]);
     await new Promise<void>((resolve) => setImmediate(resolve));
   } finally {

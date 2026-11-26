@@ -111,7 +111,7 @@ const PLAYBACK_START_TIMEOUT_MS = 6_000;
 /** Keep generation within the Korean provider's free-tier concurrency allowance. */
 const MAX_TTS_REQUESTS = 2;
 let ttsInFlight = 0;
-const ttsWaiting: (() => void)[] = [];
+const ttsWaiting: { request: AudioRequest; start: () => void }[] = [];
 
 function abortError(): Error {
   return new Error("Speech was cancelled.");
@@ -136,11 +136,15 @@ function untilAborted<T>(pending: Promise<T>, signal: AbortSignal): Promise<T> {
   });
 }
 
-function acquireTtsSlot(signal: AbortSignal): Promise<() => void> {
+function acquireTtsSlot(request: AudioRequest): Promise<() => void> {
+  const signal = request.controller.signal;
   return new Promise((resolve, reject) => {
     const release = () => {
-      const next = ttsWaiting.shift();
-      if (next) next();
+      // A line the child is hearing takes priority over unchosen story branches.
+      // Inspect users at release time: a prefetched clip can become foreground.
+      const foreground = ttsWaiting.findIndex((waiting) => waiting.request.users > 0);
+      const [next] = ttsWaiting.splice(Math.max(0, foreground), 1);
+      if (next) next.start();
       else ttsInFlight -= 1;
     };
     const start = () => {
@@ -148,7 +152,7 @@ function acquireTtsSlot(signal: AbortSignal): Promise<() => void> {
       resolve(release);
     };
     const abort = () => {
-      const index = ttsWaiting.indexOf(start);
+      const index = ttsWaiting.findIndex((waiting) => waiting.start === start);
       if (index >= 0) ttsWaiting.splice(index, 1);
       reject(abortError());
     };
@@ -157,7 +161,7 @@ function acquireTtsSlot(signal: AbortSignal): Promise<() => void> {
       ttsInFlight += 1;
       start();
     } else {
-      ttsWaiting.push(start);
+      ttsWaiting.push({ request, start });
       signal.addEventListener("abort", abort, { once: true });
     }
   });
@@ -198,20 +202,22 @@ function getAudio(content: string, locale: string, voice: Voice, emotion?: Emoti
   const controller = new AbortController();
   const request: AudioRequest = { controller, users: 0, complete: false, audio: Promise.resolve(new Blob()) };
   let timedOut = false;
-  const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, TTS_TIMEOUT_MS);
   request.audio = (async () => {
-    const release = await acquireTtsSlot(controller.signal);
+    const release = await acquireTtsSlot(request);
+    // Waiting for our local concurrency slot is not time spent at the provider.
+    // Otherwise an entire prefetched branch can expire without making a request.
+    const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, TTS_TIMEOUT_MS);
     try {
       if (controller.signal.aborted) throw abortError();
       return await untilAborted(requestAudio(content, locale, voice, emotion, controller.signal), controller.signal);
     } finally {
+      clearTimeout(timeout);
       release();
     }
   })().catch((error: unknown) => {
     if (timedOut) throw new SpeechFailure("TTS_TIMEOUT");
     throw error;
   }).finally(() => {
-    clearTimeout(timeout);
     request.complete = true;
   });
   audioCache.set(key, request);
@@ -395,6 +401,11 @@ export function speak(text: string, locale: string, { voice = "narrator", emotio
 export function stopSpeaking(): void {
   activeSpeech?.controller.abort();
   for (const item of speechQueue.splice(0)) item.controller.abort();
+  // Discard unfinished speculative clips too, so a new practice prompt or
+  // chosen scene does not wait behind speech belonging to the previous screen.
+  for (const request of audioCache.values()) {
+    if (request.users === 0 && !request.complete) request.controller.abort();
+  }
   const synthesis = getSpeechSynthesis();
   try { synthesis?.cancel(); } catch { /* The browser may already have closed its speech service. */ }
 }

@@ -287,6 +287,91 @@ test("generation has a deadline even when fetch ignores abort", async () => {
   } finally { await env.restore(); timers.restore(); }
 });
 
+test("a foreground line is generated before queued audio for unchosen branches", async () => {
+  const env = environment();
+  const requested: string[] = [];
+  const responses = new Map<string, (value: Response) => void>();
+  globalThis.fetch = async (_url, options) => {
+    const text = JSON.parse(String(options?.body)).text as string;
+    requested.push(text);
+    return new Promise<Response>((resolve) => { responses.set(text, resolve); });
+  };
+  try {
+    for (let i = 0; i < 4; i++) preloadSpeech(`speculative branch priority ${i}`, "ko-KR");
+    const current = speak("지금 화면에 나오는 대사", "ko-KR");
+    await flush();
+    assert.deepEqual(requested, ["speculative branch priority 0", "speculative branch priority 1"]);
+    responses.get(requested[0])!(audioResponse());
+    await flush();
+    assert.equal(requested[2], "지금 화면에 나오는 대사", "current speech must jump ahead of unchosen branches");
+    responses.get(requested[2])!(audioResponse());
+    await flush();
+    assert.equal(env.players.length, 1);
+    env.players[0].onplaying?.();
+    env.players[0].onended?.();
+    assert.deepEqual(await current, { started: true, cancelled: false });
+  } finally { await env.restore(); }
+});
+
+test("a clip receives its full generation deadline after waiting for a provider slot", async () => {
+  const env = environment();
+  const timers = fakeTimers();
+  const requested: string[] = [];
+  let currentResponse!: (value: Response) => void;
+  globalThis.fetch = async (_url, options) => {
+    const text = JSON.parse(String(options?.body)).text as string;
+    requested.push(text);
+    return new Promise<Response>((resolve) => {
+      if (text === "대기 뒤에도 들려야 하는 대사") currentResponse = resolve;
+    });
+  };
+  try {
+    preloadSpeech("blocked speculative deadline one", "ko-KR");
+    preloadSpeech("blocked speculative deadline two", "ko-KR");
+    const current = speak("대기 뒤에도 들려야 하는 대사", "ko-KR");
+    await flush();
+    assert.equal(requested.length, 2);
+    timers.fire(20_000);
+    await flush();
+    assert.equal(requested[2], "대기 뒤에도 들려야 하는 대사", "a waiting clip must not expire with the preceding requests");
+    currentResponse(audioResponse());
+    await flush();
+    assert.equal(env.players.length, 1);
+    env.players[0].onplaying?.();
+    env.players[0].onended?.();
+    assert.deepEqual(await current, { started: true, cancelled: false });
+  } finally { await env.restore(); timers.restore(); }
+});
+
+test("changing screens cancels speculative audio so the next line starts immediately", async () => {
+  const env = environment();
+  const requested: string[] = [];
+  const speculativeSignals: AbortSignal[] = [];
+  globalThis.fetch = async (_url, options) => {
+    const text = JSON.parse(String(options?.body)).text as string;
+    requested.push(text);
+    if (text.startsWith("old screen preload")) {
+      speculativeSignals.push(options!.signal as AbortSignal);
+      return new Promise<Response>(() => {});
+    }
+    return audioResponse();
+  };
+  try {
+    for (let i = 0; i < 4; i++) preloadSpeech(`old screen preload ${i}`, "ko-KR");
+    await flush();
+    assert.equal(requested.length, 2);
+    stopSpeaking();
+    const next = speak("새 화면의 첫 대사", "ko-KR");
+    await flush();
+    assert.ok(speculativeSignals.every((signal) => signal.aborted));
+    assert.deepEqual(requested, ["old screen preload 0", "old screen preload 1", "새 화면의 첫 대사"]);
+    assert.equal(env.players.length, 1);
+    env.players[0].onplaying?.();
+    env.players[0].onended?.();
+    assert.deepEqual(await next, { started: true, cancelled: false });
+  } finally { await env.restore(); }
+});
+
 test("missing media and browser start events settle without firing onStart", async () => {
   const env = environment();
   env.enableBrowser();

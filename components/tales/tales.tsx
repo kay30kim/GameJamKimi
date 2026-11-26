@@ -13,6 +13,7 @@ import { isListeningSupported, listenOnce, matchesWord, speak, speechLocale, sto
 import type { SpeechErrorCode } from "@/lib/speech-policy";
 import type { CameraFrame } from "@/lib/camera-director";
 import { practiceInvitation } from "@/lib/teaching";
+import { storyText } from "@/lib/story-text";
 import type { Voice } from "@/lib/voices";
 import type { Stage, WorldSnapshot } from "@/lib/world";
 import type { Talk } from "./bodies";
@@ -23,7 +24,7 @@ import styles from "./tales.module.css";
 
 const TalesStage = dynamic(() => import("./stage"), {
   ssr: false,
-  loading: () => <div className={styles.worldLoading}><Icon name="leaf" size={32} /><span>The meadow is waking up…</span></div>,
+  loading: () => <div className={styles.worldLoading}><Icon name="leaf" size={32} /><span>The meadow is waking up...</span></div>,
 });
 
 type Phase = "home" | "loading" | "playing" | "practicing" | "choosing" | "ending";
@@ -94,6 +95,7 @@ export default function Tales({ loadScene = fetchScene, warmScene = prefetch, sp
   const [replay, setReplay] = useState(0);
   const [muted, setMuted] = useState(false);
   const [sayState, setSayState] = useState<SayState>("idle");
+  const [practiceCaption, setPracticeCaption] = useState("");
   const [scenesPlayed, setScenesPlayed] = useState(0);
   const requestId = useRef(0);
   const lastRequest = useRef<SceneRequest | null>(null);
@@ -124,6 +126,7 @@ export default function Tales({ loadScene = fetchScene, warmScene = prefetch, sp
       speak: speakLine,
       onSegment: (segment) => {
         if (id !== requestId.current) return;
+        setSpeechError(null);
         setCaption({ voice: segment.voice, text: segment.text });
         setTalk({ line: segment.line, speaking: false });
       },
@@ -243,10 +246,13 @@ export default function Tales({ loadScene = fetchScene, warmScene = prefetch, sp
     const id = requestId.current;
     const token = ++practiceSpeech.current;
     stopSpeaking();
-    const line = { speaker: "hero" as const, text, emotion: "happy" as const };
+    const content = storyText(text);
+    setPracticeCaption(content);
+    setSpeechError(null);
+    const line = { speaker: "hero" as const, text: content, emotion: "happy" as const };
     setTalk({ line, speaking: false });
     if (mutedRef.current) return;
-    void speakLine(text, speechLocale(primary), {
+    void speakLine(content, speechLocale(primary), {
       voice: "hero",
       emotion: line.emotion,
       onStart: () => {
@@ -294,8 +300,9 @@ export default function Tales({ loadScene = fetchScene, warmScene = prefetch, sp
   }
 
   function cheer(id = requestId.current) {
-    if (!scene || id !== requestId.current) return;
+    if (!scene || !settings || id !== requestId.current) return;
     setSayState("yay");
+    sayPractice(settings.language === "ko" ? "잘했어!" : "Great job!", settings.language);
   }
 
   useEffect(() => () => {
@@ -387,7 +394,7 @@ export default function Tales({ loadScene = fetchScene, warmScene = prefetch, sp
           <div><strong>{lessonCard?.name[home] ?? settings?.lesson}</strong><span>{t(`${scenesPlayed}번째 장면`, `Scene ${scenesPlayed}`)}</span></div>
         </div>
 
-        {phase === "loading" && !error && <div className={styles.thinking} role="status"><span className={styles.spinner} />{t("앨리스가 다음 이야기를 쓰고 있어요…", "Alice is writing what happens next…")}</div>}
+        {phase === "loading" && !error && <div className={styles.thinking} role="status"><span className={styles.spinner} />{t("앨리스가 다음 이야기를 쓰고 있어요...", "Alice is writing what happens next...")}</div>}
 
         {error && <div className={styles.alert} role="alert" data-camera-panel>
           <p>{error}</p>
@@ -407,18 +414,24 @@ export default function Tales({ loadScene = fetchScene, warmScene = prefetch, sp
 
         {phase === "practicing" && scene && settings && <section className={`${styles.decision} ${styles.speakingGame}`} data-camera-panel>
           <div className={styles.gameSpeaker}><span className={styles.aliceAvatar}>A</span><span>{t("앨리스가 너에게 물어봐요", "Alice is asking you!")}</span><span className={styles.turnBadge}>{t("네 차례", "YOUR TURN")}</span></div>
-            <p className={styles.invitationText}>{practiceInvitation(settings.language, scene.newWords[0].word)}</p>
-            {speechNotice && !muted && <p className={styles.speechNotice} role="status">{speechNotice}</p>}
-            <div className={styles.words}>{scene.newWords.map(({ word, meaning }) => <button key={word} disabled={sayState === "listening"} onClick={() => sayPractice(word, settings.language)}><strong lang={learnLocale}>{word}</strong><small>{meaning}</small></button>)}</div>
-            <div className={styles.practiceButtons}>
-              <button disabled={sayState === "listening"} onClick={() => sayPractice(practiceInvitation(settings.language, scene.newWords[0].word), settings.language)}><Icon name="volume" size={18} />{t("앨리스와 다시 듣기", "Listen with Alice")}</button>
-              {canListen && sayState !== "yay" && <button className={styles.micButton} onClick={() => void sayWord()} disabled={sayState === "listening"}><Icon name="mic" size={23} />{sayState === "listening" ? t("듣고 있어!", "I’m listening!") : t("앨리스에게 말하기", "Talk to Alice")}</button>}
+          <div className={styles.practiceBody}>
+            <div className={styles.practicePrompt}>
+              <p className={styles.invitationText} aria-live="polite">{practiceCaption}</p>
+              <div className={styles.words}>{scene.newWords.map(({ word, meaning }) => <button key={word} disabled={sayState === "listening"} onClick={() => sayPractice(word, settings.language)}><strong lang={learnLocale}>{storyText(word)}</strong><small>{storyText(meaning)}</small></button>)}</div>
             </div>
-            <p className={styles.feedback} role="status">{sayState === "yay" ? t("잘했어!", "Great job!") : sayState === "retry" ? t("다시 같이 말해 볼까?", "Let’s try together again.") : sayState === "listening" ? t("네 목소리를 기다리고 있어…", "Alice is waiting for your voice…") : ""}</p>
-            <div className={styles.practiceButtons}>
-              <button className={styles.saidItButton} disabled={sayState === "listening"} onClick={() => sayState === "yay" ? finishPractice() : cheer()}><Icon name="check" size={17} />{sayState === "yay" ? t("이야기 이어가기", "Continue the story") : t("말했어요!", "I said it!")}</button>
-              {sayState !== "yay" && <button onClick={finishPractice}>{t("듣고 이어갈래요", "Listen and continue")}</button>}
+            <div className={styles.practiceActions}>
+              <div className={styles.practiceButtons}>
+                <button disabled={sayState === "listening"} onClick={() => sayPractice(practiceInvitation(settings.language, scene.newWords[0].word), settings.language)}><Icon name="volume" size={18} />{t("다시 듣기", "Listen again")}</button>
+                {canListen && sayState !== "yay" && <button className={styles.micButton} onClick={() => void sayWord()} disabled={sayState === "listening"}><Icon name="mic" size={23} />{sayState === "listening" ? t("듣고 있어!", "I’m listening!") : t("말해 보기", "Try saying it")}</button>}
+              </div>
+              {sayState === "listening" && <p className={styles.feedback} role="status">{t("네 목소리를 기다리고 있어...", "Alice is waiting for your voice...")}</p>}
+              <div className={styles.practiceButtons}>
+                <button className={styles.saidItButton} disabled={sayState === "listening"} onClick={() => sayState === "yay" ? finishPractice() : cheer()}><Icon name="check" size={17} />{sayState === "yay" ? t("이야기 이어가기", "Continue the story") : t("말했어요!", "I said it!")}</button>
+                {sayState !== "yay" && <button onClick={finishPractice}>{t("듣고 이어갈래요", "Listen and continue")}</button>}
+              </div>
             </div>
+          </div>
+          {speechNotice && !muted && <p className={styles.speechNotice} role="status">{speechNotice}</p>}
         </section>}
 
         {phase === "choosing" && scene && settings && <section className={styles.decision} data-camera-panel>

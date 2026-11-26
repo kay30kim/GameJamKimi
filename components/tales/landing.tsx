@@ -39,7 +39,10 @@ export default function Landing({ home, age, language, lesson, ownLesson, onAge,
       <section className={styles.hero}>
         <div className={styles.pitch}>
           <div className={styles.scene}><LandingScene /></div>
-          <h1>{t("앨리스와 놀며 배우는 새로운 말", "Learn new words through stories with Alice")}</h1>
+          <h1>
+            <span>{t("앨리스와 함께하는", "Play, talk, and learn")}</span>{" "}
+            <span>{t("즐거운 언어 놀이", "with Alice")}</span>
+          </h1>
           <ul>{POINTS.map((point) => <li key={point.en}><Icon name="check" size={16} />{point[home]}</li>)}</ul>
         </div>
 

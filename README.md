@@ -73,7 +73,7 @@ npm run dev
 
 Open http://localhost:3000. If that port is busy, Next.js picks the next free one and prints it. Edits reload in the browser as you save.
 
-Add the story API key and speech keys to `.env.local`. For Korean audio, set `TYPECAST_API_KEY`, run `npm run voices:list`, and audition API voice IDs with `npm run voices:sample -- --voice <voice_id>` before assigning the `TYPECAST_VOICE_*` variables. A key alone does not select the cast. Restart the dev server after changing these settings. The older `/demo` and `/kay` prototypes have separate audio paths and are not migrated by this change.
+Add the story API key and speech keys to `.env.local`. For Korean audio, set `TYPECAST_API_KEY`; the app includes the reviewed cast in `lib/typecast.ts`. Optional `TYPECAST_VOICE_*` overrides let you replace individual roles after auditioning API voice IDs with `npm run voices:list` and `npm run voices:sample -- --voice <voice_id>`. Restart the dev server after changing these settings. On Vercel, also add `TYPECAST_API_KEY` to the project's Production and Preview environments and redeploy: `.env.local` is not uploaded by Git. The older `/demo` and `/kay` prototypes have separate audio paths and are not migrated by this change.
 
 Until the API is ready, the game client can read the sample scene in `mocks/scene.json`, so the UI works without any API keys.
 

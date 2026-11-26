@@ -95,6 +95,30 @@ test("dialogue sends its emotion to speech without inventing a narration emotion
   assert.equal(await h.result, false);
 });
 
+test("caption, animated speaker and requested voice share the same normalized script", async () => {
+  const original = scene([], {
+    narration: "잠깐… 친구가 보여요.",
+    lines: [{ speaker: "hero", text: "도도⋯ 내가 도와줄게.", emotion: "happy" }],
+  });
+  const h = playbackHarness(original);
+  await flush();
+  assert.equal(h.segments[0].segment.text, "잠깐... 친구가 보여요.");
+  assert.equal(h.requests[0].text, h.segments[0].segment.text);
+  h.requests[0].start();
+  h.requests[0].end();
+  await flush();
+  advance(h.playback, 1);
+  await flush();
+  const caption = h.segments[1].segment;
+  assert.equal(caption.text, "도도... 내가 도와줄게.");
+  assert.equal(caption.line?.text, caption.text);
+  assert.equal(h.requests[1].text, caption.text);
+  assert.equal(h.requests[1].options.voice, caption.line?.speaker);
+  assert.equal(original.lines[0].text, "도도⋯ 내가 도와줄게.", "formatting must not mutate cached story content");
+  h.playback.cancel();
+  assert.equal(await h.result, false);
+});
+
 for (const started of [false, true]) {
   test(`typed voice failure ${started ? "after" : "before"} start reports once and gives the caption reading time`, async () => {
     const h = playbackHarness(scene([{ actor: "hero", action: "wave", cue: 0 }], {
