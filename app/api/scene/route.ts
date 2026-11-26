@@ -1,5 +1,6 @@
-import { generateScene } from "./engine";
+import { generateCachedScene } from "./cache";
 import { isSceneRequest } from "./request-validation";
+import { generatedCacheBackend } from "../../../lib/generated-cache";
 
 export const maxDuration = 60;
 
@@ -15,9 +16,9 @@ export async function POST(request: Request): Promise<Response> {
       "Expected lesson (1–500 characters), language (en or ko), age (integer 3–6), wordsLearned (up to 100 strings), history (up to 8 narration/choice entries), an optional opening id, and an optional valid continuation with bounded world state, up to 4 dialogue lines, and up to 4 actions.",
     );
   }
-  const result = await generateScene(body);
+  const result = await generateCachedScene(body);
   return Response.json(result.scene, {
-    headers: { "Cache-Control": "no-store", "X-Scene-Mode": result.mode },
+    headers: { "Cache-Control": "no-store", "X-Scene-Mode": result.mode, "X-Scene-Cache": result.cache, "X-Generated-Storage": generatedCacheBackend() },
   });
 }
 

@@ -85,3 +85,13 @@ Until the API is ready, the game client can read the sample scene in `mocks/scen
 - Honesty
 - Sharing
 - Patience
+
+## Reusing generated stories and voices
+
+The scene and speech APIs read saved content before generating it again. Scene keys include the model, prompt version, age, language, opening, learned words, choices and the complete continuing world state. Voice keys include the exact text, language, provider, model, voice and synthesis settings. Different branches and voices remain separate; failed generations are not saved.
+
+- **Cloud:** connect a **private Vercel Blob store** to this project. The SDK uses `BLOB_STORE_ID` with Vercel OIDC credentials, or a server-only `BLOB_READ_WRITE_TOKEN` outside Vercel. The code does not create or connect a store automatically. Cloud persistence is available only after that connection is configured and deployed.
+- **Local:** without Blob configuration, generated files persist under `.cache/generated/v1/` across server restarts. This directory is ignored by Git. `GENERATED_CACHE_DIR` can set another cache root.
+- **Fallback:** a deployed function without Blob configuration has only a bounded in-memory cache. Storage failures are bypassed so an unavailable store does not stop the story; reads and writes each have a 1.5-second deadline.
+
+The private store contains generated scene JSON and MP3s under opaque hash paths, not public URLs or API keys. The first unseen request still needs generation; saved requests reuse their output. `X-Scene-Cache` and `X-Generated-Cache` response headers report reuse. Set `GENERATED_CACHE_DISABLED=1` to bypass reuse during debugging. To invalidate content after a prompt or voice-policy change, bump the corresponding cache revision in the scene or speech cache key; old entries then become unreachable. Remove only obsolete files under this application's `generated/v1/scene/` or `generated/v1/tts/` prefixes when reclaiming storage.

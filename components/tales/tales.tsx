@@ -434,13 +434,16 @@ export default function Tales({ loadScene = fetchScene, warmScene = prefetch, sp
           {speechNotice && !muted && <p className={styles.speechNotice} role="status">{speechNotice}</p>}
         </section>}
 
-        {phase === "choosing" && scene && settings && <section className={styles.decision} data-camera-panel>
-          <div className={styles.gameSpeaker}><span className={styles.aliceAvatar}>A</span><span>{t("앨리스가 너에게 물어봐요", "Alice is asking you!")}</span><span className={styles.turnBadge}>{t("네 차례", "YOUR TURN")}</span></div>
+        {phase === "choosing" && scene && settings && <section className={`${styles.decision} ${styles.choicePanel}`} data-camera-panel>
+          <div className={styles.choiceHeading}>
+            <span className={styles.aliceAvatar} aria-hidden="true">A</span>
             <h2>{t("앨리스는 어떻게 할까?", "What should Alice do?")}</h2>
+            <span className={styles.turnBadge}>{t("네 차례", "YOUR TURN")}</span>
+            <button className={styles.choiceReplay} onClick={watchAgain} aria-label={t("다시 보기", "Watch again")} title={t("다시 보기", "Watch again")}><Icon name="replay" size={18} /></button>
+          </div>
             <div className={styles.choices}>
               {shownChoices.map((choice) => <button key={choice} onClick={() => choose(choice)}><span className={styles.choicePortrait} style={{ background: SPEAKERS.hero.color }}>A</span><span>{choice}</span></button>)}
             </div>
-            <p className={styles.waitingHint}><button className={styles.nextLine} style={{ background: "none", border: 0, color: "inherit" }} onClick={watchAgain}>{t("다시 보기", "Watch again")}</button></p>
         </section>}
 
         {phase === "ending" && <section className={styles.ending} data-camera-panel>

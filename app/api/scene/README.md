@@ -103,6 +103,27 @@ curl -i http://localhost:3000/api/scene \
   -d '{"lesson":"kindness","language":"ko","age":5,"wordsLearned":[],"history":[]}'
 ```
 
+## Reusing generated scenes
+
+Successful model scenes are stored through the private generated-content cache. The key includes the model, actual prompt, lesson, age, language, opening, learned words, complete choice history, and exact continuation state. Different branches, actor positions, prop owners and previous dialogue cannot share an entry. Failed-provider fallbacks, missing-key stubs and scene-limit closings are not saved. Corrupt entries and storage outages fall back to generation. API responses remain `Cache-Control: no-store`; `X-Scene-Cache` reports `hit`, `miss` or `bypass`.
+
+Preview a preparation plan without calling either generation provider:
+
+```sh
+node scripts/warm-generated.mjs --dry-run
+node scripts/warm-generated.mjs --lesson kindness --age 5 --language ko --dry-run
+```
+
+The default plan contains 80 opening scenes: ten runtime topics × four ages × two languages, using the first supported opening per topic. `--openings all` covers every opening the game can choose. The plan reads IDs from `lib/lesson-guides.ts`; editorial drafts in `content/lesson-scripts/` are not injected into the runtime.
+
+Execution requires both `--execute` and a bounded `--limit`. Add `--audio` to prepare the matching narration, character dialogue, practice word, invitation and praise through `/api/tts`. These calls can consume provider credits. The app must already be running; `--base-url` can select the deployed app when private cloud storage is configured there.
+
+```sh
+node scripts/warm-generated.mjs --lesson kindness --age 5 --language ko --execute --limit 1 --audio
+```
+
+Continuation scenes are reused only for the exact prior world and choice; opening preparation does not pre-generate every possible story branch. Storage setup is documented in the project README.
+
 ## Backend regression checks
 
 The tests use fake provider responses, never real keys or paid requests. From the repository root:

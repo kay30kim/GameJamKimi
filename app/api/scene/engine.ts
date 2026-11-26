@@ -18,6 +18,9 @@ interface SceneResult {
   mode: "stub" | "kimi" | "fallback" | "limit";
 }
 
+/** Shared by generation and cache identity so changing the model cannot reuse old scripts. */
+export const resolvedSceneModel = () => process.env.KIMI_MODEL?.trim() || "kimi-k3.1-pro-highspeed";
+
 export async function generateScene(
   request: SceneRequest,
   options: EngineOptions = {},
@@ -29,7 +32,7 @@ export async function generateScene(
   if (!apiKey) return { scene: createStubScene(request), mode: "stub" };
 
   // The highspeed model returns a valid scene in about 2-4 s, versus 6-20 s for kimi-k3.
-  const model = options.model ?? (process.env.KIMI_MODEL?.trim() || "kimi-k3.1-pro-highspeed");
+  const model = options.model ?? resolvedSceneModel();
   const fetcher = options.fetcher ?? fetch;
   const messages = buildSceneMessages(request);
   const tooEarlyToEnd = request.history.length + 1 < MIN_SCENES;

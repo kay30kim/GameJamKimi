@@ -5,6 +5,7 @@ import { POST } from "./route";
 import { VOICES } from "../../../lib/voices";
 import type { Voice } from "../../../lib/voices";
 import { TYPECAST_CAST } from "../../../lib/typecast";
+import * as generatedCache from "../../../lib/generated-cache";
 
 const roles = Object.keys(VOICES) as Voice[];
 const childRoles: Voice[] = ["hero", "friend", "puppy", "kitten", "duck"];
@@ -18,6 +19,7 @@ function environment(t: TestContext, changes: Record<string, string | undefined>
     TYPECAST_MODEL: undefined,
     ELEVENLABS_API_KEY: "test-eleven-key",
     ELEVENLABS_VOICE_ID: undefined,
+    GENERATED_CACHE_DISABLED: "1",
   };
   const ids = {} as Record<Voice, string>;
   for (const role of roles) {
@@ -85,6 +87,26 @@ async function error(response: Response, status: number, code: string) {
 
 function syntheses(calls: Call[]) {
   return calls.filter(({ url }) => url === `${api}/v1/text-to-speech`);
+}
+
+function cache(t: TestContext) {
+  const files = new Map<string, Uint8Array>();
+  const reads: string[] = [];
+  const writes: string[] = [];
+  t.mock.method(generatedCache, "readGenerated", async (namespace: string, key: string) => {
+    assert.equal(namespace, "tts");
+    assert.match(key, /^[a-f0-9]{64}$/);
+    reads.push(key);
+    return files.get(key) ?? null;
+  });
+  t.mock.method(generatedCache, "writeGenerated", async (namespace: string, key: string, bytes: Uint8Array, contentType: string) => {
+    assert.equal(namespace, "tts");
+    assert.equal(contentType, "audio/mpeg");
+    writes.push(key);
+    files.set(key, bytes.slice());
+    return true;
+  });
+  return { files, reads, writes };
 }
 
 test("Korean requires its own Typecast key and never falls through to configured ElevenLabs", async (t) => {
@@ -387,4 +409,137 @@ test("the deadline also covers a stalled audio body after successful response he
   t.mock.timers.tick(18_000);
   await error(await result, 504, "TTS_TIMEOUT");
   assert.equal(upstreamSignal.aborted, true);
+});
+
+test("an exact clip is persisted once and replayed without metadata or synthesis calls", async (t) => {
+  environment(t);
+  const storage = cache(t);
+  const calls = provider(t);
+  const first = await POST(request({ text: "  같이 놀자!  ", lang: "ko-KR", voice: "hero", emotion: "happy" }));
+  const second = await POST(request({ text: "같이 놀자!", lang: "KO_kr", voice: "hero", emotion: "happy" }));
+  assert.equal(first.headers.get("x-generated-cache"), "MISS");
+  assert.equal(second.headers.get("x-generated-cache"), "HIT");
+  assert.deepEqual(await first.arrayBuffer(), await second.arrayBuffer());
+  assert.equal(calls.length, 2, "one metadata lookup and one paid synthesis");
+  assert.equal(storage.writes.length, 1);
+  assert.equal(storage.reads[0], storage.reads[1]);
+});
+
+test("clip identity includes text, locale, role, emotion, real voice, model, and account", async (t) => {
+  environment(t);
+  const storage = cache(t);
+  const calls = provider(t, { metadata: (id) => Response.json({ ...voiceDetails(id), models: [
+    { version: "ssfm-v31", emotions: ["happy", "sad", "normal"] },
+    { version: "ssfm-v30", emotions: ["happy", "sad", "normal"] },
+  ] }) });
+  const base = { text: "도와줄까? Can I help?", lang: "ko-KR", voice: "hero", emotion: "happy" };
+  for (const change of [{}, { text: "도와줘! Please help!" }, { lang: "en-US" }, { voice: "friend" }, { emotion: "sad" }]) {
+    assert.equal((await POST(request({ ...base, ...change }))).status, 200);
+  }
+  process.env.TYPECAST_VOICE_HERO = "tc_recast_child";
+  assert.equal((await POST(request(base))).status, 200);
+  process.env.TYPECAST_MODEL = "ssfm-v30";
+  assert.equal((await POST(request(base))).status, 200);
+  process.env.TYPECAST_API_KEY = "another-account-key";
+  assert.equal((await POST(request(base))).status, 200);
+  assert.equal(syntheses(calls).length, 8);
+  assert.equal(new Set(storage.writes).size, 8);
+  assert.ok(storage.writes.every((key) => !key.includes("account") && !key.includes("도와")));
+});
+
+test("English characters sharing a voice ID still cache their distinct speeds separately", async (t) => {
+  environment(t);
+  const storage = cache(t);
+  const payloads: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, "fetch", async (_input: unknown, init: RequestInit = {}) => {
+    payloads.push(JSON.parse(String(init.body)));
+    return mp3();
+  });
+  for (const voice of ["hero", "duck", "hero"]) {
+    assert.equal((await POST(request({ text: "Can I help?", lang: "en-US", voice }))).status, 200);
+  }
+  assert.equal(VOICES.hero.id, VOICES.duck.id);
+  assert.equal(payloads.length, 2);
+  assert.notDeepEqual(payloads[0].voice_settings, payloads[1].voice_settings);
+  assert.equal(new Set(storage.writes).size, 2);
+});
+
+test("only successful MP3 clips are stored, and corrupt cached bytes are regenerated", async (t) => {
+  environment(t);
+  const storage = cache(t);
+  let mode = "http";
+  const calls = provider(t, { audio: () => mode === "http" ? new Response(null, { status: 503 })
+    : mode === "invalid" ? mp3("audio/mpeg", new Uint8Array([1, 2, 3])) : mp3() });
+  await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
+  mode = "invalid";
+  await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
+  assert.equal(storage.writes.length, 0);
+  storage.files.set(storage.reads[0], new Uint8Array([9, 8, 7]));
+  mode = "healthy";
+  const recovered = await POST(request());
+  assert.equal(recovered.status, 200);
+  assert.equal(recovered.headers.get("x-generated-cache"), "MISS");
+  assert.equal(storage.writes.length, 1);
+  assert.equal(syntheses(calls).length, 3);
+});
+
+test("storage outages fail open and leave playback available", async (t) => {
+  environment(t);
+  t.mock.method(generatedCache, "readGenerated", async () => { throw new Error("store unavailable"); });
+  t.mock.method(generatedCache, "writeGenerated", async () => { throw new Error("store unavailable"); });
+  const calls = provider(t);
+  const response = await POST(request());
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("x-generated-cache"), "BYPASS");
+  assert.equal(syntheses(calls).length, 1);
+});
+
+test("concurrent identical requests share one synthesis and a cancelled subscriber cannot stop another", async (t) => {
+  environment(t);
+  const storage = cache(t);
+  let complete!: (response: Response) => void;
+  let signal!: AbortSignal;
+  const calls = provider(t, { audio: (init) => {
+    signal = init.signal!;
+    return new Promise((resolve) => { complete = resolve; });
+  } });
+  const controller = new AbortController();
+  const first = POST(request(undefined, controller.signal));
+  const second = POST(request());
+  await flush();
+  assert.equal(syntheses(calls).length, 1);
+  controller.abort();
+  await error(await first, 499, "TTS_UPSTREAM_ERROR");
+  assert.equal(signal.aborted, false);
+  complete(mp3());
+  assert.equal((await second).status, 200);
+  assert.equal(storage.writes.length, 1);
+});
+
+test("cancelling the final subscriber stops synthesis and the next request can retry", async (t) => {
+  environment(t);
+  const storage = cache(t);
+  let pending = true;
+  let signal!: AbortSignal;
+  const calls = provider(t, { audio: (init) => pending ? pendingUntilAbort(init, (value) => { signal = value; }) : mp3() });
+  const controller = new AbortController();
+  const first = POST(request(undefined, controller.signal));
+  await flush();
+  controller.abort();
+  await error(await first, 499, "TTS_UPSTREAM_ERROR");
+  assert.equal(signal.aborted, true);
+  assert.equal(storage.writes.length, 0);
+  pending = false;
+  assert.equal((await POST(request())).status, 200);
+  assert.equal(syntheses(calls).length, 2);
+  assert.equal(storage.writes.length, 1);
+});
+
+test("validated voice metadata is reused across different lines", async (t) => {
+  environment(t);
+  const calls = provider(t);
+  assert.equal((await POST(request({ text: "첫 번째 대사야.", lang: "ko-KR", voice: "hero" }))).status, 200);
+  assert.equal((await POST(request({ text: "두 번째 대사야.", lang: "ko-KR", voice: "hero" }))).status, 200);
+  assert.equal(syntheses(calls).length, 2);
+  assert.equal(calls.filter(({ url }) => url.startsWith(`${api}/v3/voices/`)).length, 1);
 });
