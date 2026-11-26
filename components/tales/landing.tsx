@@ -40,7 +40,6 @@ export default function Landing({ home, age, language, lesson, ownLesson, onAge,
         <div className={styles.pitch}>
           <div className={styles.scene}><LandingScene /></div>
           <h1>{t("앨리스와 놀며 배우는 새로운 말", "Learn new words through stories with Alice")}</h1>
-          <p>{t("3–6세 · 한국어와 영어", "Ages 3–6 · Korean and English")}</p>
           <ul>{POINTS.map((point) => <li key={point.en}><Icon name="check" size={16} />{point[home]}</li>)}</ul>
         </div>
 
@@ -67,8 +66,6 @@ export default function Landing({ home, age, language, lesson, ownLesson, onAge,
           <button type="submit" className={styles.start} disabled={!canStart}><Icon name="play" size={18} />{t("시작하기", "Begin the story")}</button>
         </form>
       </section>
-
-      <footer className={styles.footer}>{t("보고, 듣고, 앨리스와 함께 말해요.", "Watch, listen, and say it with Alice.")}</footer>
     </div>
   );
 }
