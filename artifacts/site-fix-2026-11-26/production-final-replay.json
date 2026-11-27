@@ -1,0 +1,18 @@
+{
+  "audio": [
+    {
+      "duration": 11.052698,
+      "paused": false,
+      "time": 0.229557
+    }
+  ],
+  "height": 390,
+  "scrollHeight": 390,
+  "state": {
+    "audioLevel": "0.15800370275974274",
+    "paused": "false",
+    "phase": "ending",
+    "speaking": "true"
+  },
+  "title": "편안한 식사 시간을 만들어요"
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "topic": "honesty",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.2.choices.1.lines.4.text",
+    "before": "알려 줘서 고마워. 다음엔 찾기 전에 먼저 말해 줘.",
+    "after": "알려 줘서 고마워. 다음엔 가져가기 전에 먼저 물어봐 줘.",
+    "reason": "다음 행동의 기준을 사후 알림이 아니라 물건을 가져가기 전 허락 구하기로 분명히 합니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.4.text",
+    "before": "Thank you for telling me. Next time, tell me before I have to search.",
+    "after": "Thank you for telling me. Next time, please ask before taking my book.",
+    "reason": "한국어 교정과 맞춰 사전 허락을 구하는 표현을 가르칩니다."
+  },
+  {
+    "topic": "bravery",
+    "age": 5,
+    "language": "ko",
+    "path": "scenes.3.lines.2.text",
+    "before": "춤추는 방법이 달라도 함께 있으니 좋아.",
+    "after": "춤을 춰도, 구경해도 함께 있으니 좋아.",
+    "reason": "춤을 추지 않고 구경한 선택에서도 공통 결말이 실제 행동과 맞도록 합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.2.text",
+    "before": "Finish your picture. I’ll wait.",
+    "after": "You can keep looking. I’ll wait.",
+    "reason": "그림을 그리는 상황으로 오해하지 않도록 책의 그림을 보는 행동을 명확히 합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.1.lines.2.text",
+    "before": "Okay. I’ll tell you when this picture is finished.",
+    "after": "Okay. I’ll tell you when I’m done looking at this picture.",
+    "reason": "그림을 완성하는 일이 아니라 그림 보기를 마치는 상황임을 분명히 합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.2.choices.1.action",
+    "before": "앨리스가 재촉한 뒤 모모가 책에서 눈을 들어 대답한다. 앨리스가 다시 기다리겠다고 말하면 모모가 책을 본다. 책은 계속 모모가 든다.",
+    "after": "앨리스가 재촉한 뒤 모모가 책에서 눈을 들어 대답한다. 앨리스가 다시 기다리겠다고 말하면 모모가 책을 본다. 책은 계속 모모가 든다. 앨리스가 주변 나무를 살펴보는 동안 모모는 책을 마저 본다.",
+    "reason": "공통 결말에서 말하는 기다리는 동안의 활동이 두 번째 선택에서도 실제로 일어나게 합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.2.choices.1.action",
+    "before": "After Alice hurries him, Momo looks up from the book to answer. After Alice offers to wait again, Momo looks back at it. Momo retains the book.",
+    "after": "After Alice hurries him, Momo looks up from the book to answer. After Alice offers to wait again, Momo looks back at it. Momo retains the book. Alice looks at the nearby trees while Momo finishes looking at the book.",
+    "reason": "한국어와 동일하게 두 번째 선택에서도 기다리는 동안의 활동을 보여 주어 공통 결말과 연결합니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 3,
+    "language": "ko",
+    "path": "scenes.3.lines.1.text",
+    "before": "책이 와서 좋아. 고마워.",
+    "after": "책을 다시 봐서 좋아. 고마워.",
+    "reason": "책이 스스로 온 듯한 어색한 말투를 구체적이고 자연스러운 아이의 말로 바꿉니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 3,
+    "language": "ko",
+    "path": "scenes.3.lines.2.text",
+    "before": "네가 좋으니 나도 좋아.",
+    "after": "네가 기쁘니까 나도 기뻐.",
+    "reason": "친구를 좋아한다는 뜻과 혼동하지 않도록 두 사람의 기쁜 감정을 명시합니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.1.text",
+    "before": "I feel wobbly about telling.",
+    "after": "I’m scared to tell.",
+    "reason": "어린 학습자에게 낯선 비유 대신 말하기가 두려운 감정을 짧고 직접적으로 표현합니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 4,
+    "language": "en",
+    "path": "scenes.3.lines.1.text",
+    "before": "I feel better finding it. Thank you for telling me.",
+    "after": "I feel better now that I have my book back. Thank you for telling me.",
+    "reason": "책을 돌려받아 기분이 나아졌다는 인과관계를 자연스러운 영어로 표현합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.0.text",
+    "before": "Give it now!",
+    "after": "Give it to me now!",
+    "reason": "재촉하는 선택의 뜻을 유지하면서 자연스럽고 완전한 영어 표현으로 교정합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.3.lines.1.text",
+    "before": "고마워. 기다리는 동안 내 시간을 써서 편했어.",
+    "after": "고마워. 나도 재미있는 걸 하니까 기다리기가 편했어.",
+    "reason": "추상적인 번역투를 아이가 말할 법한 구체적인 기다림 경험으로 바꿉니다."
+  },
+  {
+    "topic": "bravery",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.3.lines.0.text",
+    "before": "I felt comfortable because you listened to my pace.",
+    "after": "I felt comfortable because you let me go at my own pace.",
+    "reason": "영어에서 부자연스러운 listened to my pace를 자기 속도를 존중받았다는 자연스러운 표현으로 바꿉니다."
+  }
+]

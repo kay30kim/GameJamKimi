@@ -1,0 +1,452 @@
+[
+  {
+    "topic": "kindness",
+    "age": 3,
+    "language": "ko",
+    "path": "scenes.2.choices.0.label",
+    "before": "도와준다고 물어요",
+    "after": "도와줄까? 하고 물어요",
+    "reason": "질문하는 선택지의 어색한 한국어를 실제 사용할 수 있는 말로 수정합니다."
+  },
+  {
+    "topic": "kindness",
+    "age": 3,
+    "language": "ko",
+    "path": "scenes.3.lines.0.text",
+    "before": "도와줘서 좋아. 고마워.",
+    "after": "도와줘서 기뻐. 고마워.",
+    "reason": "도움을 받은 친구가 자신의 기쁜 감정을 직접 말하도록 명확히 합니다."
+  },
+  {
+    "topic": "kindness",
+    "age": 4,
+    "language": "ko",
+    "path": "scenes.3.lines.0.text",
+    "before": "네가 도와줘서 마음이 좋아졌어. 고마워.",
+    "after": "네가 도와줘서 기분이 좋아졌어. 고마워.",
+    "reason": "기분의 변화를 나타내는 자연스러운 한국어 표현으로 수정합니다."
+  },
+  {
+    "topic": "kindness",
+    "age": 5,
+    "language": "ko",
+    "path": "scenes.3.lines.0.text",
+    "before": "네가 도와줘서 마음이 좋아졌어. 고마워.",
+    "after": "네가 도와줘서 기분이 좋아졌어. 고마워.",
+    "reason": "기분의 변화를 나타내는 자연스러운 한국어 표현으로 수정합니다."
+  },
+  {
+    "topic": "kindness",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.3.lines.0.text",
+    "before": "내 말을 듣고 도와줘서 마음이 좋아졌어. 고마워.",
+    "after": "내 말을 듣고 도와줘서 기분이 좋아졌어. 고마워.",
+    "reason": "기분의 변화를 나타내는 자연스러운 한국어 표현으로 수정합니다."
+  },
+  {
+    "topic": "empathy",
+    "age": 4,
+    "language": "ko",
+    "path": "scenes.3.lines.0.text",
+    "before": "아직 슬퍼도, 네가 들어 줘서 마음이 좋아졌어.",
+    "after": "아직 슬프지만, 네가 들어 줘서 마음이 조금 편해졌어.",
+    "reason": "슬픔이 남아 있어도 경청으로 편안해질 수 있음을 자연스럽게 표현합니다."
+  },
+  {
+    "topic": "empathy",
+    "age": 5,
+    "language": "ko",
+    "path": "scenes.2.choices.1.lines.1.text",
+    "before": "나는 연 이야기를 하고 싶어. 내 마음이 지나쳐진 것 같아.",
+    "after": "나는 연 이야기를 하고 싶어. 내 말을 안 들어 줘서 서운해.",
+    "reason": "번역투의 추상적인 표현을 아이가 말할 수 있는 구체적인 감정 표현으로 수정합니다."
+  },
+  {
+    "topic": "empathy",
+    "age": 5,
+    "language": "ko",
+    "path": "scenes.3.lines.0.text",
+    "before": "아직 아쉽지만 내 말을 들어 줘서 마음이 좋아졌어.",
+    "after": "아직 아쉽지만 내 말을 들어 줘서 마음이 조금 편해졌어.",
+    "reason": "경청으로 느끼는 편안함을 자연스러운 한국어로 표현합니다."
+  },
+  {
+    "topic": "empathy",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.2.choices.1.lines.1.text",
+    "before": "너에겐 좋지만 나는 지금 아니야. 내 마음은 못 들은 것 같아.",
+    "after": "너는 춤추면 좋지만 나는 지금 춤추고 싶지 않아. 내 말을 더 들어 줬으면 좋겠어.",
+    "reason": "뜻이 불분명한 생략과 번역투를 줄이고 서로 다른 선호와 원하는 도움을 명확히 말합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 5,
+    "language": "ko",
+    "path": "scenes.1.lines.0.text",
+    "before": "“네 차례야”는 영어로 “Your turn”이야. 우리가 정한 순서를 바꿀 때 쓰는 말이야.",
+    "after": "“네 차례야”는 영어로 “Your turn”이야. 내 차례가 끝나고 친구 차례가 되었을 때 쓰는 말이야.",
+    "reason": "차례를 넘기는 표현을 약속한 순서를 바꾸는 것으로 잘못 설명하지 않도록 의미를 바로잡습니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 5,
+    "language": "en",
+    "path": "scenes.1.lines.0.text",
+    "before": "“네 차례야” means “Your turn” in English. We use it when we swap in the order we agreed on.",
+    "after": "“네 차례야” means “Your turn” in English. We say it when our turn is over and a friend can have a go.",
+    "reason": "한국어 수정과 뜻을 맞추고 차례를 넘기는 상황을 어린이가 이해하기 쉬운 영어로 설명합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.0.text",
+    "before": "I want more play!",
+    "after": "I want to play more!",
+    "reason": "자연스러운 영어 구어체로 수정합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 5,
+    "language": "ko",
+    "path": "scenes.2.choices.1.lines.0.text",
+    "before": "나는 아직 더 재미있게 놀 수 있어!",
+    "after": "재미있어서 조금 더 놀고 싶어!",
+    "reason": "능력을 말하는 어색한 문장을 더 놀고 싶은 마음을 나타내는 자연스러운 대사로 수정합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 5,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.0.text",
+    "before": "I can have even more fun with this!",
+    "after": "This is fun! I want to keep playing!",
+    "reason": "한국어와 동일하게 재미있어서 계속 놀고 싶은 마음을 자연스럽게 말합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.2.choices.1.lines.1.text",
+    "before": "언제 내 차례인지 모르겠어. 내 바람은 빠진 것 같아 서운해.",
+    "after": "언제 내 차례인지 모르겠어. 나도 놀고 싶은데 계속 기다려서 서운해.",
+    "reason": "추상적인 번역투 대신 기다리는 상황과 서운한 감정을 구체적으로 표현합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 4,
+    "language": "ko",
+    "path": "scenes.3.lines.0.text",
+    "before": "나는 다 했어. 네 차례야.",
+    "after": "같이 놀아서 신났어! 나는 다 했어. 네 차례야.",
+    "reason": "나눔을 받은 모모가 즐거운 감정을 직접 말한 뒤 앨리스가 기쁨에 공감하도록 보강합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 4,
+    "language": "en",
+    "path": "scenes.3.lines.0.text",
+    "before": "I’m finished. Your turn.",
+    "after": "Playing together was fun! I’m finished. Your turn.",
+    "reason": "한국어와 동일하게 모모가 즐거웠던 감정을 직접 말하도록 보강합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 5,
+    "language": "ko",
+    "path": "scenes.3.lines.0.text",
+    "before": "내 춤도 끝났어. 네 차례야.",
+    "after": "내 차례를 지켜 줘서 기뻤어. 내 춤도 끝났어. 네 차례야.",
+    "reason": "모모가 자신의 차례를 존중받아 기뻤음을 직접 말하도록 보강합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 5,
+    "language": "en",
+    "path": "scenes.3.lines.0.text",
+    "before": "My dance is finished too. Your turn.",
+    "after": "I’m happy you gave me my turn. My dance is finished too. Your turn.",
+    "reason": "한국어와 동일하게 모모가 차례를 받아 기뻤음을 직접 말하도록 보강합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.3.lines.0.text",
+    "before": "나는 끝났어. 네 차례야. 다음엔 얼마나 해 볼까?",
+    "after": "내 차례도 생각해 줘서 즐겁게 놀았어. 나는 끝났어. 네 차례야. 다음엔 얼마나 해 볼까?",
+    "reason": "모모가 배려를 받아 즐거웠음을 직접 말하면서 기존 차례 넘기기와 다음 약속을 유지합니다."
+  },
+  {
+    "topic": "sharing",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.3.lines.0.text",
+    "before": "I’m finished. Your turn. How long shall we try next?",
+    "after": "I had fun because you made time for my turn too. I’m finished. Your turn. How long shall we try next?",
+    "reason": "한국어와 동일하게 배려를 받은 모모의 즐거움을 직접 말하고 기존 차례 넘기기 흐름을 유지합니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.2.choices.1.lines.4.text",
+    "before": "알려 줘서 고마워. 다음엔 찾기 전에 먼저 말해 줘.",
+    "after": "알려 줘서 고마워. 다음엔 가져가기 전에 먼저 물어봐 줘.",
+    "reason": "다음 행동의 기준을 사후 알림이 아니라 물건을 가져가기 전 허락 구하기로 분명히 합니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.4.text",
+    "before": "Thank you for telling me. Next time, tell me before I have to search.",
+    "after": "Thank you for telling me. Next time, please ask before taking my book.",
+    "reason": "한국어 교정과 맞춰 사전 허락을 구하는 표현을 가르칩니다."
+  },
+  {
+    "topic": "bravery",
+    "age": 5,
+    "language": "ko",
+    "path": "scenes.3.lines.2.text",
+    "before": "춤추는 방법이 달라도 함께 있으니 좋아.",
+    "after": "춤을 춰도, 구경해도 함께 있으니 좋아.",
+    "reason": "춤을 추지 않고 구경한 선택에서도 공통 결말이 실제 행동과 맞도록 합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.2.text",
+    "before": "Finish your picture. I’ll wait.",
+    "after": "You can keep looking. I’ll wait.",
+    "reason": "그림을 그리는 상황으로 오해하지 않도록 책의 그림을 보는 행동을 명확히 합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.1.lines.2.text",
+    "before": "Okay. I’ll tell you when this picture is finished.",
+    "after": "Okay. I’ll tell you when I’m done looking at this picture.",
+    "reason": "그림을 완성하는 일이 아니라 그림 보기를 마치는 상황임을 분명히 합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.2.choices.1.action",
+    "before": "앨리스가 재촉한 뒤 모모가 책에서 눈을 들어 대답한다. 앨리스가 다시 기다리겠다고 말하면 모모가 책을 본다. 책은 계속 모모가 든다.",
+    "after": "앨리스가 재촉한 뒤 모모가 책에서 눈을 들어 대답한다. 앨리스가 다시 기다리겠다고 말하면 모모가 책을 본다. 책은 계속 모모가 든다. 앨리스가 주변 나무를 살펴보는 동안 모모는 책을 마저 본다.",
+    "reason": "공통 결말에서 말하는 기다리는 동안의 활동이 두 번째 선택에서도 실제로 일어나게 합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.2.choices.1.action",
+    "before": "After Alice hurries him, Momo looks up from the book to answer. After Alice offers to wait again, Momo looks back at it. Momo retains the book.",
+    "after": "After Alice hurries him, Momo looks up from the book to answer. After Alice offers to wait again, Momo looks back at it. Momo retains the book. Alice looks at the nearby trees while Momo finishes looking at the book.",
+    "reason": "한국어와 동일하게 두 번째 선택에서도 기다리는 동안의 활동을 보여 주어 공통 결말과 연결합니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 3,
+    "language": "ko",
+    "path": "scenes.3.lines.1.text",
+    "before": "책이 와서 좋아. 고마워.",
+    "after": "책을 다시 봐서 좋아. 고마워.",
+    "reason": "책이 스스로 온 듯한 어색한 말투를 구체적이고 자연스러운 아이의 말로 바꿉니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 3,
+    "language": "ko",
+    "path": "scenes.3.lines.2.text",
+    "before": "네가 좋으니 나도 좋아.",
+    "after": "네가 기쁘니까 나도 기뻐.",
+    "reason": "친구를 좋아한다는 뜻과 혼동하지 않도록 두 사람의 기쁜 감정을 명시합니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.1.text",
+    "before": "I feel wobbly about telling.",
+    "after": "I’m scared to tell.",
+    "reason": "어린 학습자에게 낯선 비유 대신 말하기가 두려운 감정을 짧고 직접적으로 표현합니다."
+  },
+  {
+    "topic": "honesty",
+    "age": 4,
+    "language": "en",
+    "path": "scenes.3.lines.1.text",
+    "before": "I feel better finding it. Thank you for telling me.",
+    "after": "I feel better now that I have my book back. Thank you for telling me.",
+    "reason": "책을 돌려받아 기분이 나아졌다는 인과관계를 자연스러운 영어로 표현합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.0.text",
+    "before": "Give it now!",
+    "after": "Give it to me now!",
+    "reason": "재촉하는 선택의 뜻을 유지하면서 자연스럽고 완전한 영어 표현으로 교정합니다."
+  },
+  {
+    "topic": "patience",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.3.lines.1.text",
+    "before": "고마워. 기다리는 동안 내 시간을 써서 편했어.",
+    "after": "고마워. 나도 재미있는 걸 하니까 기다리기가 편했어.",
+    "reason": "추상적인 번역투를 아이가 말할 법한 구체적인 기다림 경험으로 바꿉니다."
+  },
+  {
+    "topic": "bravery",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.3.lines.0.text",
+    "before": "I felt comfortable because you listened to my pace.",
+    "after": "I felt comfortable because you let me go at my own pace.",
+    "reason": "영어에서 부자연스러운 listened to my pace를 자기 속도를 존중받았다는 자연스러운 표현으로 바꿉니다."
+  },
+  {
+    "topic": "table_manners",
+    "age": 3,
+    "language": "ko",
+    "path": "phrase",
+    "before": "주세요",
+    "after": "쿠키 주세요",
+    "reason": "'주세요'와 'Please'를 단독 단어로 동일시하지 않고 실제 부탁 문장 전체를 대응시킵니다."
+  },
+  {
+    "topic": "table_manners",
+    "age": 3,
+    "language": "ko",
+    "path": "meaning",
+    "before": "Please",
+    "after": "A cookie, please",
+    "reason": "한국어 학습 표현 '쿠키 주세요'와 대응하는 영어 문장으로 맞춥니다."
+  },
+  {
+    "topic": "table_manners",
+    "age": 3,
+    "language": "en",
+    "path": "phrase",
+    "before": "Please",
+    "after": "A cookie, please",
+    "reason": "'주세요'와 'Please'를 단독 단어로 동일시하지 않고 실제 부탁 문장 전체를 학습합니다."
+  },
+  {
+    "topic": "table_manners",
+    "age": 3,
+    "language": "en",
+    "path": "meaning",
+    "before": "주세요",
+    "after": "쿠키 주세요",
+    "reason": "영어 학습 표현 'A cookie, please'와 대응하는 한국어 문장으로 맞춥니다."
+  },
+  {
+    "topic": "table_manners",
+    "age": 3,
+    "language": "ko",
+    "path": "scenes.1.lines.0.text",
+    "before": "“주세요”는 영어로 “Please”야.",
+    "after": "“쿠키 주세요”는 영어로 “A cookie, please”야.",
+    "reason": "잘못된 단어 단위 대응 대신 대사에서 쓰는 부탁 문장 전체의 뜻을 가르칩니다."
+  },
+  {
+    "topic": "table_manners",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.1.lines.0.text",
+    "before": "“주세요” means “Please” in English.",
+    "after": "“쿠키 주세요” means “A cookie, please” in English.",
+    "reason": "잘못된 단어 단위 대응 대신 대사에서 쓰는 부탁 문장 전체의 뜻을 가르칩니다."
+  },
+  {
+    "topic": "table_manners",
+    "age": 3,
+    "language": "ko",
+    "path": "scenes.3.lines.4.text",
+    "before": "우리 “주세요”라고 말해 볼까? 듣기만 해도 돼.",
+    "after": "우리 “쿠키 주세요”라고 말해 볼까? 듣기만 해도 돼.",
+    "reason": "따라 말하기 문장을 수정한 학습 표현과 일치시킵니다."
+  },
+  {
+    "topic": "table_manners",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.3.lines.4.text",
+    "before": "Shall we say “please”? You can just listen.",
+    "after": "Shall we say “A cookie, please”? You can just listen.",
+    "reason": "따라 말하기 문장을 수정한 학습 표현과 일치시킵니다."
+  },
+  {
+    "topic": "teamwork",
+    "age": 3,
+    "language": "ko",
+    "path": "scenes.3.lines.1.text",
+    "before": "같이 와서 기뻐.",
+    "after": "너랑 같이 있어서 기뻐.",
+    "reason": "두 번째 선택에서는 친구들이 따로 도착하므로 현재 함께 있다는 감정을 말해야 두 분기 모두 자연스럽게 이어집니다."
+  },
+  {
+    "topic": "teamwork",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.3.lines.1.text",
+    "before": "I'm happy we came together.",
+    "after": "I'm happy we're here together.",
+    "reason": "두 번째 선택에서는 친구들이 따로 도착하므로 함께 도착했다는 설명 대신 현재 함께 있다는 감정을 말합니다."
+  },
+  {
+    "topic": "gratitude",
+    "age": 3,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.2.text",
+    "before": "Oh! I missed your words. Thank you!",
+    "after": "Oh! I didn't hear you. Thank you!",
+    "reason": "상대의 말을 못 들었다는 뜻을 어린아이가 쓰기 쉬운 자연스러운 영어로 표현합니다."
+  },
+  {
+    "topic": "gratitude",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.2.choices.1.lines.4.text",
+    "before": "찾아봐 줘서 고마워. 네가 쓴 시간도 고마워. 이제 들을게.",
+    "after": "찾아봐 줘서 고마워. 나를 도우려고 시간을 내 줬구나. 이제 네 이야기를 들을게.",
+    "reason": "'네가 쓴 시간도 고마워'라는 번역투를 고치고 친구가 시간을 내 도운 일과 이야기를 듣겠다는 행동을 구체적으로 말합니다."
+  },
+  {
+    "topic": "gratitude",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.2.choices.1.lines.4.text",
+    "before": "Thank you for looking for it. You gave your time. I’m listening now.",
+    "after": "Thank you for looking for it. You took time to help me. I’m listening now.",
+    "reason": "'You gave your time'보다 자연스러운 표현으로 친구가 도움에 시간을 썼다는 의도를 분명히 합니다."
+  },
+  {
+    "topic": "teamwork",
+    "age": 6,
+    "language": "ko",
+    "path": "scenes.3.lines.1.text",
+    "before": "둘이 함께 준비해 줘서 우리 시간이 생겼네. 기뻐!",
+    "after": "둘이 함께 준비해 줘서 이제 다 같이 책을 볼 수 있네. 기뻐!",
+    "reason": "'우리 시간이 생겼네'라는 추상적인 표현을 준비가 끝나 함께 책을 볼 수 있게 된 구체적인 결과로 바꿉니다."
+  },
+  {
+    "topic": "teamwork",
+    "age": 6,
+    "language": "en",
+    "path": "scenes.3.lines.1.text",
+    "before": "Your work together made time for all of us. I'm happy!",
+    "after": "You both helped. Now we can enjoy the story together. I'm happy!",
+    "reason": "어색하고 추상적인 영어를 다 같이 이야기를 즐길 수 있게 됐다는 구체적이고 자연스러운 대사로 바꿉니다."
+  }
+]

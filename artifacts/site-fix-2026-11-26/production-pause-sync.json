@@ -1,0 +1,50 @@
+{
+  "paused": {
+    "audio": [
+      {
+        "duration": 8.219864,
+        "paused": true,
+        "time": 1.900237
+      }
+    ],
+    "caption": "이야기앨리스가 사과를 들고 도도와 벤치로 걸어가요. 놀이터에 공이 보이는데, 도도의 걸음이 느려져요.친구들의 이야기를 들어봐요건너뛰기",
+    "state": {
+      "audioLevel": "0",
+      "paused": "true",
+      "phase": "playing",
+      "speaking": "false"
+    }
+  },
+  "stillPaused": {
+    "audio": [
+      {
+        "duration": 8.219864,
+        "paused": true,
+        "time": 1.900237
+      }
+    ],
+    "caption": "이야기앨리스가 사과를 들고 도도와 벤치로 걸어가요. 놀이터에 공이 보이는데, 도도의 걸음이 느려져요.친구들의 이야기를 들어봐요건너뛰기",
+    "state": {
+      "audioLevel": "0",
+      "paused": "true",
+      "phase": "playing",
+      "speaking": "false"
+    }
+  },
+  "resumed": {
+    "audio": [
+      {
+        "duration": 8.219864,
+        "paused": false,
+        "time": 4.583542
+      }
+    ],
+    "caption": "이야기앨리스가 사과를 들고 도도와 벤치로 걸어가요. 놀이터에 공이 보이는데, 도도의 걸음이 느려져요.친구들의 이야기를 들어봐요건너뛰기",
+    "state": {
+      "audioLevel": "0",
+      "paused": "false",
+      "phase": "playing",
+      "speaking": "true"
+    }
+  }
+}

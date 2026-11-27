@@ -1,0 +1,228 @@
+ALICETALES 대본 검토 안내
+
+먼저 볼 파일: 02_한국어대본_40편.txt
+
+01_전체대본_80편.txt: 10개 주제 × 3·4·5·6세 × 한국어·영어. 각 편의 4장면과 A/B 선택 결과를 모두 포함합니다.
+02_한국어대본_40편.txt: 한국어 중심 원고만 모았습니다.
+03_영어대본_40편.txt: 영어 중심 원고만 모았습니다.
+04_현재_클라우드생성대본.txt: 실제 저장된 생성 대본 11개를 원문 그대로 추출했습니다.
+
+중요한 구분
+기존 80편은 검토용으로만 작성돼 있었고 실제 게임에 연결돼 있지 않았습니다. 현재 게임은 AI가 장면마다 대사를 새로 만듭니다.
+따라서 화면의 '둑', '축 늘어지다', '심심하다'를 단순히 검토 원고에서 찾거나 바꾸는 것만으로 현재 게임이 고쳐지지는 않습니다.
+검수한 대사와 그 대사의 음성을 한 묶음으로 준비한 뒤, 게임이 승인된 원고를 이어서 재생하도록 연결해야 합니다. 이번 작업은 검수 파일 작성까지만 진행합니다.
+
+화면에서 지적된 표현의 수정 방향
+- '둑 / bank': 이 장면의 핵심 표현은 '도와줄까? / Can I help?'로 둡니다. 장소 설명이 필요하면 문맥에 맞게 '물가'라고 말합니다.
+- '축 늘어지다': 꽃이 시든 상황이라면 '꽃이 시들었어.'처럼 실제로 말하는 문장으로 설명합니다. 따라 말할 핵심 표현은 '물 줄까?'처럼 상황에서 쓸 말로 고릅니다.
+- '심심하다': 상태를 말할 때는 '심심해.'라고 하고, 친구에게 함께 놀자고 할 때는 '같이 놀자!'라고 말합니다. 서로 다른 뜻의 문장을 같은 번역으로 묶지 않습니다.
+- '도와줄까?'는 내가 도와주겠다는 제안이고, '도와줄래?'는 상대에게 도움을 부탁하는 말입니다. 두 표현의 뜻과 말하는 역할을 구분합니다.
+- 저장된 생성본의 '데굴de굴 국러갔어요'는 혼합 표기와 오타입니다. '데굴데굴 굴러갔어요'로 고쳐야 합니다. 원문 파일에서는 문제를 확인할 수 있도록 그대로 보존했습니다.
+- 저장된 생성본에는 '발을 잡고 끌어 올려요' 같은 행동도 있습니다. 물가에서 위험한 행동을 따라 하도록 유도하는 장면은 승인 원고에 넣지 않습니다. 어린아이의 도움은 상황에 맞게 '어른께 도움을 부탁하자'처럼 씁니다.
+- 따라 말하기 안내: '나랑 같이 말해 볼까? “도와줄까?”'처럼 아이가 바로 쓸 수 있는 표현을 먼저 검토합니다. 안내 문장과 실제 음성도 같아야 합니다.
+
+검토 방법
+대본 ID와 바꾸고 싶은 줄을 알려 주시면 해당 대본을 고칠 수 있습니다. 예: KO-KINDNESS-3 / 장면 4 / 나비의 말.
+각 대본 끝의 승인·수정·제외 검토란은 비워 두었습니다. 아직 승인된 대본은 없습니다.
+
+검수 파일에만 반영한 교정 목록 (운영 원본은 변경하지 않음)
+1. KO-KINDNESS-3 / scenes.2.choices.0.label
+   전: 도와준다고 물어요
+   후: 도와줄까? 하고 물어요
+   이유: 질문하는 선택지의 어색한 한국어를 실제 사용할 수 있는 말로 수정합니다.
+2. KO-KINDNESS-3 / scenes.3.lines.0.text
+   전: 도와줘서 좋아. 고마워.
+   후: 도와줘서 기뻐. 고마워.
+   이유: 도움을 받은 친구가 자신의 기쁜 감정을 직접 말하도록 명확히 합니다.
+3. KO-KINDNESS-4 / scenes.3.lines.0.text
+   전: 네가 도와줘서 마음이 좋아졌어. 고마워.
+   후: 네가 도와줘서 기분이 좋아졌어. 고마워.
+   이유: 기분의 변화를 나타내는 자연스러운 한국어 표현으로 수정합니다.
+4. KO-KINDNESS-5 / scenes.3.lines.0.text
+   전: 네가 도와줘서 마음이 좋아졌어. 고마워.
+   후: 네가 도와줘서 기분이 좋아졌어. 고마워.
+   이유: 기분의 변화를 나타내는 자연스러운 한국어 표현으로 수정합니다.
+5. KO-KINDNESS-6 / scenes.3.lines.0.text
+   전: 내 말을 듣고 도와줘서 마음이 좋아졌어. 고마워.
+   후: 내 말을 듣고 도와줘서 기분이 좋아졌어. 고마워.
+   이유: 기분의 변화를 나타내는 자연스러운 한국어 표현으로 수정합니다.
+6. KO-EMPATHY-4 / scenes.3.lines.0.text
+   전: 아직 슬퍼도, 네가 들어 줘서 마음이 좋아졌어.
+   후: 아직 슬프지만, 네가 들어 줘서 마음이 조금 편해졌어.
+   이유: 슬픔이 남아 있어도 경청으로 편안해질 수 있음을 자연스럽게 표현합니다.
+7. KO-EMPATHY-5 / scenes.2.choices.1.lines.1.text
+   전: 나는 연 이야기를 하고 싶어. 내 마음이 지나쳐진 것 같아.
+   후: 나는 연 이야기를 하고 싶어. 내 말을 안 들어 줘서 서운해.
+   이유: 번역투의 추상적인 표현을 아이가 말할 수 있는 구체적인 감정 표현으로 수정합니다.
+8. KO-EMPATHY-5 / scenes.3.lines.0.text
+   전: 아직 아쉽지만 내 말을 들어 줘서 마음이 좋아졌어.
+   후: 아직 아쉽지만 내 말을 들어 줘서 마음이 조금 편해졌어.
+   이유: 경청으로 느끼는 편안함을 자연스러운 한국어로 표현합니다.
+9. KO-EMPATHY-6 / scenes.2.choices.1.lines.1.text
+   전: 너에겐 좋지만 나는 지금 아니야. 내 마음은 못 들은 것 같아.
+   후: 너는 춤추면 좋지만 나는 지금 춤추고 싶지 않아. 내 말을 더 들어 줬으면 좋겠어.
+   이유: 뜻이 불분명한 생략과 번역투를 줄이고 서로 다른 선호와 원하는 도움을 명확히 말합니다.
+10. KO-SHARING-5 / scenes.1.lines.0.text
+   전: “네 차례야”는 영어로 “Your turn”이야. 우리가 정한 순서를 바꿀 때 쓰는 말이야.
+   후: “네 차례야”는 영어로 “Your turn”이야. 내 차례가 끝나고 친구 차례가 되었을 때 쓰는 말이야.
+   이유: 차례를 넘기는 표현을 약속한 순서를 바꾸는 것으로 잘못 설명하지 않도록 의미를 바로잡습니다.
+11. EN-SHARING-5 / scenes.1.lines.0.text
+   전: “네 차례야” means “Your turn” in English. We use it when we swap in the order we agreed on.
+   후: “네 차례야” means “Your turn” in English. We say it when our turn is over and a friend can have a go.
+   이유: 한국어 수정과 뜻을 맞추고 차례를 넘기는 상황을 어린이가 이해하기 쉬운 영어로 설명합니다.
+12. EN-SHARING-3 / scenes.2.choices.1.lines.0.text
+   전: I want more play!
+   후: I want to play more!
+   이유: 자연스러운 영어 구어체로 수정합니다.
+13. KO-SHARING-5 / scenes.2.choices.1.lines.0.text
+   전: 나는 아직 더 재미있게 놀 수 있어!
+   후: 재미있어서 조금 더 놀고 싶어!
+   이유: 능력을 말하는 어색한 문장을 더 놀고 싶은 마음을 나타내는 자연스러운 대사로 수정합니다.
+14. EN-SHARING-5 / scenes.2.choices.1.lines.0.text
+   전: I can have even more fun with this!
+   후: This is fun! I want to keep playing!
+   이유: 한국어와 동일하게 재미있어서 계속 놀고 싶은 마음을 자연스럽게 말합니다.
+15. KO-SHARING-6 / scenes.2.choices.1.lines.1.text
+   전: 언제 내 차례인지 모르겠어. 내 바람은 빠진 것 같아 서운해.
+   후: 언제 내 차례인지 모르겠어. 나도 놀고 싶은데 계속 기다려서 서운해.
+   이유: 추상적인 번역투 대신 기다리는 상황과 서운한 감정을 구체적으로 표현합니다.
+16. KO-SHARING-4 / scenes.3.lines.0.text
+   전: 나는 다 했어. 네 차례야.
+   후: 같이 놀아서 신났어! 나는 다 했어. 네 차례야.
+   이유: 나눔을 받은 모모가 즐거운 감정을 직접 말한 뒤 앨리스가 기쁨에 공감하도록 보강합니다.
+17. EN-SHARING-4 / scenes.3.lines.0.text
+   전: I’m finished. Your turn.
+   후: Playing together was fun! I’m finished. Your turn.
+   이유: 한국어와 동일하게 모모가 즐거웠던 감정을 직접 말하도록 보강합니다.
+18. KO-SHARING-5 / scenes.3.lines.0.text
+   전: 내 춤도 끝났어. 네 차례야.
+   후: 내 차례를 지켜 줘서 기뻤어. 내 춤도 끝났어. 네 차례야.
+   이유: 모모가 자신의 차례를 존중받아 기뻤음을 직접 말하도록 보강합니다.
+19. EN-SHARING-5 / scenes.3.lines.0.text
+   전: My dance is finished too. Your turn.
+   후: I’m happy you gave me my turn. My dance is finished too. Your turn.
+   이유: 한국어와 동일하게 모모가 차례를 받아 기뻤음을 직접 말하도록 보강합니다.
+20. KO-SHARING-6 / scenes.3.lines.0.text
+   전: 나는 끝났어. 네 차례야. 다음엔 얼마나 해 볼까?
+   후: 내 차례도 생각해 줘서 즐겁게 놀았어. 나는 끝났어. 네 차례야. 다음엔 얼마나 해 볼까?
+   이유: 모모가 배려를 받아 즐거웠음을 직접 말하면서 기존 차례 넘기기와 다음 약속을 유지합니다.
+21. EN-SHARING-6 / scenes.3.lines.0.text
+   전: I’m finished. Your turn. How long shall we try next?
+   후: I had fun because you made time for my turn too. I’m finished. Your turn. How long shall we try next?
+   이유: 한국어와 동일하게 배려를 받은 모모의 즐거움을 직접 말하고 기존 차례 넘기기 흐름을 유지합니다.
+22. KO-HONESTY-6 / scenes.2.choices.1.lines.4.text
+   전: 알려 줘서 고마워. 다음엔 찾기 전에 먼저 말해 줘.
+   후: 알려 줘서 고마워. 다음엔 가져가기 전에 먼저 물어봐 줘.
+   이유: 다음 행동의 기준을 사후 알림이 아니라 물건을 가져가기 전 허락 구하기로 분명히 합니다.
+23. EN-HONESTY-6 / scenes.2.choices.1.lines.4.text
+   전: Thank you for telling me. Next time, tell me before I have to search.
+   후: Thank you for telling me. Next time, please ask before taking my book.
+   이유: 한국어 교정과 맞춰 사전 허락을 구하는 표현을 가르칩니다.
+24. KO-BRAVERY-5 / scenes.3.lines.2.text
+   전: 춤추는 방법이 달라도 함께 있으니 좋아.
+   후: 춤을 춰도, 구경해도 함께 있으니 좋아.
+   이유: 춤을 추지 않고 구경한 선택에서도 공통 결말이 실제 행동과 맞도록 합니다.
+25. EN-PATIENCE-3 / scenes.2.choices.1.lines.2.text
+   전: Finish your picture. I’ll wait.
+   후: You can keep looking. I’ll wait.
+   이유: 그림을 그리는 상황으로 오해하지 않도록 책의 그림을 보는 행동을 명확히 합니다.
+26. EN-PATIENCE-6 / scenes.1.lines.2.text
+   전: Okay. I’ll tell you when this picture is finished.
+   후: Okay. I’ll tell you when I’m done looking at this picture.
+   이유: 그림을 완성하는 일이 아니라 그림 보기를 마치는 상황임을 분명히 합니다.
+27. KO-PATIENCE-6 / scenes.2.choices.1.action
+   전: 앨리스가 재촉한 뒤 모모가 책에서 눈을 들어 대답한다. 앨리스가 다시 기다리겠다고 말하면 모모가 책을 본다. 책은 계속 모모가 든다.
+   후: 앨리스가 재촉한 뒤 모모가 책에서 눈을 들어 대답한다. 앨리스가 다시 기다리겠다고 말하면 모모가 책을 본다. 책은 계속 모모가 든다. 앨리스가 주변 나무를 살펴보는 동안 모모는 책을 마저 본다.
+   이유: 공통 결말에서 말하는 기다리는 동안의 활동이 두 번째 선택에서도 실제로 일어나게 합니다.
+28. EN-PATIENCE-6 / scenes.2.choices.1.action
+   전: After Alice hurries him, Momo looks up from the book to answer. After Alice offers to wait again, Momo looks back at it. Momo retains the book.
+   후: After Alice hurries him, Momo looks up from the book to answer. After Alice offers to wait again, Momo looks back at it. Momo retains the book. Alice looks at the nearby trees while Momo finishes looking at the book.
+   이유: 한국어와 동일하게 두 번째 선택에서도 기다리는 동안의 활동을 보여 주어 공통 결말과 연결합니다.
+29. KO-HONESTY-3 / scenes.3.lines.1.text
+   전: 책이 와서 좋아. 고마워.
+   후: 책을 다시 봐서 좋아. 고마워.
+   이유: 책이 스스로 온 듯한 어색한 말투를 구체적이고 자연스러운 아이의 말로 바꿉니다.
+30. KO-HONESTY-3 / scenes.3.lines.2.text
+   전: 네가 좋으니 나도 좋아.
+   후: 네가 기쁘니까 나도 기뻐.
+   이유: 친구를 좋아한다는 뜻과 혼동하지 않도록 두 사람의 기쁜 감정을 명시합니다.
+31. EN-HONESTY-3 / scenes.2.choices.1.lines.1.text
+   전: I feel wobbly about telling.
+   후: I’m scared to tell.
+   이유: 어린 학습자에게 낯선 비유 대신 말하기가 두려운 감정을 짧고 직접적으로 표현합니다.
+32. EN-HONESTY-4 / scenes.3.lines.1.text
+   전: I feel better finding it. Thank you for telling me.
+   후: I feel better now that I have my book back. Thank you for telling me.
+   이유: 책을 돌려받아 기분이 나아졌다는 인과관계를 자연스러운 영어로 표현합니다.
+33. EN-PATIENCE-3 / scenes.2.choices.1.lines.0.text
+   전: Give it now!
+   후: Give it to me now!
+   이유: 재촉하는 선택의 뜻을 유지하면서 자연스럽고 완전한 영어 표현으로 교정합니다.
+34. KO-PATIENCE-6 / scenes.3.lines.1.text
+   전: 고마워. 기다리는 동안 내 시간을 써서 편했어.
+   후: 고마워. 나도 재미있는 걸 하니까 기다리기가 편했어.
+   이유: 추상적인 번역투를 아이가 말할 법한 구체적인 기다림 경험으로 바꿉니다.
+35. EN-BRAVERY-6 / scenes.3.lines.0.text
+   전: I felt comfortable because you listened to my pace.
+   후: I felt comfortable because you let me go at my own pace.
+   이유: 영어에서 부자연스러운 listened to my pace를 자기 속도를 존중받았다는 자연스러운 표현으로 바꿉니다.
+36. KO-TABLE_MANNERS-3 / phrase
+   전: 주세요
+   후: 쿠키 주세요
+   이유: '주세요'와 'Please'를 단독 단어로 동일시하지 않고 실제 부탁 문장 전체를 대응시킵니다.
+37. KO-TABLE_MANNERS-3 / meaning
+   전: Please
+   후: A cookie, please
+   이유: 한국어 학습 표현 '쿠키 주세요'와 대응하는 영어 문장으로 맞춥니다.
+38. EN-TABLE_MANNERS-3 / phrase
+   전: Please
+   후: A cookie, please
+   이유: '주세요'와 'Please'를 단독 단어로 동일시하지 않고 실제 부탁 문장 전체를 학습합니다.
+39. EN-TABLE_MANNERS-3 / meaning
+   전: 주세요
+   후: 쿠키 주세요
+   이유: 영어 학습 표현 'A cookie, please'와 대응하는 한국어 문장으로 맞춥니다.
+40. KO-TABLE_MANNERS-3 / scenes.1.lines.0.text
+   전: “주세요”는 영어로 “Please”야.
+   후: “쿠키 주세요”는 영어로 “A cookie, please”야.
+   이유: 잘못된 단어 단위 대응 대신 대사에서 쓰는 부탁 문장 전체의 뜻을 가르칩니다.
+41. EN-TABLE_MANNERS-3 / scenes.1.lines.0.text
+   전: “주세요” means “Please” in English.
+   후: “쿠키 주세요” means “A cookie, please” in English.
+   이유: 잘못된 단어 단위 대응 대신 대사에서 쓰는 부탁 문장 전체의 뜻을 가르칩니다.
+42. KO-TABLE_MANNERS-3 / scenes.3.lines.4.text
+   전: 우리 “주세요”라고 말해 볼까? 듣기만 해도 돼.
+   후: 우리 “쿠키 주세요”라고 말해 볼까? 듣기만 해도 돼.
+   이유: 따라 말하기 문장을 수정한 학습 표현과 일치시킵니다.
+43. EN-TABLE_MANNERS-3 / scenes.3.lines.4.text
+   전: Shall we say “please”? You can just listen.
+   후: Shall we say “A cookie, please”? You can just listen.
+   이유: 따라 말하기 문장을 수정한 학습 표현과 일치시킵니다.
+44. KO-TEAMWORK-3 / scenes.3.lines.1.text
+   전: 같이 와서 기뻐.
+   후: 너랑 같이 있어서 기뻐.
+   이유: 두 번째 선택에서는 친구들이 따로 도착하므로 현재 함께 있다는 감정을 말해야 두 분기 모두 자연스럽게 이어집니다.
+45. EN-TEAMWORK-3 / scenes.3.lines.1.text
+   전: I'm happy we came together.
+   후: I'm happy we're here together.
+   이유: 두 번째 선택에서는 친구들이 따로 도착하므로 함께 도착했다는 설명 대신 현재 함께 있다는 감정을 말합니다.
+46. EN-GRATITUDE-3 / scenes.2.choices.1.lines.2.text
+   전: Oh! I missed your words. Thank you!
+   후: Oh! I didn't hear you. Thank you!
+   이유: 상대의 말을 못 들었다는 뜻을 어린아이가 쓰기 쉬운 자연스러운 영어로 표현합니다.
+47. KO-GRATITUDE-6 / scenes.2.choices.1.lines.4.text
+   전: 찾아봐 줘서 고마워. 네가 쓴 시간도 고마워. 이제 들을게.
+   후: 찾아봐 줘서 고마워. 나를 도우려고 시간을 내 줬구나. 이제 네 이야기를 들을게.
+   이유: '네가 쓴 시간도 고마워'라는 번역투를 고치고 친구가 시간을 내 도운 일과 이야기를 듣겠다는 행동을 구체적으로 말합니다.
+48. EN-GRATITUDE-6 / scenes.2.choices.1.lines.4.text
+   전: Thank you for looking for it. You gave your time. I’m listening now.
+   후: Thank you for looking for it. You took time to help me. I’m listening now.
+   이유: 'You gave your time'보다 자연스러운 표현으로 친구가 도움에 시간을 썼다는 의도를 분명히 합니다.
+49. KO-TEAMWORK-6 / scenes.3.lines.1.text
+   전: 둘이 함께 준비해 줘서 우리 시간이 생겼네. 기뻐!
+   후: 둘이 함께 준비해 줘서 이제 다 같이 책을 볼 수 있네. 기뻐!
+   이유: '우리 시간이 생겼네'라는 추상적인 표현을 준비가 끝나 함께 책을 볼 수 있게 된 구체적인 결과로 바꿉니다.
+50. EN-TEAMWORK-6 / scenes.3.lines.1.text
+   전: Your work together made time for all of us. I'm happy!
+   후: You both helped. Now we can enjoy the story together. I'm happy!
+   이유: 어색하고 추상적인 영어를 다 같이 이야기를 즐길 수 있게 됐다는 구체적이고 자연스러운 대사로 바꿉니다.
