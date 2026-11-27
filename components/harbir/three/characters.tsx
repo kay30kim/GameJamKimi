@@ -253,9 +253,9 @@ function Limb({ rig, name, position, children }: { rig: SetLimb; name: keyof Rig
 }
 
 /** Momo the bear cub: warm brown, round ears, light muzzle, blue scarf. */
-type BodyProps = { rig: SetLimb; speaking?: boolean };
+type BodyProps = { rig: SetLimb; speaking?: boolean; level?: number };
 
-function Momo({ rig, speaking = false }: BodyProps) {
+function Momo({ rig, speaking = false, level }: BodyProps) {
   return (
     <group>
       {[-1, 1].map((side) => (
@@ -282,13 +282,13 @@ function Momo({ rig, speaking = false }: BodyProps) {
         </group>
       ))}
       <Blob position={[0, 1.08, 0.27]} scale={[0.15, 0.11, 0.09]} color={PALETTE.bearMuzzle} />
-      <Face center={[0, 1.2, 0]} size={0.34} nose={PALETTE.eye} speaking={speaking} />
+      <Face center={[0, 1.2, 0]} size={0.34} nose={PALETTE.eye} speaking={speaking} level={level} />
     </group>
   );
 }
 
 /** Bori the puppy: honey fur, floppy ears, pink collar. Front legs use the arm slots. */
-function Bori({ rig, speaking = false }: BodyProps) {
+function Bori({ rig, speaking = false, level }: BodyProps) {
   return (
     <group>
       {([[-1, 1], [1, 1], [-1, -1], [1, -1]] as const).map(([side, front]) => (
@@ -313,13 +313,13 @@ function Bori({ rig, speaking = false }: BodyProps) {
       ))}
       <Blob position={[0, 0.78, 0.53]} scale={[0.13, 0.1, 0.1]} color={PALETTE.bearMuzzle} />
       <Blob position={[0, 0.82, 0.63]} scale={[0.05, 0.04, 0.035]} color={PALETTE.eye} shadow={false} />
-      <Face center={[0, 0.9, 0.32]} size={0.26} nose={PALETTE.eye} spread={1.05} speaking={speaking} />
+      <Face center={[0, 0.9, 0.32]} size={0.26} nose={PALETTE.eye} spread={1.05} speaking={speaking} level={level} />
     </group>
   );
 }
 
 /** Grandma Owl: soft brown feathers, ear tufts, gold glasses, lilac shawl. Wings use the arm slots. */
-function GrandmaOwl({ rig, speaking = false }: BodyProps) {
+function GrandmaOwl({ rig, speaking = false, level }: BodyProps) {
   return (
     <group>
       {[-1, 1].map((side) => (
@@ -349,13 +349,13 @@ function GrandmaOwl({ rig, speaking = false }: BodyProps) {
           </mesh>
         </group>
       ))}
-      <Face center={[0, 1.38, 0]} size={0.36} nose={PALETTE.beak} spread={0.82} speaking={speaking} />
+      <Face center={[0, 1.38, 0]} size={0.36} nose={PALETTE.beak} spread={0.82} speaking={speaking} level={level} />
     </group>
   );
 }
 
 /** Nabi the kitten: ginger tabby fur, pointed ears, curled tail, lilac bow. Front legs use the arm slots. */
-function Nabi({ rig, speaking = false }: BodyProps) {
+function Nabi({ rig, speaking = false, level }: BodyProps) {
   const tailCurve = useMemo(() => new CatmullRomCurve3([
     new Vector3(0, 0, 0),
     new Vector3(0, 0.12, -0.13),
@@ -398,13 +398,13 @@ function Nabi({ rig, speaking = false }: BodyProps) {
       <Blob position={[0, 0.74, 0.5]} scale={[0.11, 0.08, 0.06]} color={PALETTE.kittenBelly} shadow={false} />
       <Blob position={[0.16, 0.66, 0.44]} rotation={[0, 0, 0.4]} scale={[0.07, 0.045, 0.04]} color={PALETTE.kittenBow} />
       <Blob position={[0.24, 0.66, 0.42]} rotation={[0, 0, -0.4]} scale={[0.07, 0.045, 0.04]} color={PALETTE.kittenBow} />
-      <Face center={[0, 0.82, 0.3]} size={0.23} nose={PALETTE.cheek} spread={1.05} noseDepth={0.02} mouthDepth={0.06} speaking={speaking} />
+      <Face center={[0, 0.82, 0.3]} size={0.23} nose={PALETTE.cheek} spread={1.05} noseDepth={0.02} mouthDepth={0.06} speaking={speaking} level={level} />
     </group>
   );
 }
 
 /** Dodo the duckling: round yellow down, orange bill and feet. Wings use the arm slots. */
-function Dodo({ rig, speaking = false }: BodyProps) {
+function Dodo({ rig, speaking = false, level }: BodyProps) {
   return (
     <group>
       {[-1, 1].map((side) => (
@@ -423,7 +423,7 @@ function Dodo({ rig, speaking = false }: BodyProps) {
       <Blob position={[0, 0.82, 0.03]} scale={[0.24, 0.23, 0.22]} color={PALETTE.duckDown} />
       <Blob position={[0, 1.06, 0]} scale={[0.04, 0.06, 0.04]} color={PALETTE.duckDown} />
       <Blob position={[0, 0.77, 0.24]} scale={[0.11, 0.04, 0.09]} color={PALETTE.duckBill} />
-      <Face center={[0, 0.84, 0.03]} size={0.22} nose={null} spread={0.95} mouthDepth={0.105} mouthWidth={2.4} speaking={speaking} />
+      <Face center={[0, 0.84, 0.03]} size={0.22} nose={null} spread={0.95} mouthDepth={0.105} mouthWidth={2.4} speaking={speaking} level={level} />
     </group>
   );
 }
@@ -432,14 +432,14 @@ const BODIES = { friend: Momo, puppy: Bori, grownup: GrandmaOwl, kitten: Nabi, d
 /** Alice stays the biggest child; Grandma Owl is the tallest. */
 const BODY_SCALE = { friend: 0.88, puppy: 0.9, grownup: 1, kitten: 0.95, duck: 0.95 } as const;
 
-export function Character({ id, sim, cameraSubject, speaking = false }: { id: keyof typeof BODIES; sim: Sim; cameraSubject?: CameraSubject; speaking?: boolean }) {
+export function Character({ id, sim, cameraSubject, speaking = false, level }: { id: keyof typeof BODIES; sim: Sim; cameraSubject?: CameraSubject; speaking?: boolean; level?: number }) {
   // Filled in by each limb's ref callback after render; Puppet only reads it inside useFrame.
   const rig = useRef<Rig>({});
   const setLimb = useCallback<SetLimb>((name, limb) => { rig.current[name] = limb; }, []);
   const Body = BODIES[id];
   return (
     <Puppet id={id} sim={sim} rig={rig} cameraSubject={cameraSubject}>
-      <group scale={BODY_SCALE[id]}><Body rig={setLimb} speaking={speaking} /></group>
+      <group scale={BODY_SCALE[id]}><Body rig={setLimb} speaking={speaking} level={level} /></group>
     </Puppet>
   );
 }

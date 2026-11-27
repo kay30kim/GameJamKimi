@@ -3,13 +3,16 @@ import type { ActorId, Beat, Emotion, Stage } from "../../../lib/world";
 import { MAX_LINES } from "./contract";
 import type { SceneLine, SceneResponse } from "./contract";
 import { parseStage } from "./stage";
+import { assertReadableText } from "./content-quality";
 
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function shortText(value: unknown, max: number): value is string {
-  return typeof value === "string" && value.trim().length > 0 && value.length <= max;
+  if (typeof value !== "string" || value.trim().length === 0 || value.length > max) return false;
+  assertReadableText(value);
+  return true;
 }
 
 const isActor = (value: unknown): value is ActorId => typeof value === "string" && Object.hasOwn(ACTORS, value);

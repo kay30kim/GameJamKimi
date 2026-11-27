@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { preloadSpeech, speak, stopSpeaking } from "./speech";
+import { pauseSpeaking, preloadSpeech, resumeSpeaking, speak, stopSpeaking } from "./speech";
 
 const flush = () => new Promise<void>((resolve) => setImmediate(resolve));
 const audioResponse = () => new Response(new Blob(["audio"], { type: "audio/mpeg" }), { headers: { "content-type": "audio/mpeg" } });
@@ -15,15 +15,26 @@ function environment() {
   const players: FakeAudio[] = [];
   const utterances: FakeUtterance[] = [];
   let rejectPlay = false;
+  let holdPlay = false;
+  const playRejectors: ((error: Error) => void)[] = [];
   let browserCancels = 0;
+  let browserPauses = 0, browserResumes = 0;
+  let browserPaused = false;
   class FakeAudio {
     src = "";
     onplaying: (() => void) | null = null;
     onended: (() => void) | null = null;
     onerror: (() => void) | null = null;
     paused = false;
+    currentTime = 0;
+    ended = false;
+    plays = 0;
     constructor() { players.push(this); }
-    play() { return rejectPlay ? Promise.reject(new Error("autoplay blocked")) : Promise.resolve(); }
+    play() {
+      this.plays += 1; this.paused = false;
+      if (holdPlay) return new Promise<void>((_resolve, reject) => { playRejectors.push(reject); });
+      return rejectPlay ? Promise.reject(new Error("autoplay blocked")) : Promise.resolve();
+    }
     pause() { this.paused = true; }
   }
   class FakeUtterance {
@@ -35,7 +46,7 @@ function environment() {
     onerror: (() => void) | null = null;
     constructor(public text: string) {}
   }
-  const browserWindow: { speechSynthesis?: unknown } = {};
+  const browserWindow: Record<string, unknown> = {};
   Object.defineProperty(globalThis, "window", { value: browserWindow, configurable: true });
   Object.defineProperty(globalThis, "Audio", { value: FakeAudio, configurable: true });
   Object.defineProperty(globalThis, "SpeechSynthesisUtterance", { value: FakeUtterance, configurable: true });
@@ -43,14 +54,41 @@ function environment() {
   return {
     players, utterances,
     rejectAudio() { rejectPlay = true; },
+    holdAudioPlay() {
+      holdPlay = true;
+      return { reject(index: number) { const error = new Error("play interrupted by pause"); error.name = "AbortError"; playRejectors[index](error); } };
+    },
     enableBrowser() {
       browserWindow.speechSynthesis = {
         getVoices: () => [],
+        get paused() { return browserPaused; },
         speak: (utterance: FakeUtterance) => utterances.push(utterance),
         cancel: () => { browserCancels += 1; },
+        pause: () => { browserPauses += 1; browserPaused = true; },
+        resume: () => { browserResumes += 1; browserPaused = false; },
       };
     },
     get browserCancels() { return browserCancels; },
+    get browserPauses() { return browserPauses; },
+    get browserResumes() { return browserResumes; },
+    get browserPaused() { return browserPaused; },
+    enableMeter() {
+      const frames = new Map<number, () => void>();
+      let frameId = 0;
+      browserWindow.requestAnimationFrame = (fn: () => void) => { frames.set(++frameId, fn); return frameId; };
+      browserWindow.cancelAnimationFrame = (id: number) => { frames.delete(id); };
+      browserWindow.OfflineAudioContext = class {
+        async decodeAudioData() {
+          const samples = new Float32Array(200);
+          samples.fill(0.1, 40, 120);
+          return { sampleRate: 1000, length: samples.length, numberOfChannels: 1, getChannelData: () => samples };
+        }
+      };
+      return {
+        tick() { const pending = [...frames.values()]; frames.clear(); pending.forEach((fn) => fn()); },
+        get pending() { return frames.size; },
+      };
+    },
     async restore() {
       stopSpeaking();
       await flush();
@@ -73,6 +111,7 @@ function fakeTimers() {
   }) as unknown as typeof setTimeout;
   globalThis.clearTimeout = ((id: number) => { pending.delete(id); }) as unknown as typeof clearTimeout;
   return {
+    has(ms: number) { return [...pending.values()].some((timer) => timer.ms === ms); },
     fire(ms: number) {
       const matches = [...pending].filter(([, timer]) => timer.ms === ms);
       assert.ok(matches.length > 0, `expected a ${ms}ms watchdog`);
@@ -397,7 +436,7 @@ test("Korean locale and Hangul in English lines never use browser speech on serv
   let starts = 0;
   try {
     for (const [text, locale] of [["Korean locale needs its server voice", "KO_kr"], ["Let’s say 안녕 together", "en-US"]]) {
-      for (const code of ["TTS_NOT_CONFIGURED", "TTS_UPSTREAM_ERROR", "TTS_TIMEOUT", "TTS_PLAYBACK_ERROR"] as const) {
+      for (const code of ["TTS_NOT_CONFIGURED", "TTS_UPSTREAM_ERROR", "TTS_PROVIDER_BLOCKED", "TTS_TIMEOUT", "TTS_PLAYBACK_ERROR"] as const) {
         globalThis.fetch = async () => Response.json({ error: { code, message: "Private service details must not appear in UI." } }, { status: 503 });
         assert.deepEqual(await speak(`${text} ${code}`, locale, { onStart: () => { starts += 1; } }), {
           started: false, cancelled: false, error: code,
@@ -499,5 +538,196 @@ test("prefetch shares matching emotional audio and keeps different emotions and 
     assert.deepEqual(requests.map(({ voice, emotion }) => ({ voice, emotion })), [
       { voice: "hero", emotion: "happy" }, { voice: "hero", emotion: "sad" }, { voice: "friend", emotion: "happy" },
     ]);
+  } finally { await env.restore(); }
+});
+
+test("pausing preserves the same media position, freezes deadlines, and resumes without duplicate start", async () => {
+  const env = environment();
+  const timers = fakeTimers();
+  try {
+    let starts = 0;
+    const result = speak("pause a real line", "ko-KR", { onStart: () => { starts += 1; } });
+    await flush();
+    const player = env.players[0];
+    player.onplaying?.();
+    player.currentTime = 1.2;
+    assert.equal(timers.has(15_000), true);
+    pauseSpeaking();
+    assert.equal(player.paused, true);
+    assert.equal(timers.has(15_000), false, "a hidden tab must not exhaust the playback watchdog");
+    assert.equal(player.currentTime, 1.2);
+    resumeSpeaking();
+    assert.equal(player.plays, 2);
+    assert.equal(player.currentTime, 1.2);
+    player.onplaying?.();
+    assert.equal(starts, 1);
+    player.onended?.();
+    assert.deepEqual(await result, { started: true, cancelled: false });
+  } finally { await env.restore(); timers.restore(); }
+});
+
+test("audio that finishes loading while paused never starts until resume", async () => {
+  const env = environment();
+  let complete!: (response: Response) => void;
+  globalThis.fetch = async () => new Promise<Response>((resolve) => { complete = resolve; });
+  try {
+    const result = speak("fetch while tab is hidden", "ko-KR");
+    await flush();
+    pauseSpeaking();
+    complete(audioResponse());
+    await flush();
+    assert.equal(env.players.length, 0);
+    resumeSpeaking();
+    await flush();
+    assert.equal(env.players.length, 1);
+    env.players[0].onplaying?.();
+    env.players[0].onended?.();
+    assert.deepEqual(await result, { started: true, cancelled: false });
+  } finally { await env.restore(); }
+});
+
+test("a pause-interrupted play promise cannot destroy the resumed Korean line", async () => {
+  const env = environment();
+  const attempts = env.holdAudioPlay();
+  try {
+    let finished = false;
+    const result = speak("버퍼링 중 멈췄다가 같은 대사를 계속해요", "ko-KR").then((value) => { finished = true; return value; });
+    await flush();
+    const player = env.players[0];
+    pauseSpeaking();
+    resumeSpeaking();
+    assert.equal(player.plays, 2);
+    attempts.reject(0);
+    await flush();
+    assert.equal(finished, false, "the stale AbortError belongs to the interrupted play attempt");
+    assert.equal(env.players.length, 1);
+    player.onplaying?.();
+    player.onended?.();
+    assert.deepEqual(await result, { started: true, cancelled: false });
+  } finally { await env.restore(); }
+});
+
+test("cancelling a paused line releases its waiter without reviving cancelled audio on resume", async () => {
+  const env = environment();
+  try {
+    pauseSpeaking();
+    const controller = new AbortController();
+    const result = speak("cancel paused pending playback", "ko-KR", { signal: controller.signal });
+    await flush();
+    controller.abort();
+    assert.deepEqual(await result, { started: false, cancelled: true });
+    resumeSpeaking();
+    await flush();
+    assert.equal(env.players.length, 0);
+  } finally { await env.restore(); }
+});
+
+test("a shared speech caller without a visibility handler wakes when the page becomes visible", async () => {
+  const env = environment();
+  const original = Object.getOwnPropertyDescriptor(globalThis, "document");
+  const page = Object.assign(new EventTarget(), { hidden: true });
+  Object.defineProperty(globalThis, "document", { value: page, configurable: true });
+  try {
+    const result = speak("legacy caller returning from hidden tab", "ko-KR");
+    await flush();
+    assert.equal(env.players.length, 0);
+    page.hidden = false;
+    page.dispatchEvent(new Event("visibilitychange"));
+    await flush();
+    assert.equal(env.players.length, 1, "visibility alone releases the implicit hidden-page gate");
+    env.players[0].onplaying?.();
+    env.players[0].onended?.();
+    assert.deepEqual(await result, { started: true, cancelled: false });
+
+    page.hidden = true;
+    pauseSpeaking();
+    const manual = speak("explicit pause is separate from visibility", "ko-KR");
+    await flush();
+    page.hidden = false;
+    page.dispatchEvent(new Event("visibilitychange"));
+    await flush();
+    assert.equal(env.players.length, 1, "becoming visible must not override an explicit pause");
+    resumeSpeaking();
+    await flush();
+    env.players[1].onplaying?.();
+    env.players[1].onended?.();
+    await manual;
+  } finally {
+    await env.restore();
+    if (original) Object.defineProperty(globalThis, "document", original);
+    else Reflect.deleteProperty(globalThis, "document");
+  }
+});
+
+test("browser fallback pauses and resumes its existing utterance", async () => {
+  const env = environment();
+  env.enableBrowser();
+  env.rejectAudio();
+  try {
+    const result = speak("pause supported browser fallback", "en-US");
+    await flush();
+    env.utterances[0].onstart?.();
+    pauseSpeaking();
+    assert.equal(env.browserPauses, 1);
+    resumeSpeaking();
+    assert.equal(env.browserResumes, 1);
+    assert.equal(env.utterances.length, 1);
+    env.utterances[0].onend?.();
+    assert.deepEqual(await result, { started: true, cancelled: false });
+  } finally { await env.restore(); }
+});
+
+test("leaving a paused browser utterance clears native pause before the next fallback", async () => {
+  const env = environment();
+  env.enableBrowser();
+  env.rejectAudio();
+  try {
+    const first = speak("paused browser voice before home", "en-US");
+    await flush();
+    env.utterances[0].onstart?.();
+    pauseSpeaking();
+    assert.equal(env.browserPaused, true);
+    stopSpeaking();
+    assert.deepEqual(await first, { started: true, cancelled: true });
+    assert.equal(env.browserPaused, false, "cancel alone would leave the native engine paused");
+    const next = speak("new browser voice after home", "en-US");
+    await flush();
+    assert.equal(env.browserPaused, false);
+    env.utterances[1].onstart?.();
+    env.utterances[1].onend?.();
+    assert.deepEqual(await next, { started: true, cancelled: false });
+  } finally { await env.restore(); }
+});
+
+test("mouth levels follow decoded waveform at the audio position and clean up on pause and end", async () => {
+  const env = environment();
+  const frames = env.enableMeter();
+  const levels: number[] = [];
+  try {
+    const result = speak("waveform synchronized speaking", "ko-KR", { onLevel: (level) => levels.push(level) });
+    await flush();
+    const player = env.players[0];
+    player.onplaying?.();
+    assert.equal(levels.at(-1), 0, "decoded silent introduction keeps the mouth closed");
+    player.currentTime = 0.06;
+    frames.tick();
+    assert.ok(levels.at(-1)! > 0.5 && levels.at(-1)! < 0.6);
+    const before = levels.length;
+    player.currentTime = 0.07;
+    frames.tick();
+    assert.equal(levels.length, before, "React receives no more than 20 level updates per second");
+    pauseSpeaking();
+    assert.equal(levels.at(-1), 0);
+    assert.equal(frames.pending, 0);
+    resumeSpeaking();
+    player.onplaying?.();
+    assert.ok(levels.at(-1)! > 0.5);
+    player.currentTime = 0.14;
+    frames.tick();
+    assert.equal(levels.at(-1), 0, "a quiet portion of the same line does not animate talking");
+    player.onended?.();
+    await result;
+    assert.equal(levels.at(-1), 0);
+    assert.equal(frames.pending, 0);
   } finally { await env.restore(); }
 });

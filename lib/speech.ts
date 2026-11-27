@@ -79,6 +79,8 @@ export interface SpeakOptions {
   emotion?: Emotion;
   /** Called once, when audio is actually playing, including browser fallback. */
   onStart?: () => void;
+  /** Actual decoded audio envelope, 0–1; silence/pause/end always emit zero. */
+  onLevel?: (level: number) => void;
   signal?: AbortSignal;
 }
 
@@ -98,6 +100,7 @@ interface QueuedSpeech {
   finished: boolean;
   error?: SpeechErrorCode;
   start: () => void;
+  level: (level: number) => void;
   finish: () => void;
 }
 
@@ -105,6 +108,10 @@ const audioCache = new Map<string, AudioRequest>();
 const speechQueue: QueuedSpeech[] = [];
 let processingQueue = false;
 let activeSpeech: QueuedSpeech | undefined;
+let speechPaused = false;
+let activePlayback: { pause: () => void; resume: () => void } | undefined;
+const resumeWaiters = new Set<() => void>();
+const isPlaybackPaused = () => speechPaused || (typeof document !== "undefined" && document.hidden);
 const TTS_TIMEOUT_MS = 20_000;
 const PLAYBACK_START_TIMEOUT_MS = 6_000;
 
@@ -123,7 +130,105 @@ class SpeechFailure extends Error {
 
 function errorCode(value: unknown): SpeechErrorCode | undefined {
   return value === "TTS_NOT_CONFIGURED" || value === "TTS_UPSTREAM_ERROR" ||
-    value === "TTS_TIMEOUT" || value === "TTS_PLAYBACK_ERROR" ? value : undefined;
+    value === "TTS_PROVIDER_BLOCKED" || value === "TTS_TIMEOUT" || value === "TTS_PLAYBACK_ERROR" ? value : undefined;
+}
+
+function waitForSpeechResume(signal: AbortSignal): Promise<void> {
+  if (!isPlaybackPaused()) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const page = typeof document !== "undefined" ? document : undefined;
+    const cleanup = () => {
+      resumeWaiters.delete(resume);
+      signal.removeEventListener("abort", abort);
+      page?.removeEventListener("visibilitychange", resume);
+    };
+    const resume = () => { if (!isPlaybackPaused()) { cleanup(); resolve(); } };
+    const abort = () => { cleanup(); reject(abortError()); };
+    if (signal.aborted) { abort(); return; }
+    resumeWaiters.add(resume);
+    signal.addEventListener("abort", abort, { once: true });
+    page?.addEventListener("visibilitychange", resume);
+  });
+}
+
+/** Deadlines measure active playback time, never time spent in a hidden tab. */
+function playbackWatchdog(onTimeout: () => void) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let remaining = 0;
+  let deadline = 0;
+  const pause = () => {
+    if (timer !== undefined) remaining = Math.max(0, deadline - Date.now());
+    clearTimeout(timer);
+    timer = undefined;
+  };
+  const resume = () => {
+    if (timer !== undefined || isPlaybackPaused()) return;
+    deadline = Date.now() + remaining;
+    timer = setTimeout(onTimeout, remaining);
+  };
+  return { pause, resume, arm(ms: number) { pause(); remaining = ms; resume(); }, stop() { clearTimeout(timer); timer = undefined; } };
+}
+
+/**
+ * Decode the real MP3 with Web Audio and sample its envelope at media.currentTime.
+ * Do not route audible media through AudioContext: a suspended context on iOS
+ * would otherwise silence an audio element that can play normally.
+ */
+function audioMeter(audio: HTMLAudioElement, blob: Blob, onLevel: (level: number) => void) {
+  let alive = true;
+  let running = false;
+  let frame: number | undefined;
+  let levels: Float32Array | undefined;
+  let lastSampleTime = -Infinity;
+  const framesPerSecond = 50;
+  const emit = (level: number) => { try { onLevel(level); } catch { /* Animation cannot interrupt speech. */ } };
+  const tick = () => {
+    if (!alive || !running) return;
+    if (audio.currentTime - lastSampleTime >= 0.05 || audio.currentTime < lastSampleTime) {
+      lastSampleTime = audio.currentTime;
+      const value = !audio.paused && !audio.ended ? levels?.[Math.floor(audio.currentTime * framesPerSecond)] ?? 0 : 0;
+      emit(value);
+    }
+    frame = window.requestAnimationFrame(tick);
+  };
+  const pause = () => {
+    running = false;
+    if (frame !== undefined) window.cancelAnimationFrame(frame);
+    frame = undefined;
+    lastSampleTime = -Infinity;
+    emit(0);
+  };
+  // Offline decoding needs no autoplay permission and never touches the output.
+  const OfflineContext = typeof window !== "undefined" ? window.OfflineAudioContext : undefined;
+  if (OfflineContext) void (async () => {
+    try {
+      const decoder = new OfflineContext(1, 1, 44_100);
+      const decoded = await decoder.decodeAudioData(await blob.arrayBuffer());
+      if (!alive) return;
+      const sampleStep = Math.max(1, Math.floor(decoded.sampleRate / framesPerSecond));
+      const envelope = new Float32Array(Math.ceil(decoded.length / sampleStep));
+      for (let block = 0; block < envelope.length; block += 1) {
+        const from = block * sampleStep, to = Math.min(decoded.length, from + sampleStep);
+        let squares = 0;
+        for (let channel = 0; channel < decoded.numberOfChannels; channel += 1) {
+          const samples = decoded.getChannelData(channel);
+          for (let sample = from; sample < to; sample += 1) squares += samples[sample] * samples[sample];
+        }
+        const rms = Math.sqrt(squares / ((to - from) * decoded.numberOfChannels));
+        envelope[block] = Math.min(1, Math.max(0, rms - 0.006) * 6);
+      }
+      levels = envelope;
+    } catch { /* Audio remains playable if waveform decoding is unavailable. */ }
+  })();
+  return {
+    start() {
+      if (!alive || running || typeof window.requestAnimationFrame !== "function") return;
+      running = true;
+      tick();
+    },
+    pause,
+    stop() { alive = false; pause(); levels = undefined; },
+  };
 }
 
 /** Cancellation releases the playback queue even if a network implementation never settles. */
@@ -227,7 +332,7 @@ function getAudio(content: string, locale: string, voice: Voice, emotion?: Emoti
   return request;
 }
 
-function playAudio(audioBlob: Blob, signal: AbortSignal, onStart: () => void, textLength: number): Promise<void> {
+function playAudio(audioBlob: Blob, signal: AbortSignal, onStart: () => void, onLevel: (level: number) => void, textLength: number): Promise<void> {
   return new Promise((resolve, reject) => {
     if (signal.aborted || typeof Audio === "undefined" ||
       typeof URL.createObjectURL !== "function" || typeof URL.revokeObjectURL !== "function") {
@@ -239,19 +344,46 @@ function playAudio(audioBlob: Blob, signal: AbortSignal, onStart: () => void, te
     try {
       audio = new Audio();
       objectUrl = URL.createObjectURL(audioBlob);
+      if (typeof document !== "undefined" && document.body) {
+        audio.hidden = true;
+        audio.setAttribute("data-story-audio", "");
+        audio.setAttribute("aria-hidden", "true");
+        document.body.append(audio);
+      }
     } catch {
       reject(new SpeechFailure("TTS_PLAYBACK_ERROR"));
       return;
     }
     let settled = false;
     let started = false;
-    let watchdog: ReturnType<typeof setTimeout>;
+    let playAttempt = 0;
+    const meter = audioMeter(audio, audioBlob, onLevel);
+    const watchdog = playbackWatchdog(() => finish(new SpeechFailure("TTS_PLAYBACK_ERROR")));
+    const play = () => {
+      if (settled || signal.aborted || isPlaybackPaused()) return;
+      const attempt = ++playAttempt;
+      const failed = () => {
+        // pause() rejects a still-pending play() with AbortError. A quick resume
+        // may already have started a new attempt when that rejection arrives.
+        if (!settled && attempt === playAttempt && !isPlaybackPaused()) finish(new SpeechFailure("TTS_PLAYBACK_ERROR"));
+      };
+      try { void audio.play()?.catch(failed); }
+      catch { failed(); }
+    };
+    const controls = {
+      pause() { playAttempt += 1; watchdog.pause(); meter.pause(); try { audio.pause(); } catch { /* Closed media. */ } },
+      resume() { if (!settled) { watchdog.resume(); play(); } },
+    };
+    activePlayback = controls;
     const finish = (error?: Error) => {
       if (settled) return;
       settled = true;
-      clearTimeout(watchdog);
+      watchdog.stop();
+      meter.stop();
+      if (activePlayback === controls) activePlayback = undefined;
       signal.removeEventListener("abort", abort);
       audio.onplaying = audio.onended = audio.onerror = null;
+      audio.remove?.();
       if (error) {
         try { audio.pause(); } catch { /* Playback may already have stopped. */ }
       }
@@ -262,18 +394,21 @@ function playAudio(audioBlob: Blob, signal: AbortSignal, onStart: () => void, te
     const abort = () => finish(abortError());
     signal.addEventListener("abort", abort, { once: true });
     audio.onplaying = () => {
-      if (settled || started || signal.aborted) return;
-      started = true;
-      clearTimeout(watchdog);
-      watchdog = setTimeout(() => finish(new SpeechFailure("TTS_PLAYBACK_ERROR")), Math.max(15_000, textLength * 400));
-      onStart();
+      if (settled || signal.aborted) return;
+      if (isPlaybackPaused()) { controls.pause(); return; }
+      meter.start();
+      if (!started) {
+        started = true;
+        watchdog.arm(Math.max(15_000, textLength * 400));
+        onStart();
+      }
     };
     audio.onended = () => finish();
     audio.onerror = () => finish(new SpeechFailure("TTS_PLAYBACK_ERROR"));
-    watchdog = setTimeout(() => finish(new SpeechFailure("TTS_PLAYBACK_ERROR")), PLAYBACK_START_TIMEOUT_MS);
+    watchdog.arm(PLAYBACK_START_TIMEOUT_MS);
     try {
       audio.src = objectUrl;
-      void audio.play()?.catch(() => finish(new SpeechFailure("TTS_PLAYBACK_ERROR")));
+      play();
     } catch {
       finish(new SpeechFailure("TTS_PLAYBACK_ERROR"));
     }
@@ -298,11 +433,17 @@ function speakWithBrowser(content: string, locale: string, signal: AbortSignal, 
     }
     let settled = false;
     let started = false;
-    let watchdog: ReturnType<typeof setTimeout>;
+    const watchdog = playbackWatchdog(() => finish(true));
+    const controls = {
+      pause() { watchdog.pause(); try { synthesis.pause?.(); } catch { /* Closed speech engine. */ } },
+      resume() { if (!settled) { watchdog.resume(); try { synthesis.resume?.(); } catch { finish(true); } } },
+    };
+    activePlayback = controls;
     const finish = (cancel = false, completed = false) => {
       if (settled) return;
       settled = true;
-      clearTimeout(watchdog);
+      watchdog.stop();
+      if (activePlayback === controls) activePlayback = undefined;
       signal.removeEventListener("abort", abort);
       utterance.onstart = utterance.onend = utterance.onerror = null;
       if (cancel) {
@@ -315,14 +456,19 @@ function speakWithBrowser(content: string, locale: string, signal: AbortSignal, 
     utterance.onstart = () => {
       if (settled || started || signal.aborted) return;
       started = true;
-      clearTimeout(watchdog);
-      watchdog = setTimeout(() => finish(true), Math.max(15_000, content.length * 400));
+      watchdog.arm(Math.max(15_000, content.length * 400));
+      if (isPlaybackPaused()) controls.pause();
       onStart();
     };
     utterance.onend = () => finish(false, true);
     utterance.onerror = () => finish();
-    watchdog = setTimeout(() => finish(true), PLAYBACK_START_TIMEOUT_MS);
-    try { synthesis.speak(utterance); } catch { finish(); }
+    watchdog.arm(PLAYBACK_START_TIMEOUT_MS);
+    try {
+      // cancel() does not clear the native engine's paused state. This also
+      // covers callers outside Tales that return from a hidden page later.
+      if (synthesis.paused && !isPlaybackPaused()) synthesis.resume?.();
+      synthesis.speak(utterance);
+    } catch { finish(); }
   });
 }
 
@@ -337,9 +483,11 @@ async function processSpeechQueue(): Promise<void> {
         if (item.controller.signal.aborted) continue;
         try {
           const audio = await untilAborted(item.request.audio, item.controller.signal);
-          if (!item.controller.signal.aborted) await playAudio(audio, item.controller.signal, item.start, item.content.length);
+          await waitForSpeechResume(item.controller.signal);
+          if (!item.controller.signal.aborted) await playAudio(audio, item.controller.signal, item.start, item.level, item.content.length);
         } catch (error) {
           if (!item.controller.signal.aborted) {
+            await waitForSpeechResume(item.controller.signal).catch(() => {});
             const fallbackCompleted = !needsKoreanVoice(item.content, item.locale) &&
               await speakWithBrowser(item.content, item.locale, item.controller.signal, item.start);
             if (!fallbackCompleted) item.error = error instanceof SpeechFailure ? error.code : "TTS_UPSTREAM_ERROR";
@@ -363,7 +511,7 @@ export function preloadSpeech(text: string, locale: string, voice: Voice = "narr
 }
 
 /** Never rejects. A non-started, non-cancelled result lets callers show readable captions. */
-export function speak(text: string, locale: string, { voice = "narrator", emotion, onStart, signal }: SpeakOptions = {}): Promise<SpeakResult> {
+export function speak(text: string, locale: string, { voice = "narrator", emotion, onStart, onLevel, signal }: SpeakOptions = {}): Promise<SpeakResult> {
   const content = text.trim();
   if (!content || typeof window === "undefined" || signal?.aborted) {
     return Promise.resolve({ started: false, cancelled: signal?.aborted ?? false });
@@ -380,8 +528,13 @@ export function speak(text: string, locale: string, { voice = "narrator", emotio
         item.started = true;
         try { onStart?.(); } catch { /* A UI callback must not strand the audio queue. */ }
       },
+      level(value) {
+        if (item.finished || controller.signal.aborted) return;
+        try { onLevel?.(value); } catch { /* Animation cannot interrupt speech. */ }
+      },
       finish() {
         if (item.finished) return;
+        try { onLevel?.(0); } catch { /* Animation cannot strand the queue. */ }
         item.finished = true;
         signal?.removeEventListener("abort", cancel);
         controller.signal.removeEventListener("abort", item.finish);
@@ -406,8 +559,28 @@ export function stopSpeaking(): void {
   for (const request of audioCache.values()) {
     if (request.users === 0 && !request.complete) request.controller.abort();
   }
+  speechPaused = false;
   const synthesis = getSpeechSynthesis();
-  try { synthesis?.cancel(); } catch { /* The browser may already have closed its speech service. */ }
+  try {
+    synthesis?.cancel();
+    if (synthesis?.paused && !isPlaybackPaused()) synthesis.resume?.();
+  } catch { /* The browser may already have closed its speech service. */ }
+  for (const resume of resumeWaiters) resume();
+}
+
+/** Pause media without cancelling its line or losing the current playback time. */
+export function pauseSpeaking(): void {
+  speechPaused = true;
+  activePlayback?.pause();
+  activeSpeech?.level(0);
+}
+
+/** Resume the same line, including one whose audio finished loading while hidden. */
+export function resumeSpeaking(): void {
+  speechPaused = false;
+  if (isPlaybackPaused()) return;
+  activePlayback?.resume();
+  for (const resume of resumeWaiters) resume();
 }
 
 interface RecognitionAlternative {

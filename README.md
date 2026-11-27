@@ -55,7 +55,7 @@ This is a hackathon project with a build window of a few hours, so we keep the f
 
 - **Hosting:** Vercel. The Kimi K3 API key stays on the server in a Vercel serverless function and never reaches the browser.
 - **Languages:** English and Korean.
-- **Audio:** The main story uses Typecast for Korean and mixed Korean/English lines, with a separately configured cast and real child voices for the child characters. English-only lines use the existing ElevenLabs cast. API keys stay on the server. Missing Korean voice configuration produces captions and a small notice instead of switching to a browser voice. See [voice setup and auditions](docs/typecast-voices.md).
+- **Audio:** The main story uses the existing ElevenLabs cast with Multilingual v2 for Korean, English, and mixed lines. Typecast is optional (`TTS_KOREAN_PROVIDER=typecast`) after its account restriction is resolved; a failed Typecast request can fall back to ElevenLabs. API keys stay on the server. If Korean audio is unavailable, the app shows a notice instead of silently using a browser voice. Questions, choices, practice, and endings are voiced; learned words can be replayed. Mouth movement follows the audio envelope, and hiding or pausing the page pauses speech and scene together. See [voice setup and auditions](docs/typecast-voices.md).
 - **Speech recognition:** the browser's built-in Web Speech API turns the child's speech into text, and the game compares the transcript to the target word. Speech recognition works best in Chrome.
 - **Safety:** a system prompt keeps content age-appropriate, and the parent can preview a run first.
 - **MVP:** a setup screen for the lesson, language, and age, then the story loop. Each scene has a few choices, introduces a few simple words, and has a speak button for feedback. The loop repeats until Kimi K3 marks the lesson complete.
@@ -73,7 +73,7 @@ npm run dev
 
 Open http://localhost:3000. If that port is busy, Next.js picks the next free one and prints it. Edits reload in the browser as you save.
 
-Add the story API key and speech keys to `.env.local`. For Korean audio, set `TYPECAST_API_KEY`; the app includes the reviewed cast in `lib/typecast.ts`. Optional `TYPECAST_VOICE_*` overrides let you replace individual roles after auditioning API voice IDs with `npm run voices:list` and `npm run voices:sample -- --voice <voice_id>`. Restart the dev server after changing these settings. On Vercel, also add `TYPECAST_API_KEY` to the project's Production and Preview environments and redeploy: `.env.local` is not uploaded by Git. The older `/demo` and `/kay` prototypes have separate audio paths and are not migrated by this change.
+Add `KIMI_API_KEY` and `ELEVENLABS_API_KEY` to `.env.local` and the matching Vercel environments. Korean speech defaults to ElevenLabs while Typecast synthesis is restricted. To restore the reviewed Typecast cast after the restriction is cleared, set `TTS_KOREAN_PROVIDER=typecast` and `TYPECAST_API_KEY`; optional `TYPECAST_VOICE_*` overrides use auditioned API voice IDs. Restart locally or redeploy after environment changes. `.env.local` is not uploaded by Git. The older `/demo` and `/kay` prototypes keep separate audio paths.
 
 Until the API is ready, the game client can read the sample scene in `mocks/scene.json`, so the UI works without any API keys.
 

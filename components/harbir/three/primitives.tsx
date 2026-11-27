@@ -46,17 +46,17 @@ export function Blob({
  * The shared face from Alice's model: sparkly dark eyes, pink cheeks, a small nose and mouth.
  * Placed on the front of a head centered at `center` with radius `size`.
  */
-export function Face({ center, size, nose = PALETTE.cheek, spread = 1, noseDepth = 0, mouthDepth = 0, mouthWidth = 1, speaking = false }: {
+export function Face({ center, size, nose = PALETTE.cheek, spread = 1, noseDepth = 0, mouthDepth = 0, mouthWidth = 1, speaking = false, level = 0 }: {
   center: Vec3; size: number; nose?: string | null; spread?: number;
   /** Move these features to the visible surface of a protruding muzzle or bill. */
-  noseDepth?: number; mouthDepth?: number; mouthWidth?: number; speaking?: boolean;
+  noseDepth?: number; mouthDepth?: number; mouthWidth?: number; speaking?: boolean; level?: number;
 }) {
   const [x, y, z] = center;
   const front = z + size * 0.92;
   const mouth = useRef<Group>(null);
-  useFrame(({ clock }, delta) => {
+  useFrame((_state, delta) => {
     if (!mouth.current) return;
-    const opening = speaking ? 1.8 + Math.sin(clock.elapsedTime * 17) * 0.55 : 1;
+    const opening = speaking ? 1 + MathUtils.clamp(level, 0, 1) * 3 : 1;
     mouth.current.scale.y = MathUtils.damp(mouth.current.scale.y, opening, 18, Math.min(delta, 0.05));
   });
   return (

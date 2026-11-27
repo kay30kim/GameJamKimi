@@ -16,9 +16,10 @@ let fixtureId = 0;
 function environment(t: TestContext, changes: Record<string, string | undefined> = {}) {
   t.mock.method(console, "warn", () => {});
   const values: Record<string, string | undefined> = {
-    TYPECAST_API_KEY: "test-typecast-key",
+    TYPECAST_API_KEY: `test-typecast-key-${++fixtureId}`,
+    TTS_KOREAN_PROVIDER: "typecast",
     TYPECAST_MODEL: undefined,
-    ELEVENLABS_API_KEY: "test-eleven-key",
+    ELEVENLABS_API_KEY: undefined,
     ELEVENLABS_VOICE_ID: undefined,
     GENERATED_CACHE_DISABLED: "1",
   };
@@ -110,7 +111,7 @@ function cache(t: TestContext) {
   return { files, reads, writes };
 }
 
-test("Korean requires its own Typecast key and never falls through to configured ElevenLabs", async (t) => {
+test("speech reports missing configuration when neither permitted provider has a key", async (t) => {
   environment(t, { TYPECAST_API_KEY: "  " });
   const calls = provider(t);
   await error(await POST(request()), 503, "TTS_NOT_CONFIGURED");
@@ -159,7 +160,7 @@ test("pure Korean validates the selected voice and sends a pitch-neutral Typecas
   assert.equal(calls[0].options.method ?? "GET", "GET");
   assert.equal(calls.length, 2);
   for (const { options } of calls) {
-    assert.equal(new Headers(options.headers).get("x-api-key"), "test-typecast-key");
+    assert.equal(new Headers(options.headers).get("x-api-key"), process.env.TYPECAST_API_KEY);
     assert.ok(options.signal, "metadata and generation both need an abort signal");
   }
   assert.equal(calls[1].options.method, "POST");
@@ -302,7 +303,7 @@ test("valid-looking metadata for a different child voice cannot authorize the co
   assert.equal(syntheses(calls).length, 0);
 });
 
-test("provider HTTP failures never fall back to ElevenLabs, and a later request can recover", async (t) => {
+test("a transient provider failure without a configured backup can recover on a fresh request", async (t) => {
   environment(t);
   let fail = true;
   const calls = provider(t, { audio: () => fail ? new Response(null, { status: 503 }) : mp3() });
@@ -331,7 +332,7 @@ test("audio/mp3 upstream responses normalize to the browser's audio/mpeg contrac
 });
 
 test("English-only speech preserves ElevenLabs casting, narrator override, and its 4000-character cap", async (t) => {
-  environment(t, { TYPECAST_API_KEY: undefined, ELEVENLABS_VOICE_ID: "test-storyteller" });
+  environment(t, { TYPECAST_API_KEY: undefined, ELEVENLABS_API_KEY: "test-eleven-key", ELEVENLABS_VOICE_ID: "test-storyteller" });
   const calls: Call[] = [];
   t.mock.method(globalThis, "fetch", async (input: string | URL | Request, options: RequestInit = {}) => {
     calls.push({ url: String(input), options });
@@ -345,7 +346,7 @@ test("English-only speech preserves ElevenLabs casting, narrator override, and i
   assert.equal(calls[1].url, "https://api.elevenlabs.io/v1/text-to-speech/test-storyteller");
   const body = JSON.parse(String(calls[0].options.body));
   assert.equal(body.model_id, "eleven_multilingual_v2");
-  assert.equal(body.language_code, "en");
+  assert.equal(body.language_code, undefined, "multilingual_v2 does not support language_code");
   assert.equal(body.voice_settings.speed, VOICES.hero.speed);
   assert.equal(new Headers(calls[0].options.headers).get("xi-api-key"), "test-eleven-key");
 });
@@ -449,7 +450,7 @@ test("clip identity includes text, locale, role, emotion, real voice, model, and
 });
 
 test("English characters sharing a voice ID still cache their distinct speeds separately", async (t) => {
-  environment(t);
+  environment(t, { ELEVENLABS_API_KEY: "test-eleven-key" });
   const storage = cache(t);
   const payloads: Record<string, unknown>[] = [];
   t.mock.method(globalThis, "fetch", async (_input: unknown, init: RequestInit = {}) => {
@@ -556,7 +557,7 @@ test("provider failure logs expose stage and HTTP status without credentials or 
   });
   await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
   metadataFails = false;
-  await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
+  await error(await POST(request()), 503, "TTS_PROVIDER_BLOCKED");
   assert.deepEqual(warnings, [
     ["[tts] provider request failed", { provider: "typecast", stage: "voice-metadata", status: 401, contentType: "other", server: "other", category: "unknown" }],
     ["[tts] provider request failed", { provider: "typecast", stage: "synthesis", status: 429, contentType: "text", server: "other", category: "unknown" }],
@@ -605,4 +606,76 @@ test("provider diagnostic reads are bounded and a stalled error body cannot hang
   provider(t, { audio: () => new Response(" ".repeat(8192) + "secret API key", { status: 403 }) });
   await error(await POST(request()), 502, "TTS_UPSTREAM_ERROR");
   assert.equal((warnings[1][1] as { category: string }).category, "unknown", "text beyond the prefix is never inspected");
+});
+
+test("Korean and mixed-language speech default to the existing multilingual cast without probing restricted Typecast", async (t) => {
+  environment(t, { TTS_KOREAN_PROVIDER: undefined, ELEVENLABS_API_KEY: "multilingual-account" });
+  const calls: Call[] = [];
+  t.mock.method(globalThis, "fetch", async (input: string | URL | Request, options: RequestInit = {}) => {
+    calls.push({ url: String(input), options });
+    return mp3();
+  });
+  for (const voice of roles) {
+    const response = await POST(request({ text: "안녕! Let’s play together.", lang: "en-US", voice }));
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("x-speech-provider"), "elevenlabs");
+    assert.equal(response.headers.get("x-speech-fallback"), "0");
+    assert.equal(calls.at(-1)!.url, `https://api.elevenlabs.io/v1/text-to-speech/${VOICES[voice].id}`);
+    const payload = JSON.parse(String(calls.at(-1)!.options.body));
+    assert.equal(payload.model_id, "eleven_multilingual_v2");
+    assert.equal(payload.language_code, undefined);
+  }
+  assert.equal(calls.length, roles.length, "no Typecast metadata or synthesis probe");
+});
+
+test("Typecast account denial switches provider once and opens the circuit across characters", async (t) => {
+  environment(t, { ELEVENLABS_API_KEY: "fallback-account" });
+  const storage = cache(t);
+  const calls: string[] = [];
+  t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
+    const url = String(input);
+    calls.push(url);
+    if (url.startsWith(`${api}/v3/voices/`)) return Response.json(voiceDetails(url.split("/").at(-1)!));
+    if (url.startsWith(api)) return Response.json({ error: { code: "UNUSUAL_ACTIVITY_DETECTED" } }, { status: 403 });
+    return mp3();
+  });
+  const first = await POST(request());
+  assert.equal(first.status, 200);
+  assert.equal(first.headers.get("x-speech-provider"), "elevenlabs");
+  assert.equal(first.headers.get("x-speech-fallback"), "1");
+  assert.equal((await POST(request({ text: "다른 친구도 말해요.", lang: "ko-KR", voice: "friend" }))).status, 200);
+  assert.equal(calls.filter((url) => url.startsWith(api)).length, 2, "the second character never retries the blocked account");
+  const replay = await POST(request());
+  assert.equal(replay.headers.get("x-generated-cache"), "HIT");
+  assert.equal(replay.headers.get("x-speech-provider"), "elevenlabs", "fallback audio is not mislabelled or stored as Typecast");
+  assert.equal(calls.length, 4);
+  assert.equal(storage.writes.length, 2);
+});
+
+test("both restricted providers return a truthful typed error and are not retried per line", async (t) => {
+  environment(t, { ELEVENLABS_API_KEY: "restricted-backup-account" });
+  let calls = 0;
+  t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
+    calls += 1;
+    const url = String(input);
+    if (url.startsWith(`${api}/v3/voices/`)) return Response.json(voiceDetails(url.split("/").at(-1)!));
+    return Response.json({ error: { code: "UNUSUAL_ACTIVITY_DETECTED" } }, { status: 403 });
+  });
+  await error(await POST(request()), 503, "TTS_PROVIDER_BLOCKED");
+  assert.equal(calls, 3);
+  await error(await POST(request({ text: "다음 대사", lang: "ko-KR", voice: "duck" })), 503, "TTS_PROVIDER_BLOCKED");
+  assert.equal(calls, 3);
+});
+
+test("rate limiting backs off until its circuit cooldown ends", async (t) => {
+  environment(t, { TTS_KOREAN_PROVIDER: undefined, ELEVENLABS_API_KEY: "rate-limited-account" });
+  let now = Date.now(), calls = 0;
+  t.mock.method(Date, "now", () => now);
+  t.mock.method(globalThis, "fetch", async () => ++calls === 1 ? new Response(null, { status: 429 }) : mp3());
+  await error(await POST(request()), 503, "TTS_PROVIDER_BLOCKED");
+  await error(await POST(request()), 503, "TTS_PROVIDER_BLOCKED");
+  assert.equal(calls, 1);
+  now += 60_001;
+  assert.equal((await POST(request())).status, 200);
+  assert.equal(calls, 2);
 });

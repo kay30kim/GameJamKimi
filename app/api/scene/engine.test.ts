@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { generateScene } from "./engine";
+import { generateScene, SceneGenerationError } from "./engine";
 import { parseLines, parseScene } from "./validation";
 import { defaultStage, parseStage } from "./stage";
 import { ACTIONS, ACTORS, PROPS, SPOTS } from "../../../lib/world";
@@ -74,36 +74,54 @@ test("invalid JSON or shape retries once, then can recover", async () => {
   }
 });
 
-test("repeated failure yields a localized closing with a stable contract", async () => {
+test("corrupt learning content is regenerated with quality guidance and is never returned", async () => {
+  const good = { ...scene, narration: "앨리스가 친구를 만났어요.", newWords: [{ word: "친구", meaning: "friend" }] };
+  for (const bad of [
+    { ...good, narration: "사과가 국러갔어요." },
+    { ...good, newWords: [{ word: "데굴de굴", meaning: "rolling" }] },
+    { ...good, lines: [{ speaker: "hero", text: "우산을 걸베주고 가자." }] },
+    { ...good, narration: "도도가 넘어졌어요. 사과가 굴러갔어요." },
+  ]) {
+    const bodies: string[] = [];
+    const result = await generateScene({ ...input, language: "ko" }, { apiKey: "test", fetcher: async (_url, init) => {
+      bodies.push(String(init?.body));
+      return completion(bodies.length === 1 ? bad : good);
+    } });
+    assert.equal(bodies.length, 2);
+    assert.match(bodies[1], /quality checks/);
+    assert.deepEqual(result.scene, good);
+  }
+  await assert.rejects(generateScene({ ...input, language: "ko" }, { apiKey: "test", fetcher: async () => completion({ ...good, narration: "사과가 국러갔어요." }) }), SceneGenerationError);
+});
+
+test("repeated premature endings do not silently end a lesson without a choice", async () => {
+  await assert.rejects(generateScene(input, { apiKey: "test", fetcher: async () => completion({ ...scene, choices: [], lessonComplete: true }) }), SceneGenerationError);
+});
+
+test("repeated failure stays recoverable instead of falsely completing the story", async () => {
   for (const language of ["en", "ko"] as const) {
     let calls = 0;
-    const result = await generateScene({ ...input, language }, { apiKey: "test", fetcher: async () => { calls++; return new Response(null, { status: 503 }); } });
+    await assert.rejects(generateScene({ ...input, language }, { apiKey: "test", fetcher: async () => { calls++; return new Response(null, { status: 503 }); } }), SceneGenerationError);
     assert.equal(calls, 2);
-    assert.equal(result.mode, "fallback");
-    assert.equal(result.scene.lessonComplete, true);
-    assert.deepEqual(result.scene.choices, []);
-    assert.match(result.scene.narration, language === "ko" ? /이야기/ : /story/);
   }
 });
 
 test("rejected credentials do not retry", async () => {
   let calls = 0;
-  const result = await generateScene(input, { apiKey: "test", fetcher: async () => { calls++; return new Response(null, { status: 401 }); } });
+  await assert.rejects(generateScene(input, { apiKey: "test", fetcher: async () => { calls++; return new Response(null, { status: 401 }); } }), SceneGenerationError);
   assert.equal(calls, 1);
-  assert.equal(result.mode, "fallback");
 });
 
-test("timeouts abort both attempts and return fallback", async () => {
+test("timeouts abort both attempts and return a recoverable failure", async () => {
   let calls = 0;
-  const result = await generateScene(input, { apiKey: "test", timeoutMs: 5, fetcher: async (_url, init) => {
+  await assert.rejects(generateScene(input, { apiKey: "test", timeoutMs: 5, fetcher: async (_url, init) => {
     calls++;
     return new Promise<Response>((_resolve, reject) => {
       const keepAlive = setTimeout(() => reject(new Error("test exceeded timeout")), 1000);
       init?.signal?.addEventListener("abort", () => { clearTimeout(keepAlive); reject(init.signal?.reason); }, { once: true });
     });
-  } });
+  } }), SceneGenerationError);
   assert.equal(calls, 2);
-  assert.equal(result.mode, "fallback");
 });
 
 test("eighth scene closes without a model call, even if previous scenes never ended", async () => {
@@ -118,8 +136,7 @@ test("eighth scene closes without a model call, even if previous scenes never en
 });
 
 test("truncated completion is rejected and endings from scene 3 are accepted", async () => {
-  const truncated = await generateScene(input, { apiKey: "test", fetcher: async () => Response.json({ choices: [{ finish_reason: "length", message: { content: JSON.stringify(scene) } }] }) });
-  assert.equal(truncated.mode, "fallback");
+  await assert.rejects(generateScene(input, { apiKey: "test", fetcher: async () => Response.json({ choices: [{ finish_reason: "length", message: { content: JSON.stringify(scene) } }] }) }), SceneGenerationError);
   const ending = { ...scene, choices: [], lessonComplete: true };
   const third = { ...input, history: [{ narration: "a", choice: "b" }, { narration: "c", choice: "d" }] };
   let calls = 0;
@@ -267,7 +284,7 @@ test("prompt offers every world name and nothing else is needed to grow the worl
 
 test("an opening id reaches the prompt as its situation, and the new world entries are offered", () => {
   const messages = buildSceneMessages({ ...input, opening: "duck_bank" });
-  assert.match(JSON.parse(messages[1].content).opening, /can't climb out of the pond/);
+  assert.match(JSON.parse(messages[1].content).opening, /sitting beside the pond/);
   for (const name of ["kitten", "duck", "balloon", "watering_can", "dance", "nap", "look_around", "sunset"]) {
     assert.match(messages[0].content, new RegExp(name));
   }
@@ -276,7 +293,7 @@ test("an opening id reaches the prompt as its situation, and the new world entri
 test("the opening seeds only the first scene and disappears after a choice", () => {
   const opening = "balloon" as const;
   const first = buildSceneMessages({ ...input, opening });
-  assert.match(JSON.parse(first[1].content).opening, /balloon slips/);
+  assert.match(JSON.parse(first[1].content).opening, /balloon rests/);
   assert.match(first[0].content, /This is the first scene/);
   const next = buildSceneMessages({
     ...input,

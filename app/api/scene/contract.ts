@@ -54,7 +54,7 @@ export interface SceneResponse {
 }
 
 export interface SceneErrorResponse {
-  error: { code: "INVALID_REQUEST"; message: string };
+  error: { code: "INVALID_REQUEST" | "SCENE_UNAVAILABLE"; message: string };
 }
 
 export const MAX_SCENES = 8;

@@ -24,10 +24,11 @@ The request uses Moonshot's [Chat Completions API](https://platform.kimi.ai/docs
 | --- | --- |
 | `stub` | No key: deterministic three-scene integration story |
 | `kimi` | Validated model-generated scene |
-| `fallback` | Generation failed: localized neutral closing scene |
 | `limit` | Server-enforced closing at scene eight or later |
 
-Fallbacks deliberately end the story instead of inserting an unrelated scene into a generated story. JSON validation checks structure, text limits, vocabulary, and ongoing/ending choice counts; it is not a content moderation system. Review generated stories with a parent before the demo. The character brief in `lib/prompt.ts` is provisional until the designer supplies one.
+Generation failure returns HTTP 503 with `error.code: "SCENE_UNAVAILABLE"` and a localized retry message. It never pretends that the lesson completed. Keep the current world visible and offer another attempt. Invalid request settings still return HTTP 400 with `INVALID_REQUEST`.
+
+Validation checks structure, text limits, corrupt mixed-script tokens, observed spelling regressions, and ongoing/ending choice counts. Learning expressions come from an age- and topic-specific reviewed vocabulary bank; translations are canonical. The plot and choices remain generated. Invalid content is regenerated once, then returns the recoverable error. Openings and prompt rules use actions the renderer supports; explicit fall, scattering-apple, and floating-balloon narration is rejected. These checks are not a complete Korean spellchecker or content moderation system.
 
 ## Client call
 
@@ -105,7 +106,7 @@ curl -i http://localhost:3000/api/scene \
 
 ## Reusing generated scenes
 
-Successful model scenes are stored through the private generated-content cache. The key includes the model, actual prompt, lesson, age, language, opening, learned words, complete choice history, and exact continuation state. Different branches, actor positions, prop owners and previous dialogue cannot share an entry. Failed-provider fallbacks, missing-key stubs and scene-limit closings are not saved. Corrupt entries and storage outages fall back to generation. API responses remain `Cache-Control: no-store`; `X-Scene-Cache` reports `hit`, `miss` or `bypass`.
+Successful model scenes are stored through the private generated-content cache. The key includes the model, actual prompt, lesson, age, language, opening, learned words, complete choice history, and exact continuation state. Different branches, actor positions, prop owners and previous dialogue cannot share an entry. Failed generations, missing-key stubs and scene-limit closings are not saved. Cached content must pass the same quality checks as newly generated content; the revised cache namespace makes older unreviewed output unreachable. Corrupt entries and storage outages fall back to generation. API responses remain `Cache-Control: no-store`; `X-Scene-Cache` reports `hit`, `miss` or `bypass`.
 
 Preview a preparation plan without calling either generation provider:
 

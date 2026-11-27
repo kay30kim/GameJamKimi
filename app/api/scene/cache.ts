@@ -3,8 +3,9 @@ import { buildSceneMessages } from "../../../lib/prompt";
 import { generateScene, resolvedSceneModel } from "./engine";
 import type { SceneRequest, SceneResponse } from "./contract";
 import { parseScene } from "./validation";
+import { validateSceneContent } from "./content-quality";
 
-const SCENE_CACHE_REVISION = "scene-v1-json-cues-continuation";
+const SCENE_CACHE_REVISION = "scene-v2-reviewed-learning-renderable-openings";
 type SceneResult = Awaited<ReturnType<typeof generateScene>>;
 export type CachedSceneResult = SceneResult & { cache: "hit" | "miss" | "bypass" };
 
@@ -47,7 +48,7 @@ export function createCachedSceneGenerator(dependencies: CacheDependencies = {
         const bytes = await dependencies.read("scene", key);
         if (bytes) {
           const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-          const scene = parseScene(text);
+          const scene = validateSceneContent(parseScene(text), request);
           // A repaired/defaulted stage or dropped dialogue is not the saved scene.
           // Reject corrupt entries instead of silently changing the cached story.
           if (generatedKey(JSON.parse(text)) === generatedKey(scene)) {
@@ -58,7 +59,7 @@ export function createCachedSceneGenerator(dependencies: CacheDependencies = {
 
       const result = await dependencies.generate(request, { model });
       if (result.mode !== "kimi") return { ...result, cache: "bypass" };
-      const scene: SceneResponse = parseScene(JSON.stringify(result.scene));
+      const scene: SceneResponse = validateSceneContent(parseScene(JSON.stringify(result.scene)), request);
       let stored = false;
       try {
         stored = await dependencies.write("scene", key, new TextEncoder().encode(JSON.stringify(scene)), "application/json");

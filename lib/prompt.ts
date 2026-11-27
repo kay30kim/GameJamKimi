@@ -2,6 +2,7 @@ import { MAX_LINES, MAX_SCENES, MIN_SCENES } from "../app/api/scene/contract";
 import type { SceneRequest } from "../app/api/scene/contract";
 import { lessonGuide } from "./lesson-guides";
 import { OPENINGS } from "./openings";
+import { expressionKey, lessonVocabulary } from "./lesson-vocabulary";
 import { ACTIONS, ACTORS, EMOTIONS, MAX_BEATS, PROPS, SPOTS, WEATHERS } from "./world";
 
 /** From design/character-brief.md. The child plays Alice. */
@@ -25,6 +26,7 @@ const WORLD_RULES = [
   "Match each action to the speech that describes or performs it. Use narration to set up the situation and any approach or pickup. Do not describe a handoff as already complete in narration if the giver will offer it in a later line.",
   "For a spoken handoff, schedule pick_up (if needed) and walk_to before give, using an earlier cue. Assign give to the giver's line, such as 'Here, take this!'. Put the receiver's thanks or happy reaction in the next line with its later cue, after the handoff. Do not put the give on the receiver's line or play every action during narration when dialogue describes those actions.",
   "Make the beats show what the narration describes and what the child's latest choice did. Use ids exactly as written, never translated.",
+  "Rendering limits: there is one instance of each prop. Apples cannot scatter or roll, balloons cannot float away, characters cannot trip, fall, climb, eat, or slide, and flowers cannot break or wilt on screen. Never narrate these as actions occurring in this scene. Set up a supported visible state instead (an apple already on the path, a friend sitting near it) and animate an approach, pickup, handoff, expression, or gesture. A character's roll action is a deliberate playful roll, never an accidental fall. Keep events that cannot be animated out of the live action and never promise a visible action that the stage cannot perform.",
 ].join("\n");
 
 /** Call only after the API has validated the request. No provider-specific code. */
@@ -114,6 +116,8 @@ export function buildSceneMessages(
           "On continuation scenes, stage.cast and stage.props only seed new entries; their at values cannot reset existing actors or move existing props. Include the existing cast and props in the stage, add a new character or object only when the story introduces it, and show a new arrival with a walk_to beat when appropriate. Move existing actors with movement beats, and change existing prop ownership only with reachable pick_up or give beats.",
         ] : []),
         "Unless the age rules say otherwise, introduce one or two useful words from this scene, excluding wordsLearned. If no suitable new words remain, return an empty newWords array. Meanings must be short, accurate translations.",
+        `Reviewed learning vocabulary: ${JSON.stringify(lessonVocabulary(request.lesson, request.age, request.language).filter(({ word }) => !request.wordsLearned.some((learned) => expressionKey(learned) === expressionKey(word))))}. Choose newWords only from these exact word/meaning pairs, prioritizing the lesson expression when it fits. Use the chosen expression naturally in a character's line or the narration. Keep the story and choices original; this list constrains learning expressions, not the plot.`,
+        "Proofread every Korean sentence before returning it. Use standard, complete Hangul words and natural particles. Never join Latin letters inside a Hangul word, output broken jamo, or invent sound words. A bilingual example must use complete words separated normally. If unsure of a spelling, use a simpler familiar phrase.",
         "For an ongoing scene, give exactly two distinct, short, actionable choices that a young child can understand.",
         `This is scene ${sceneNumber} of at most ${MAX_SCENES}, including the ending.`,
         finalScene

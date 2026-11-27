@@ -45,6 +45,8 @@ export interface Talk {
   line: SceneLine | null;
   /** True while the line's audio is actually playing. */
   speaking: boolean;
+  /** Normalized amplitude of the audio currently being heard, including its pauses. */
+  level?: number;
   /** A point in the world the cast turns their heads toward while nobody is talking, such as the pointer. */
   watch?: { x: number; y: number; z: number } | null;
 }
@@ -89,7 +91,8 @@ function useFace(id: KayActor, sim: Sim, talk: Talk, cameraSubject?: CameraSubje
     const blink = Math.sin(t * 1.23) > 0.992 || Math.sin(t * 0.79 + 2) > 0.997;
     if (eyes.current) eyes.current.scale.y = MathUtils.damp(eyes.current.scale.y, blink ? 0.06 : mood === "excited" ? 1.1 : 1, 28, delta);
     if (mouth.current) {
-      const opening = talking ? 0.025 + (Math.sin(t * 19) + Math.sin(t * 31) * 0.3 + 1.3) * 0.021 : mood === "surprised" ? 0.065 : 0.016;
+      const level = talking ? MathUtils.clamp(talk.level ?? 0, 0, 1) : 0;
+      const opening = talking ? 0.016 + level * 0.075 : mood === "surprised" ? 0.065 : 0.016;
       mouth.current.scale.y = MathUtils.damp(mouth.current.scale.y, opening, 22, delta);
       mouth.current.scale.x = mood === "surprised" ? 0.052 : talking ? 0.068 : 0.055;
     }
@@ -189,5 +192,5 @@ function KayCharacter({ id, sim, talk, cameraSubject }: { id: KayActor; sim: Sim
 /** Kay's faces for the original four friends; Nabi and Dodo keep Harbir's bodies until they get their own. */
 export function CastMember({ id, sim, talk, cameraSubject }: { id: ActorId; sim: Sim; talk: Talk; cameraSubject?: CameraSubject }) {
   if (isKayActor(id)) return <KayCharacter id={id} sim={sim} talk={talk} cameraSubject={cameraSubject} />;
-  return <Character id={id as Exclude<ActorId, KayActor | "hero">} sim={sim} cameraSubject={cameraSubject} speaking={talk.speaking && talk.line?.speaker === id} />;
+  return <Character id={id as Exclude<ActorId, KayActor | "hero">} sim={sim} cameraSubject={cameraSubject} speaking={talk.speaking && talk.line?.speaker === id} level={talk.level} />;
 }

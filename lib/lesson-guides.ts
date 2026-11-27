@@ -37,7 +37,7 @@ export const LESSON_GUIDES: Record<string, LessonGuide> = {
   },
   sharing: {
     meaning: "Sharing means letting someone else use or have some of what you have.",
-    looksLike: "breaking cookies in half, taking turns with the ball, holding the umbrella over two friends",
+    looksLike: "passing the plate of cookies to a friend, taking turns holding the ball, giving an umbrella to a friend and standing nearby; use supported handoffs, not splitting or eating animations",
     temptation: "keep the thing because Alice wants it too and had it first",
     kidPhrase: "When we share, everyone gets some!",
     openings: ["cookies", "rain_umbrella", "slide_turns", "new_ball"],
@@ -72,7 +72,7 @@ export const LESSON_GUIDES: Record<string, LessonGuide> = {
   },
   teamwork: {
     meaning: "Teamwork means friends each doing a part so they can do something together.",
-    looksLike: "sharing the jobs, saying \"You hold it, I'll pull\", cheering each other on",
+    looksLike: "sharing the jobs, carrying different props, saying \"You carry the book, I'll carry the apple\", handing props to a friend, cheering each other on; use supported walking, pickup, handoff, and clap actions",
     temptation: "try to do it all alone, or let someone else do all the work",
     kidPhrase: "We did it together!",
     openings: ["kite_tree", "picnic_prep", "spilled_apples", "thirsty_garden"],

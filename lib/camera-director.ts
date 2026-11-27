@@ -37,18 +37,39 @@ const interacting = (actor: ActorState) => ["reach", "hug", "help"].includes(act
 
 /** Heights paired with the engine's fixed scenery; water never blocks a lens. */
 const obstacleHeight = [3.8, 6, 1.05, 1.4, 1.4, 0, 0, 0, 0.9, 2.5, 2, 1.5];
+// Walking only needs to avoid the sign's post. A camera must avoid its boards,
+// which extend 0.58 m from the post, including the edge of a character's face.
+const visualObstacles = OBSTACLES.map((obstacle, index) =>
+  index === 11 && obstacle.kind === "circle" ? { ...obstacle, r: 0.62 } : obstacle);
+
+/** Foreground scenery can yield when no frontal camera angle clears the face. */
+export function blocksForegroundView(camera: readonly number[], focus: readonly number[], bounds: {
+  x: number; z: number; radius: number; bottom: number; top: number;
+}): boolean {
+  const dx = camera[0] - focus[0], dz = camera[2] - focus[2];
+  const length2 = dx * dx + dz * dz;
+  if (length2 < 0.01) return false;
+  // A wide board can cross the face or lens even when its post is just beyond
+  // the segment endpoint. Test its distance to the whole segment, not only posts
+  // whose centers fall strictly between the camera and subject.
+  const along = clamp(((bounds.x - focus[0]) * dx + (bounds.z - focus[2]) * dz) / length2, 0, 1);
+  const distance = Math.hypot(bounds.x - focus[0] - along * dx, bounds.z - focus[2] - along * dz);
+  const height = focus[1] + (camera[1] - focus[1]) * along;
+  return distance < bounds.radius + 0.32 && height > bounds.bottom - 0.32 && height < bounds.top + 0.32;
+}
 
 function obstructionCost(x: number, y: number, z: number, actor: ActorState, head: number, actors: ActorState[]): number {
   let cost = 0;
   // Sample the view ray, not just the lens position. This also avoids putting a
   // conversation partner directly between the speaker's face and the camera.
-  for (let step = 1; step <= 12; step++) {
-    const t = step / 12;
+  const steps = Math.max(12, Math.ceil(Math.hypot(x - actor.x, z - actor.z) / 0.12));
+  for (let step = 1; step <= steps; step++) {
+    const t = step / steps;
     const px = actor.x + (x - actor.x) * t;
     const py = head + (y - head) * t;
     const pz = actor.z + (z - actor.z) * t;
-    for (let i = 0; i < OBSTACLES.length; i++) {
-      if (py < obstacleHeight[i] && gap(OBSTACLES[i], px, pz) < 0.18) cost += 2;
+    for (let i = 0; i < visualObstacles.length; i++) {
+      if (py < obstacleHeight[i] && gap(visualObstacles[i], px, pz) < 0.24) cost += 2;
     }
     for (const other of actors) {
       if (other.id !== actor.id && py < CAMERA_CAST[other.id].top && Math.hypot(px - other.x, pz - other.z) < 0.48) cost += 3;

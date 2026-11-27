@@ -1,5 +1,7 @@
 # 한국어 캐릭터 목소리 고르기
 
+현재 메인 앱의 한국어·혼합 문장은 ElevenLabs Multilingual v2를 기본으로 사용합니다. Typecast의 `UNUSUAL_ACTIVITY_DETECTED` 계정 제한은 이 도구로 해제할 수 없습니다. 공급자가 제한을 해제한 뒤 검토한 캐스트로 복귀하려면 `TTS_KOREAN_PROVIDER=typecast`를 설정하세요. Typecast 실패 시에는 설정된 ElevenLabs 계정으로 한 번 대체하며, 계정 차단 응답을 같은 서버에서 반복 요청하지 않습니다. 아래 내용은 선택적인 Typecast 캐스트 준비 절차입니다.
+
 Node 22 이상에서 프로젝트 루트로 이동해 실행합니다. 이 도구는 API에서 실제로 사용 가능한 목소리 ID를 조회하고, 선택한 목소리로 짧은 MP3 세 개와 로컬 비교 페이지를 만듭니다. CLI는 실행한 명령 외의 샘플을 생성하거나 요금제를 구매·변경하지 않습니다.
 
 ## 1. API 키 준비
@@ -63,7 +65,7 @@ node scripts/typecast-voices.mjs sample --voice 목록에서_복사한_voice_id 
 
 ## 4. 앱의 역할별 설정
 
-앱에는 실제 API 목록에서 확인한 캐스팅이 기본으로 들어 있습니다. `TYPECAST_API_KEY`를 설정하면 아래 목소리를 사용하며, `TYPECAST_VOICE_*`는 원하는 역할만 바꾸는 선택 항목입니다. 비어 있으면 기본 목소리를 유지합니다. 기본값과 덮어쓴 ID 모두 실제 API에서 어린이 목소리 여부와 모델 호환성을 확인한 뒤 합성합니다.
+앱에는 실제 API 목록에서 확인한 캐스팅이 들어 있습니다. `TTS_KOREAN_PROVIDER=typecast`와 `TYPECAST_API_KEY`를 설정하면 아래 목소리를 사용하며, `TYPECAST_VOICE_*`는 원하는 역할만 바꾸는 선택 항목입니다. 비어 있으면 기본 목소리를 유지합니다. 기본값과 덮어쓴 ID 모두 실제 API에서 어린이 목소리 여부와 모델 호환성을 확인한 뒤 합성합니다.
 
 ```dotenv
 TYPECAST_API_KEY=

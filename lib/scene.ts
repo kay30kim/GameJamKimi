@@ -82,7 +82,7 @@ async function requestScene(
 
   if (!res.ok || "error" in data) {
     throw new Error(
-      "error" in data
+      "error" in data && data.error.code === "INVALID_REQUEST"
         ? message("이야기 설정을 확인하고 다시 시작해 주세요.", "Please check the story settings and try again.")
         : message("이야기를 준비하다가 문제가 생겼어요. 다시 해 볼까요?", "The story server had a problem. Please try again."),
     );

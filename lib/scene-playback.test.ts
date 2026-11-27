@@ -40,6 +40,7 @@ function playbackHarness(value: SceneResponse, muted = false, previous?: WorldSn
   const requests: SpeechRequest[] = [];
   const segments: { segment: PlaybackSegment; index: number }[] = [];
   const speaking: boolean[] = [];
+  const levels: number[] = [];
   const errors: SpeechErrorCode[] = [];
   let completed: boolean | undefined;
   const playback = new ScenePlayback(value, {
@@ -55,11 +56,12 @@ function playbackHarness(value: SceneResponse, muted = false, previous?: WorldSn
     }),
     onSegment: (segment, index) => segments.push({ segment, index }),
     onSpeaking: (value) => speaking.push(value),
+    onLevel: (level) => levels.push(level),
     onSpeechError: (error) => errors.push(error),
   }, previous);
   const result = playback.play();
   void result.then((value) => { completed = value; });
-  return { playback, requests, segments, speaking, errors, result, get completed() { return completed; } };
+  return { playback, requests, segments, speaking, levels, errors, result, get completed() { return completed; } };
 }
 
 function advance(playback: ScenePlayback, seconds: number) {
@@ -77,6 +79,83 @@ function assertAllBeatsAssigned(value: SceneResponse, expected: number[]) {
   assert.equal(limits.at(-1), value.stage.beats.length);
   assert.ok(limits.every((limit, i) => i === 0 || limit >= limits[i - 1]));
 }
+
+test("a hidden-tab pause freezes actions and captions until audio and timeline resume together", async () => {
+  const h = playbackHarness(scene([{ actor: "hero", action: "walk_to", target: "tree", cue: 0 }]));
+  await flush();
+  h.requests[0].start();
+  advance(h.playback, 0.5);
+  h.playback.pause();
+  const frozen = structuredClone(h.playback.sim.actors);
+  advance(h.playback, 30);
+  h.playback.advance(30);
+  assert.deepEqual(h.playback.sim.actors, frozen, "a background frame must not move the cast");
+  assert.equal(h.segments.length, 1);
+  assert.equal(h.speaking.at(-1), false);
+  h.playback.resume();
+  assert.equal(h.speaking.at(-1), true, "the same unfinished voice resumes its speaking state");
+  advance(h.playback, 0.5);
+  assert.notDeepEqual(h.playback.sim.actors, frozen);
+  h.playback.cancel();
+  assert.equal(await h.result, false);
+});
+
+test("a voice ending at the pause boundary cannot advance the caption while hidden", async () => {
+  const h = playbackHarness(scene([], { narration: "Ready." }));
+  await flush();
+  h.requests[0].start();
+  h.playback.pause();
+  h.requests[0].end();
+  await flush();
+  advance(h.playback, 30);
+  assert.equal(h.segments.length, 1);
+  h.playback.resume();
+  assert.equal(h.speaking.at(-1), false, "finished audio must not animate a mouth after returning");
+  advance(h.playback, 0.4);
+  await flush();
+  assert.equal(h.segments.length, 2);
+  h.playback.cancel();
+});
+
+test("audio levels follow the current voice and reset on pause, completion and cancellation", async () => {
+  const h = playbackHarness(scene([]));
+  await flush();
+  const first = h.requests[0];
+  first.start();
+  first.options.onLevel?.(0.7);
+  assert.equal(h.levels.at(-1), 0.7);
+  h.playback.pause();
+  first.options.onLevel?.(0.9);
+  assert.equal(h.levels.at(-1), 0, "late analyser frames must not animate a paused face");
+  h.playback.resume();
+  first.options.onLevel?.(0.4);
+  assert.equal(h.levels.at(-1), 0.4);
+  first.end();
+  await flush();
+  assert.equal(h.levels.at(-1), 0);
+  advance(h.playback, 0.4);
+  await flush();
+  first.options.onLevel?.(1);
+  assert.equal(h.levels.at(-1), 0, "previous audio must not move the next speaker's mouth");
+  h.requests[1].start();
+  h.requests[1].options.onLevel?.(0.6);
+  h.playback.cancel();
+  h.requests[1].options.onLevel?.(1);
+  assert.equal(h.levels.at(-1), 0);
+});
+
+test("pausing a completed scene does not overwrite its following practice voice", async () => {
+  const h = playbackHarness(scene([], { narration: "Ready.", lines: [] }), true);
+  advance(h.playback, 3);
+  assert.equal(await h.result, true);
+  const speaking = [...h.speaking];
+  const levels = [...h.levels];
+  h.playback.pause();
+  advance(h.playback, 10);
+  h.playback.resume();
+  assert.deepEqual(h.speaking, speaking);
+  assert.deepEqual(h.levels, levels);
+});
 
 test("dialogue sends its emotion to speech without inventing a narration emotion", async () => {
   const h = playbackHarness(scene([{ actor: "hero", action: "wave", cue: 0 }], {

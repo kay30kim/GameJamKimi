@@ -53,6 +53,7 @@ interface PlaybackOptions {
   speak: (text: string, locale: string, options: SpeakOptions) => Promise<SpeakResult>;
   onSegment: (segment: PlaybackSegment, index: number) => void;
   onSpeaking: (speaking: boolean) => void;
+  onLevel?: (level: number) => void;
   onSpeechError?: (error: SpeechErrorCode) => void;
 }
 
@@ -71,10 +72,12 @@ export class ScenePlayback {
   private result: Promise<boolean> | null = null;
   private resolve: ((completed: boolean) => void) | null = null;
   private active = false;
+  private paused = false;
   private completed = false;
   private index = -1;
   private beatLimit = 0;
   private voiceDone = false;
+  private voiceStarted = false;
   private readingLeft = 0;
   private gapLeft: number | null = null;
 
@@ -99,7 +102,7 @@ export class ScenePlayback {
   }
 
   advance(seconds: number): void {
-    if (!Number.isFinite(seconds) || seconds <= 0) return;
+    if (this.paused || !Number.isFinite(seconds) || seconds <= 0) return;
     const dt = Math.min(seconds, 0.1);
     // Choices hold one durable world state for both branch prefetch and rendering.
     // Idle animation advances without moving props or changing the saved emotions.
@@ -137,6 +140,24 @@ export class ScenePlayback {
     this.abort.abort();
     this.resolve?.(false);
     this.resolve = null;
+    this.options.onLevel?.(0);
+  }
+
+  /** The owner pauses the shared audio player too, including practice speech. */
+  pause(): void {
+    if (this.paused) return;
+    this.paused = true;
+    // Once this scene is complete, practice/choice speech owns the face.
+    if (this.active) {
+      this.options.onSpeaking(false);
+      this.options.onLevel?.(0);
+    }
+  }
+
+  resume(): void {
+    if (!this.paused) return;
+    this.paused = false;
+    if (this.active && this.voiceStarted && !this.voiceDone) this.options.onSpeaking(true);
   }
 
   /** Skipping still applies every remaining interaction before presenting choices. */
@@ -149,6 +170,7 @@ export class ScenePlayback {
   private beginSegment(index: number): void {
     this.index = index;
     this.voiceDone = false;
+    this.voiceStarted = false;
     this.readingLeft = 0;
     this.gapLeft = null;
     const segment = this.segments[index];
@@ -163,6 +185,7 @@ export class ScenePlayback {
     const current = () => this.active && this.index === index;
     this.options.onSegment(segment, index);
     this.options.onSpeaking(false);
+    this.options.onLevel?.(0);
     const captions = () => {
       this.beatLimit = speakingLimit;
       this.readingLeft = Math.max(1.8, segment.text.length * 0.07);
@@ -173,18 +196,23 @@ export class ScenePlayback {
     const onStart = () => {
       if (!current() || started) return;
       started = true;
+      this.voiceStarted = true;
       this.beatLimit = speakingLimit;
-      this.options.onSpeaking(true);
+      this.options.onSpeaking(!this.paused);
     };
     // Defer invocation so a synchronous adapter failure uses the same caption fallback.
     void Promise.resolve().then(() => {
       if (!current()) return { started: false, cancelled: true };
       return this.options.speak(segment.text, this.options.locale, {
         voice: segment.voice, emotion: segment.line?.emotion, onStart, signal: this.abort.signal,
+        onLevel: (level) => {
+          if (current() && this.voiceStarted && !this.voiceDone && !this.paused) this.options.onLevel?.(level);
+        },
       });
     }).then((result: SpeakResult) => {
       if (!current()) return;
       this.options.onSpeaking(false);
+      this.options.onLevel?.(0);
       if (result.error && !result.cancelled && !this.options.isMuted()) this.options.onSpeechError?.(result.error);
       if (!started || !result.started || result.cancelled || result.error) captions();
       else {
@@ -194,6 +222,7 @@ export class ScenePlayback {
     }, () => {
       if (!current()) return;
       this.options.onSpeaking(false);
+      this.options.onLevel?.(0);
       if (!this.options.isMuted()) this.options.onSpeechError?.("TTS_UPSTREAM_ERROR");
       captions();
     });

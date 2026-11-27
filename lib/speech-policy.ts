@@ -6,8 +6,9 @@ export function needsKoreanVoice(text: string, locale: string): boolean {
 export type SpeechErrorCode =
   | "TTS_NOT_CONFIGURED"
   | "TTS_UPSTREAM_ERROR"
+  | "TTS_PROVIDER_BLOCKED"
   | "TTS_TIMEOUT"
   | "TTS_PLAYBACK_ERROR";
 
 // Old Korean blobs must not survive a provider or casting-policy change.
-export const VOICE_CACHE_REVISION = "typecast-child-v1";
+export const VOICE_CACHE_REVISION = "multilingual-resilience-v2";

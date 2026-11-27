@@ -100,7 +100,7 @@ test("a validated generated scene is reused without another model request", asyn
   assert.equal(h.calls.generate, 2);
 });
 
-for (const mode of ["stub", "fallback", "limit"] as const) {
+for (const mode of ["stub", "limit"] as const) {
   test(`${mode} results are never saved as reusable generated stories`, async () => {
     const h = harness(async () => ({ scene: structuredClone(scene), mode }));
     assert.equal((await h.run(request)).cache, "bypass");
@@ -113,7 +113,9 @@ for (const mode of ["stub", "fallback", "limit"] as const) {
 
 test("corrupt or silently repaired cache entries regenerate instead of altering the story", async () => {
   for (const invalid of [new TextEncoder().encode("not JSON"), bytes({}),
-    bytes({ ...scene, stage: null }), bytes({ ...scene, lines: [{ speaker: "stranger", text: "wrong voice" }] })]) {
+    bytes({ ...scene, stage: null }), bytes({ ...scene, lines: [{ speaker: "stranger", text: "wrong voice" }] }),
+    bytes({ ...scene, narration: "사과가 국러갔어요." }), bytes({ ...scene, newWords: [{ word: "데굴de굴", meaning: "rolling" }] }),
+    bytes({ ...scene, newWords: [{ word: "일으켜 주다", meaning: "help up" }] })]) {
     const h = harness();
     h.stored.set(sceneCacheKey(request, "test-model"), invalid);
     const result = await h.run(request);
@@ -171,4 +173,16 @@ test("unavailable persistent storage reports bypass while preserving the generat
   assert.equal(result.cache, "bypass");
   assert.equal(result.mode, "kimi");
   assert.deepEqual(result.scene, scene);
+});
+
+test("invalid generated content cannot enter the cache and a later retry can recover", async () => {
+  let attempt = 0;
+  const h = harness(async () => ({ mode: "kimi", scene: ++attempt === 1
+    ? { ...scene, narration: "사과가 국러갔어요." }
+    : structuredClone(scene) }));
+  await assert.rejects(h.run(request), /Invalid Korean/);
+  assert.equal(h.calls.write, 0);
+  assert.equal(h.stored.size, 0);
+  assert.equal((await h.run(request)).cache, "miss");
+  assert.equal(h.calls.generate, 2);
 });

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { PerspectiveCamera, Vector3 } from "three";
-import { CAMERA_CAST, needsCameraCut, planCamera, wrapCameraAngle } from "./camera-director";
+import { Box3, Euler, Matrix4, PerspectiveCamera, Quaternion, Ray, Vector3 } from "three";
+import { blocksForegroundView, CAMERA_CAST, needsCameraCut, planCamera, wrapCameraAngle } from "./camera-director";
 import type { CameraInput, CameraShot, CameraSubjects } from "./camera-director";
 import { createSim } from "./harbir/sim";
 import type { ActorState, Sim } from "./harbir/sim";
@@ -225,6 +225,48 @@ test("the camera picks the clear side when another actor blocks its preferred vi
   assert.ok(rayClearance(clear) < 0.2, "fixture must obstruct the initial view");
   assert.ok(rayClearance(adjusted) > 0.48, "chosen ray should clear the blocking actor");
   assert.ok(frontAngle(adjusted, hero, 0) <= 0.86, "avoidance must still show the front of the face");
+});
+
+test("portrait and desktop dialogue clear the sign's full boards or fade the foreground obstruction", () => {
+  // Exact upper-board transform from Signpost, rather than its narrow walking collider.
+  const transform = new Matrix4().compose(new Vector3(-1.7, 0, 1.2),
+    new Quaternion().setFromEuler(new Euler(0, 0.3, 0)), new Vector3(1, 1, 1));
+  transform.multiply(new Matrix4().compose(new Vector3(0.28, 1.08, 0),
+    new Quaternion().setFromEuler(new Euler(0, 0, 0.06)), new Vector3(1, 1, 1)));
+  const inverse = transform.invert();
+  const board = new Box3(new Vector3(-0.3, -0.09, -0.025), new Vector3(0.3, 0.09, 0.025));
+  const bounds = { x: -1.7, z: 1.2, radius: 0.62, bottom: 0, top: 1.42 };
+  const hitsBoard = (camera: number[], face: Vector3) => {
+    const from = face.clone().applyMatrix4(inverse);
+    const to = new Vector3(...camera).applyMatrix4(inverse);
+    const hit = new Ray(from, to.clone().sub(from).normalize()).intersectBox(board, new Vector3());
+    return !!hit && hit.distanceTo(from) < to.distanceTo(from);
+  };
+  const formerCamera = [2.0198969166841154, 1.394, 3.8799990236753192];
+  assert.ok(hitsBoard(formerCamera, new Vector3(-1.6, CAMERA_CAST.hero.head, 0.7)), "fixture reproduces the board crossing Alice's face");
+  assert.ok(blocksForegroundView(formerCamera, [-1.6, 1.274, 0.7], bounds), "the fade must cover the previously missed board");
+  for (const [width, height] of [[425, 687], [1440, 900]]) {
+    const sim = simulation(["hero"]);
+    const hero = sim.actors.hero!;
+    Object.assign(hero, { x: -1.6, z: 0.7, heading: 0 });
+    const value = shot(input(sim, { aspect: width / height, elapsed: 7, frame: { top: 0.12, bottom: 0.45 } }));
+    for (const offset of [-0.16, 0, 0.16]) {
+      if (hitsBoard(value.position, new Vector3(hero.x + offset, CAMERA_CAST.hero.head, hero.z))) {
+        assert.ok(blocksForegroundView(value.position, value.target, bounds), `${width}x${height}: a board covering any part of the face must yield`);
+      }
+    }
+  }
+  assert.equal(blocksForegroundView([0, 2, 5], [0, 1, 0], { ...bounds, x: 0, z: -1 }), false, "scenery behind the actor stays opaque");
+  assert.equal(blocksForegroundView([0, 6, 5], [0, 5, 0], { ...bounds, x: 0, z: 2 }), false, "scenery below the view stays opaque");
+});
+
+test("foreground boards overlapping the face or lens fade even when their posts lie beyond the view segment", () => {
+  const bounds = { x: 0, z: -0.3, radius: 0.62, bottom: 0, top: 1.42 };
+  const camera = [0, 1.4, 5], face = [0, 1.008, 0];
+  assert.ok(blocksForegroundView(camera, face, bounds), "the near edge crosses the face while its post is behind it");
+  assert.ok(blocksForegroundView(camera, face, { ...bounds, z: 5.3 }), "the board crosses the lens while its post is behind it");
+  assert.equal(blocksForegroundView(camera, face, { ...bounds, z: -1 }), false);
+  assert.equal(blocksForegroundView(camera, face, { ...bounds, z: 6 }), false);
 });
 
 test("empty cast has no shot", () => {

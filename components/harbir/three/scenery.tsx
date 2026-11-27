@@ -1,10 +1,12 @@
 "use client";
 
 import { useLayoutEffect, useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import type { ReactNode } from "react";
-import { Color, Object3D } from "three";
-import type { InstancedMesh } from "three";
+import { Color, MathUtils, Object3D } from "three";
+import type { Group, InstancedMesh, Material, Mesh, Vector3 } from "three";
 import { PALETTE, ROUGHNESS } from "@/lib/harbir/style";
+import { blocksForegroundView } from "@/lib/camera-director";
 import { SAMPLES } from "./paths";
 import { Mat, seeded } from "./primitives";
 import type { Vec3 } from "./primitives";
@@ -66,8 +68,30 @@ export function Hills() {
 /** A wooden signpost on the village green, pointing down the paths. */
 export function Signpost({ position }: { position: Vec3 }) {
   const wood = useTexture("wood");
+  const ref = useRef<Group>(null);
+  const materials = useRef<Material[] | null>(null);
+  useFrame(({ camera }, delta) => {
+    if (!materials.current) {
+      const found: Material[] = [];
+      ref.current?.traverse((object) => {
+        const material = (object as Mesh).material;
+        if (material) found.push(...(Array.isArray(material) ? material : [material]));
+      });
+      for (const material of found) material.transparent = true;
+      materials.current = found;
+    }
+    const focus = camera.userData.storyFocus as Vector3 | undefined;
+    const obscures = focus && blocksForegroundView(camera.position.toArray(), focus.toArray(), {
+      x: position[0], z: position[2], radius: 0.62, bottom: position[1], top: position[1] + 1.42,
+    });
+    for (const material of materials.current) {
+      // A sign is decorative; a child's view of the speaker takes precedence.
+      material.opacity = MathUtils.damp(material.opacity, obscures ? 0.08 : 1, 12, Math.min(delta, 0.1));
+      material.depthWrite = material.opacity > 0.95;
+    }
+  });
   return (
-    <group position={position} rotation={[0, 0.3, 0]}>
+    <group ref={ref} position={position} rotation={[0, 0.3, 0]}>
       <mesh position={[0, 0.65, 0]} castShadow><cylinderGeometry args={[0.06, 0.07, 1.3, 8]} /><Mat color={PALETTE.woodDark} map={wood} /></mesh>
       <mesh position={[0.28, 1.08, 0]} rotation={[0, 0, 0.06]} castShadow><boxGeometry args={[0.6, 0.18, 0.05]} /><Mat color={PALETTE.wood} map={wood} /></mesh>
       <mesh position={[-0.24, 0.82, 0.02]} rotation={[0, 0.5, -0.05]} castShadow><boxGeometry args={[0.52, 0.16, 0.05]} /><Mat color={PALETTE.wood} map={wood} /></mesh>
