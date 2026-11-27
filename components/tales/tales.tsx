@@ -504,7 +504,7 @@ export default function Tales({ loadScene = fetchScene, warmScene = prefetch, sp
       {phase === "home" ? <Landing home={home} age={age} language={language} lesson={lesson} ownLesson={ownLesson} onAge={setAge} onLanguage={setLanguage} onLesson={(id) => { setLesson(id); setOpening(randomOpening(id)); }} onOwnLesson={setOwnLesson} onStart={start} /> : <>
         <div className={styles.episode}>
           <span className={styles.episodeIcon} style={{ color: lessonCard?.color ?? OWN_CARD.color }}><Icon name={lessonCard?.icon ?? "spark"} size={18} /></span>
-          <div><strong>{lessonCard?.name[home] ?? settings?.lesson}</strong><span>{t(`${scenesPlayed}번째 장면`, `Scene ${scenesPlayed}`)}</span></div>
+          <div><strong>{lessonCard?.name[home] ?? settings?.lesson}</strong><span>{scenesPlayed > 0 ? t(`${scenesPlayed}번째 장면`, `Scene ${scenesPlayed}`) : t("이야기 준비 중", "Getting ready")}</span></div>
         </div>
 
         {phase === "loading" && !error && <div className={styles.thinking} role="status"><span className={styles.spinner} />{t("앨리스가 다음 이야기를 쓰고 있어요...", "Alice is writing what happens next...")}</div>}
