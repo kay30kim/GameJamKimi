@@ -81,6 +81,9 @@ test("corrupt learning content is regenerated with quality guidance and is never
     { ...good, newWords: [{ word: "데굴de굴", meaning: "rolling" }] },
     { ...good, lines: [{ speaker: "hero", text: "우산을 걸베주고 가자." }] },
     { ...good, narration: "도도가 넘어졌어요. 사과가 굴러갔어요." },
+    { ...good, narration: "앨리스와 도도가 벤치에 나란히 앉아 쉬어요." },
+    { ...good, choices: ["도도와 벤치에 앉아 쉬어요.", "함께 걸어요."] },
+    { ...good, choices: ["사과를 길에 두고 공놀이를 하러 가요.", "함께 걸어요."] },
   ]) {
     const bodies: string[] = [];
     const result = await generateScene({ ...input, language: "ko" }, { apiKey: "test", fetcher: async (_url, init) => {

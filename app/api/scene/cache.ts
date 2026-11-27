@@ -5,7 +5,7 @@ import type { SceneRequest, SceneResponse } from "./contract";
 import { parseScene } from "./validation";
 import { validateSceneContent } from "./content-quality";
 
-const SCENE_CACHE_REVISION = "scene-v2-reviewed-learning-renderable-openings";
+const SCENE_CACHE_REVISION = "scene-v3-ground-seating-supported-prop-choices";
 type SceneResult = Awaited<ReturnType<typeof generateScene>>;
 export type CachedSceneResult = SceneResult & { cache: "hit" | "miss" | "bypass" };
 

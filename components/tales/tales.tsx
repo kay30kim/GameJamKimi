@@ -535,7 +535,7 @@ export default function Tales({ loadScene = fetchScene, warmScene = prefetch, sp
             <div className={styles.practiceActions}>
               <div className={styles.practiceButtons}>
                 <button disabled={sayState === "listening"} onClick={() => sayPractice(practiceInvitation(settings.language, scene.newWords[0].word), settings.language)}><Icon name="volume" size={18} />{t("다시 듣기", "Listen again")}</button>
-                {canListen && sayState !== "yay" && <button className={styles.micButton} onClick={() => void sayWord()} disabled={sayState === "listening" || paused}><Icon name="mic" size={23} />{sayState === "listening" ? t("듣고 있어!", "I’m listening!") : t("말해 보기", "Try saying it")}</button>}
+                {canListen && sayState !== "yay" && <button className={styles.micButton} data-listening={sayState === "listening"} onClick={() => void sayWord()} disabled={sayState === "listening" || paused}><Icon name="mic" size={23} />{sayState === "listening" ? t("듣고 있어!", "I’m listening!") : t("말해 보기", "Try saying it")}</button>}
               </div>
               {sayState === "listening" && <p className={styles.feedback} role="status">{t("네 목소리를 기다리고 있어...", "Alice is waiting for your voice...")}</p>}
               {practiceFeedback && <p className={styles.practiceFeedback} role="status">{practiceFeedback}</p>}

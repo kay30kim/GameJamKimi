@@ -87,7 +87,7 @@ export const LESSON_GUIDES: Record<string, LessonGuide> = {
   },
   table_manners: {
     meaning: "Mealtimes feel comfortable when we ask kindly, take turns, and listen to our bodies.",
-    looksLike: "asking \"May I have an apple, please?\", waiting for a turn with the cookies, finishing chewing and swallowing before speaking, sitting calmly for a picnic, saying \"No thank you\" or \"I'm full\" when needed",
+    looksLike: "asking \"May I have an apple, please?\", waiting for a turn with the cookies, finishing chewing and swallowing before speaking, sitting calmly on the grass for a picnic, saying \"No thank you\" or \"I'm full\" when needed",
     temptation: "reach for a cookie before asking or rush to tell a story before finishing a mouthful; never make hunger, fullness, food preferences, or refusing food the wrong choice",
     kidPhrase: "Please and thank you make our picnic friendly!",
     guardrails: "Use a gentle picnic on the meadow path or near the bench with only supported apple or cookies props. No kitchen, dining table, dishes, utensils, or invented eating animations; show sitting, waiting, asking, and handing over food with supported beats, and mention chewing and swallowing in simple dialogue when relevant. Never pressure a child to taste food, take more bites, finish a plate, or ignore hunger or fullness. No food shaming, good-food/bad-food labels, rewards for eating, or guilt about waste. Declining food and asking for more when hungry are both valid. Teach calmly asking please, waiting for a turn, swallowing before speaking, and sitting comfortably; no choking scares or punishment.",

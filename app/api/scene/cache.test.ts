@@ -115,7 +115,9 @@ test("corrupt or silently repaired cache entries regenerate instead of altering 
   for (const invalid of [new TextEncoder().encode("not JSON"), bytes({}),
     bytes({ ...scene, stage: null }), bytes({ ...scene, lines: [{ speaker: "stranger", text: "wrong voice" }] }),
     bytes({ ...scene, narration: "사과가 국러갔어요." }), bytes({ ...scene, newWords: [{ word: "데굴de굴", meaning: "rolling" }] }),
-    bytes({ ...scene, newWords: [{ word: "일으켜 주다", meaning: "help up" }] })]) {
+    bytes({ ...scene, newWords: [{ word: "일으켜 주다", meaning: "help up" }] }),
+    bytes({ ...scene, narration: "앨리스와 도도가 벤치에 나란히 앉아 쉬어요." }),
+    bytes({ ...scene, choices: ["도도와 벤치에 앉아 쉬어요.", "함께 걸어요."] })]) {
     const h = harness();
     h.stored.set(sceneCacheKey(request, "test-model"), invalid);
     const result = await h.run(request);
